@@ -1,0 +1,24 @@
+name: Self-hosted smoke
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Edition smoke (selfhosted)
+        env:
+          APP_EDITION: selfhosted
+          DATABASE_URL: postgresql://nikafit:nikafit@127.0.0.1:5432/nika_fitness
+        run: python scripts/smoke_editions.py
