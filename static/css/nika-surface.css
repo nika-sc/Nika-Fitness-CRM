@@ -1,0 +1,61 @@
+/* Shared visual polish for non-admin Nika Fit surfaces. */
+:root {
+  --nika-focus: rgba(255, 90, 60, .32);
+  --nika-glow: 0 18px 48px rgba(0, 0, 0, .32);
+}
+
+.nika-surface {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.nika-surface ::selection {
+  color: #fff;
+  background: rgba(255, 90, 60, .72);
+}
+
+.nika-surface :where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--nika-focus);
+  outline-offset: 2px;
+}
+
+.nika-surface :where(.panel, .login-card, .club-glass, .club-card) {
+  box-shadow: var(--nika-glow);
+}
+
+.nika-surface :where(input, select, textarea) {
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.nika-surface :where(input, select, textarea):focus {
+  border-color: rgba(255, 90, 60, .66);
+  box-shadow: 0 0 0 .2rem rgba(255, 90, 60, .12);
+}
+
+.nika-surface :where(.btn, button) {
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.nika-surface :where(.btn, button):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.nika-surface :where(.btn, button):active {
+  transform: translateY(0);
+}
+
+.nika-surface img {
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nika-surface *,
+  .nika-surface *::before,
+  .nika-surface *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,34 +1,41 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Редактирование' if member else 'Новый клиент' }} — Nika Fitness{% endblock %}
 {% block content %}
-<div class="topbar"><h1>{{ 'Редактирование' if member else 'Новый клиент' }}</h1></div>
-<form class="panel" method="post" enctype="multipart/form-data" style="max-width:720px;">
+<div class="topbar">
+  <div>
+    <h1>{{ 'Редактирование' if member else 'Новый клиент' }}</h1>
+    <p class="muted">{% if member %}Обновление карточки {{ member.full_name }}{% else %}Создание карточки с уникальным номером{% endif %}</p>
+  </div>
+  <a class="btn secondary" href="{{ url_for('members.list_members') if not member else url_for('members.detail', member_id=member.id) }}">Назад</a>
+</div>
+
+<form class="panel form-panel" method="post" enctype="multipart/form-data" style="max-width:760px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <label>ФИО</label>
-  <input name="full_name" required value="{{ member.full_name if member else '' }}">
-  <div class="form-row">
-    <div>
-      <label>Телефон</label>
-      <input name="phone" value="{{ member.phone if member else '' }}">
+  <label class="form-label">ФИО</label>
+  <input class="form-control" name="full_name" required value="{{ member.full_name if member else '' }}">
+  <div class="row g-3 mt-1">
+    <div class="col-md-6">
+      <label class="form-label">Телефон</label>
+      <input class="form-control" name="phone" value="{{ member.phone if member else '' }}">
     </div>
-    <div>
-      <label>Email</label>
-      <input type="email" name="email" value="{{ member.email if member else '' }}">
+    <div class="col-md-6">
+      <label class="form-label">Email</label>
+      <input class="form-control" type="email" name="email" value="{{ member.email if member else '' }}">
     </div>
   </div>
   {% if member %}
-  <label>Статус</label>
-  <select name="status">
+  <label class="form-label mt-3">Статус</label>
+  <select class="form-select" name="status">
     <option value="active" {% if member.status=='active' %}selected{% endif %}>active</option>
     <option value="inactive" {% if member.status=='inactive' %}selected{% endif %}>inactive</option>
   </select>
   {% endif %}
-  <label>Заметки</label>
-  <textarea name="notes" rows="3">{{ member.notes if member else '' }}</textarea>
-  <label>Фото</label>
-  <input type="file" name="photo" accept="image/jpeg,image/png,image/webp">
-  <div style="margin-top:1rem;display:flex;gap:.6rem;">
-    <button type="submit">Сохранить</button>
+  <label class="form-label mt-3">Заметки</label>
+  <textarea class="form-control" name="notes" rows="3">{{ member.notes if member else '' }}</textarea>
+  <label class="form-label mt-3">Фото</label>
+  <input class="form-control" type="file" name="photo" accept="image/jpeg,image/png,image/webp">
+  <div class="mt-4 d-flex gap-2 flex-wrap">
+    <button type="submit"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Сохранить</button>
     <a class="btn secondary" href="{{ url_for('members.list_members') }}">Отмена</a>
   </div>
 </form>

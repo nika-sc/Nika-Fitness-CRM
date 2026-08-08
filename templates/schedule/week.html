@@ -1,64 +1,97 @@
 {% extends "base.html" %}
 {% block title %}Расписание{% endblock %}
 {% block content %}
+{% set ns = namespace(day=None) %}
 <div class="topbar">
   <div>
     <h1>Расписание</h1>
     <p class="muted">Неделя с {{ week_start.strftime('%d.%m.%Y') }}</p>
   </div>
-  <div style="display:flex;gap:.5rem;">
-    <a class="btn secondary" href="{{ url_for('schedule.week', week=prev_week) }}">←</a>
-    <a class="btn secondary" href="{{ url_for('schedule.week', week=next_week) }}">→</a>
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <div class="btn-group week-nav" role="group" aria-label="Навигация по неделям">
+      <a class="btn secondary" href="{{ url_for('schedule.week', week=prev_week) }}" aria-label="Предыдущая неделя"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+      <a class="btn secondary" href="{{ url_for('schedule.week', week=next_week) }}" aria-label="Следующая неделя"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+    </div>
     {% if has_permission('manage_schedule') %}
-    <a class="btn secondary" href="{{ url_for('schedule.types') }}">Типы занятий</a>
+    <a class="btn secondary" href="{{ url_for('schedule.types') }}"><i class="bi bi-tags me-1" aria-hidden="true"></i>Типы занятий</a>
     {% endif %}
   </div>
 </div>
 
-<div class="grid grid-2">
-  <div class="panel">
-    <table class="table">
-      <tr><th>Когда</th><th>Занятие</th><th>Тренер</th><th>Зал</th><th>Места</th><th>Цена</th></tr>
+<div class="row g-3">
+  <div class="{% if has_permission('manage_schedule') %}col-xl-8{% else %}col-12{% endif %}">
+    <div class="panel schedule-week p-0 overflow-hidden">
       {% for s in sessions %}
-      <tr>
-        <td><a href="{{ url_for('schedule.session_detail', session_id=s.id) }}">{{ s.starts_at.strftime('%a %d.%m %H:%M') }}</a></td>
-        <td>{{ s.class_name }}</td>
-        <td>{{ s.trainer_name or '—' }}</td>
-        <td>{{ s.room_name }}</td>
-        <td>{{ s.booked_count }}/{{ s.capacity }}</td>
-        <td>{{ '%.0f'|format(s.price_cents/100) }} ₽</td>
-      </tr>
+        {% set d = s.starts_at.date() %}
+        {% if ns.day != d %}
+          {% if ns.day is not none %}</div>{% endif %}
+          {% set ns.day = d %}
+          <div class="schedule-day">
+            <div class="schedule-day-head">
+              <strong>{{ ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'][s.starts_at.weekday()] }}</strong>
+              <span class="muted">{{ s.starts_at.strftime('%d.%m.%Y') }}</span>
+            </div>
+        {% endif %}
+            <a class="schedule-item" href="{{ url_for('schedule.session_detail', session_id=s.id) }}">
+              <div class="schedule-time">{{ s.starts_at.strftime('%H:%M') }}</div>
+              <div class="schedule-body">
+                <strong>{{ s.class_name }}</strong>
+                <div class="muted small">{{ s.trainer_name or 'Без тренера' }} · {{ s.room_name }}</div>
+              </div>
+              <div class="schedule-meta">
+                <span class="pill {{ 'warn' if (s.booked_count or 0) >= s.capacity else 'ok' }}">{{ s.booked_count }}/{{ s.capacity }}</span>
+                <span class="price">{{ '%.0f'|format(s.price_cents/100) }} ₽</span>
+              </div>
+            </a>
       {% else %}
-      <tr><td colspan="6" class="muted">На эту неделю занятий нет</td></tr>
+        <div class="p-4 muted">На эту неделю занятий нет</div>
       {% endfor %}
-    </table>
+      {% if ns.day is not none %}</div>{% endif %}
+    </div>
   </div>
+
   {% if has_permission('manage_schedule') %}
-  <div class="panel">
-    <h3>Новое занятие</h3>
-    <form method="post" action="{{ url_for('schedule.create_session', week=week_start.date().isoformat()) }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Тип</label>
-      <select name="class_type_id" required>
-        {% for t in class_types %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
-      </select>
-      <label>Тренер</label>
-      <select name="trainer_id">
-        <option value="">—</option>
-        {% for t in trainers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}
-      </select>
-      <div class="form-row">
-        <div><label>Начало</label><input type="datetime-local" name="starts_at" required></div>
-        <div><label>Конец</label><input type="datetime-local" name="ends_at"></div>
+  <div class="col-xl-4">
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="mb-0"><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Новое занятие</h3>
       </div>
-      <div class="form-row">
-        <div><label>Зал</label><input name="room_name" value="Зал 1"></div>
-        <div><label>Вместимость</label><input type="number" name="capacity"></div>
-      </div>
-      <label>Цена, ₽ (пусто = из типа)</label>
-      <input type="number" name="price" step="1">
-      <button style="margin-top:.8rem;" type="submit">Добавить</button>
-    </form>
+      <form method="post" action="{{ url_for('schedule.create_session', week=week_start.date().isoformat()) }}" class="mt-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label">Тип</label>
+        <select class="form-select" name="class_type_id" required>
+          {% for t in class_types %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+        </select>
+        <label class="form-label mt-2">Тренер</label>
+        <select class="form-select" name="trainer_id">
+          <option value="">—</option>
+          {% for t in trainers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}
+        </select>
+        <div class="row g-2 mt-1">
+          <div class="col-sm-6">
+            <label class="form-label">Начало</label>
+            <input class="form-control" type="datetime-local" name="starts_at" required>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Конец</label>
+            <input class="form-control" type="datetime-local" name="ends_at">
+          </div>
+        </div>
+        <div class="row g-2 mt-1">
+          <div class="col-sm-6">
+            <label class="form-label">Зал</label>
+            <input class="form-control" name="room_name" value="Зал 1">
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Вместимость</label>
+            <input class="form-control" type="number" name="capacity">
+          </div>
+        </div>
+        <label class="form-label mt-2">Цена, ₽ (пусто = из типа)</label>
+        <input class="form-control" type="number" name="price" step="1">
+        <button class="mt-3" type="submit">Добавить</button>
+      </form>
+    </div>
   </div>
   {% endif %}
 </div>

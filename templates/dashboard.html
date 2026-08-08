@@ -13,17 +13,17 @@
 </div>
 
 <div class="grid grid-4">
-  <div class="panel stat"><span class="muted">Активные клиенты</span><strong>{{ summary.active_members }}</strong></div>
-  <div class="panel stat"><span class="muted">Активные абонементы</span><strong>{{ summary.active_memberships }}</strong></div>
-  <div class="panel stat"><span class="muted">Записи из ЛК (24ч)</span><strong>{{ summary.portal_bookings_24h }}</strong></div>
-  <div class="panel stat"><span class="muted">Оплаты за 7 дней</span><strong>{{ '%.0f'|format(summary.payments_week_cents / 100) }} ₽</strong></div>
+  <div class="panel stat"><i class="bi bi-people stat-icon"></i><span class="muted">Активные клиенты</span><strong>{{ summary.active_members }}</strong></div>
+  <div class="panel stat"><i class="bi bi-card-checklist stat-icon"></i><span class="muted">Активные абонементы</span><strong>{{ summary.active_memberships }}</strong></div>
+  <div class="panel stat"><i class="bi bi-calendar-check stat-icon"></i><span class="muted">Записи из ЛК (24ч)</span><strong>{{ summary.portal_bookings_24h }}</strong></div>
+  <div class="panel stat"><i class="bi bi-wallet2 stat-icon"></i><span class="muted">Оплаты за 7 дней</span><strong>{{ '%.0f'|format(summary.payments_week_cents / 100) }} ₽</strong></div>
 </div>
 
 <div class="grid grid-4" style="margin-top:1rem;">
-  <div class="panel stat"><span class="muted">Заполняемость недели</span><strong>{{ summary.avg_fill_pct }}%</strong></div>
-  <div class="panel stat"><span class="muted">Отмены (7 дн.)</span><strong>{{ summary.cancelled_week }}</strong></div>
-  <div class="panel stat"><span class="muted">No-show (7 дн.)</span><strong>{{ summary.noshows_week }}</strong></div>
-  <div class="panel stat"><span class="muted">Гости сегодня</span><strong>{{ summary.guests_today }}</strong></div>
+  <div class="panel stat"><i class="bi bi-graph-up-arrow stat-icon"></i><span class="muted">Заполняемость недели</span><strong>{{ summary.avg_fill_pct }}%</strong></div>
+  <div class="panel stat"><i class="bi bi-x-circle stat-icon"></i><span class="muted">Отмены (7 дн.)</span><strong>{{ summary.cancelled_week }}</strong></div>
+  <div class="panel stat"><i class="bi bi-person-x stat-icon"></i><span class="muted">No-show (7 дн.)</span><strong>{{ summary.noshows_week }}</strong></div>
+  <div class="panel stat"><i class="bi bi-person-plus stat-icon"></i><span class="muted">Гости сегодня</span><strong>{{ summary.guests_today }}</strong></div>
 </div>
 
 <div class="grid grid-2" style="margin-top:1rem;">

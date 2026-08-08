@@ -1,28 +1,61 @@
 {% extends "base.html" %}
 {% block title %}Типы занятий{% endblock %}
 {% block content %}
-<div class="topbar"><h1>Типы занятий</h1></div>
-<div class="grid grid-2">
-  <div class="panel">
-    <table class="table">
-      <tr><th>Название</th><th>Цена</th><th>Вместимость</th></tr>
-      {% for t in types %}
-      <tr><td>{{ t.name }}</td><td>{{ '%.0f'|format(t.default_price_cents/100) }} ₽</td><td>{{ t.default_capacity }}</td></tr>
-      {% endfor %}
-    </table>
+<div class="topbar">
+  <div>
+    <h1>Типы занятий</h1>
+    <p class="muted">Базовые цены и вместимость для расписания</p>
   </div>
-  <div class="panel">
-    <h3>Добавить тип</h3>
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Название</label><input name="name" required>
-      <label>Описание</label><input name="description">
-      <div class="form-row">
-        <div><label>Цена, ₽</label><input type="number" name="price" value="0"></div>
-        <div><label>Вместимость</label><input type="number" name="capacity" value="15"></div>
+  <a class="btn secondary" href="{{ url_for('schedule.week') }}">К расписанию</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="panel p-0 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr><th>Название</th><th>Цена</th><th>Вместимость</th></tr>
+          </thead>
+          <tbody>
+            {% for t in types %}
+            <tr>
+              <td><strong>{{ t.name }}</strong></td>
+              <td>{{ '%.0f'|format(t.default_price_cents/100) }} ₽</td>
+              <td>{{ t.default_capacity }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="muted p-4">Типов пока нет</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      <button style="margin-top:.8rem;" type="submit">Сохранить</button>
-    </form>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="mb-0"><i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Добавить тип</h3>
+      </div>
+      <form method="post" class="mt-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label">Название</label>
+        <input class="form-control" name="name" required>
+        <label class="form-label mt-2">Описание</label>
+        <input class="form-control" name="description">
+        <div class="row g-2 mt-1">
+          <div class="col-sm-6">
+            <label class="form-label">Цена, ₽</label>
+            <input class="form-control" type="number" name="price" value="0">
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Вместимость</label>
+            <input class="form-control" type="number" name="capacity" value="15">
+          </div>
+        </div>
+        <button class="mt-3" type="submit">Сохранить</button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -4,9 +4,12 @@
 
 ## 2026-08-08
 
+- Новый responsive staff-интерфейс на локально vendored AdminLTE 4.2.0 / Bootstrap 5.3.8 в теме Nika Fit.
+- Сгруппированное RBAC-меню, mobile sidebar, обновлённые cards/forms/tables и accessibility.
 - USER_GUIDE и USER_WALKTHROUGH: подробные сценарии со скриншотами всех ключевых экранов (`docs/assets/walkthrough/`).
 - Публичный README: оглавление, функции, установка Linux/Windows, архитектура, security (self-hosted).
 - Issue templates (bug / feature), CONTRIBUTING / SECURITY для OSS-снимка.
+- Блог и updates: публичный self-hosted, галерея CRM на лендинге.
 - Публичные страницы: `/docs`, `/blog`, `/updates`.
 - Миграция `012_booking_tracking` (источник записи, метки времени).
 - Безопасная запись/отмена из ЛК и блоки portal-записей на dashboard.

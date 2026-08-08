@@ -2,7 +2,8 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Киоск</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-</head><body>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
+</head><body class="nika-surface">
 <div class="login-page"><div class="login-card" style="max-width:32rem;">
   <h1>Киоск чекина</h1>
   <p class="muted">{{ device.name }}</p>

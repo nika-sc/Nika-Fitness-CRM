@@ -9,9 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/club-theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
 </head>
 <body
-  class="club-theme"
+  class="club-theme nika-surface"
   data-theme="{{ theme.preset }}"
   style="--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}')"
 >
@@ -38,17 +39,26 @@
       <p class="muted" style="font-size:.82rem;margin:1rem 0 0;">{% if demo_mode %}Демо-данные уже заполнены.{% else %}Пароль выдаёт сотрудник клуба в карточке клиента.{% endif %}</p>
       {% if tenant_slug and tenant_slug != 'legacy' %}
       <a class="btn secondary" style="width:100%;margin-top:.7rem;" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
+      {% else %}
+      <a class="btn secondary" style="width:100%;margin-top:.7rem;" href="{{ url_for('club_public.landing') }}">На сайт клуба</a>
       {% endif %}
     </section>
   </main>
   {% else %}
   <header class="club-nav">
     <span class="club-brand">{{ club_name }}<span>.</span></span>
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="logout">
-      <button class="btn secondary" type="submit">Выйти</button>
-    </form>
+    <nav class="club-nav-links" style="display:flex;gap:.75rem;align-items:center;">
+      {% if tenant_slug and tenant_slug != 'legacy' %}
+      <a href="{{ url_for('club_public.landing', slug=tenant_slug) }}">Сайт клуба</a>
+      {% else %}
+      <a href="{{ url_for('club_public.landing') }}">Сайт клуба</a>
+      {% endif %}
+      <form method="post" style="margin:0;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="logout">
+        <button class="btn secondary" type="submit">Выйти</button>
+      </form>
+    </nav>
   </header>
 
   <main class="portal-shell">

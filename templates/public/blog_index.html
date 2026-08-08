@@ -1,54 +1,30 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Блог — Nika Fitness CRM</title>
-  <meta name="description" content="Новости Nika Fitness CRM: ЛК клиента, сайт клуба, релизы для своего сервера.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
-</head>
-<body class="landing-page">
-  <header class="lp-nav">
-    <a class="brand" href="{{ url_for('public.index') }}">Nika <span>Fit</span></a>
-    <nav class="lp-public-nav">
-      <a href="{{ url_for('public.index') }}#deploy">Развёртывание</a>
-      <a href="{{ url_for('public.docs') }}">Документация</a>
-      <a href="{{ url_for('public.blog') }}">Блог</a>
-      <a href="{{ url_for('public.updates') }}">Обновления</a>
-    </nav>
-  </header>
+{% extends "public/base_public.html" %}
+{% block title %}Блог — Nika Fitness CRM{% endblock %}
+{% block meta_description %}Новости Nika Fitness CRM: ЛК клиента, сайт клуба, релизы для своего сервера.{% endblock %}
+{% block content %}
+<div class="public-page">
+  <p class="public-eyebrow">Новости продукта</p>
+  <h1 class="public-title">Блог Nika Fitness CRM</h1>
+  <p class="public-lead">Практики внедрения, фичи и релизы для установки на Linux или Windows.</p>
 
-  <main class="lp-section lp-docs-page">
-    <p class="lp-eyebrow">Новости продукта</p>
-    <h1 class="lp-page-title">Блог Nika Fitness CRM</h1>
-    <p class="lp-section-lead">
-      Практики внедрения, фичи и релизы для установки на Linux или Windows.
-    </p>
-
-    <div class="lp-blog-list">
-      {% for post in posts %}
-      <article class="panel lp-blog-card">
-        <p class="muted">{{ post.published_on }}</p>
+  <div class="row g-3 blog-list">
+    {% for post in posts %}
+    <div class="col-md-6">
+      <article class="panel h-100 d-flex flex-column">
+        <p class="muted mb-1"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ post.published_on }}</p>
         <h3>{{ post.title }}</h3>
-        <p class="muted">{{ post.summary }}</p>
-        <a class="btn" href="{{ url_for('public.blog_post', slug=post.slug) }}">Читать статью</a>
+        <p class="muted flex-grow-1">{{ post.summary }}</p>
+        <a class="btn align-self-start" href="{{ url_for('public.blog_post', slug=post.slug) }}">Читать статью</a>
       </article>
-      {% else %}
+    </div>
+    {% else %}
+    <div class="col-12">
       <article class="panel">
         <h3>Публикаций пока нет</h3>
         <p class="muted">Добавьте markdown-файлы в <code>docs/blog/</code>.</p>
       </article>
-      {% endfor %}
     </div>
-  </main>
-
-  <footer class="lp-footer">
-    <div class="brand">Nika <span>Fit</span></div>
-    <p class="muted"><a href="{{ url_for('public.index') }}">На главную</a></p>
-  </footer>
-</body>
-</html>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

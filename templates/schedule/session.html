@@ -6,7 +6,7 @@
     <h1>{{ session.class_name }}</h1>
     <p class="muted">{{ session.starts_at.strftime('%d.%m.%Y %H:%M') }} · {{ session.trainer_name or 'без тренера' }} · {{ session.room_name }}</p>
   </div>
-  <div style="display:flex;gap:.5rem;">
+  <div class="d-flex gap-2 flex-wrap">
     {% if has_permission('manage_schedule') %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -17,68 +17,115 @@
     <a class="btn secondary" href="{{ url_for('schedule.week') }}">К расписанию</a>
   </div>
 </div>
-<div class="grid grid-2">
-  <div class="panel">
-    <p>Цена: <strong>{{ '%.0f'|format(session.price_cents/100) }} ₽</strong></p>
-    <p>Вместимость: {{ session.capacity }}</p>
-    <h3>Записи</h3>
-    <table class="table">
-      <tr><th>Клиент</th><th>Карта</th><th>Статус</th><th></th></tr>
-      {% for b in bookings %}
-      <tr>
-        <td>{{ b.full_name }}</td>
-        <td class="card-number">{{ b.card_number }}</td>
-        <td>
-          <span class="pill {{ 'danger' if b.status=='no_show' else ('ok' if b.status=='attended' else 'warn') }}">
-            {{ b.status }}
-          </span>
-        </td>
-        <td>
-          {% if has_permission('manage_schedule') and b.status == 'booked' %}
-          <form method="post" style="display:inline;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="action" value="attended">
-            <input type="hidden" name="booking_id" value="{{ b.id }}">
-            <button type="submit" class="btn secondary">Был</button>
-          </form>
-          {% endif %}
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="4" class="muted">Пока никого</td></tr>
-      {% endfor %}
-    </table>
+
+<div class="row g-3 mb-3">
+  <div class="col-sm-4">
+    <div class="panel stat">
+      <i class="bi bi-cash-coin stat-icon" aria-hidden="true"></i>
+      <span class="muted">Цена</span>
+      <strong>{{ '%.0f'|format(session.price_cents/100) }} ₽</strong>
+    </div>
   </div>
+  <div class="col-sm-4">
+    <div class="panel stat">
+      <i class="bi bi-people stat-icon" aria-hidden="true"></i>
+      <span class="muted">Записано</span>
+      <strong>{{ bookings|length }}/{{ session.capacity }}</strong>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="panel stat">
+      <i class="bi bi-geo-alt stat-icon" aria-hidden="true"></i>
+      <span class="muted">Зал</span>
+      <strong class="stat-text">{{ session.room_name }}</strong>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="{% if has_permission('manage_schedule') %}col-lg-7{% else %}col-12{% endif %}">
+    <div class="panel">
+      <div class="panel-head"><h3 class="mb-0"><i class="bi bi-list-check me-2" aria-hidden="true"></i>Записи</h3></div>
+      <div class="table-responsive mt-2">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr><th>Клиент</th><th>Карта</th><th>Статус</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td><strong>{{ b.full_name }}</strong></td>
+              <td class="card-number">{{ b.card_number }}</td>
+              <td>
+                <span class="pill {{ 'danger' if b.status=='no_show' else ('ok' if b.status=='attended' else 'warn') }}">
+                  {{ b.status }}
+                </span>
+              </td>
+              <td class="text-end">
+                {% if has_permission('manage_schedule') and b.status == 'booked' %}
+                <form method="post" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="action" value="attended">
+                  <input type="hidden" name="booking_id" value="{{ b.id }}">
+                  <button type="submit" class="btn secondary btn-sm">Был</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="muted">Пока никого</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   {% if has_permission('manage_schedule') %}
-  <div class="panel">
-    <h3>Записать клиента</h3>
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="book">
-      <label>Клиент</label>
-      <select name="member_id" required>
-        {% for m in members %}
-        <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}</option>
-        {% endfor %}
-      </select>
-      <button style="margin-top:.8rem;" type="submit">Записать</button>
-    </form>
+  <div class="col-lg-5">
+    <div class="panel mb-3">
+      <div class="panel-head"><h3 class="mb-0"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>Записать клиента</h3></div>
+      <form method="post" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="book">
+        <label class="form-label">Клиент</label>
+        <select class="form-select" name="member_id" required>
+          {% for m in members %}
+          <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}</option>
+          {% endfor %}
+        </select>
+        <button class="mt-3" type="submit">Записать</button>
+      </form>
+    </div>
+
     {% if has_permission('manage_waitlist') %}
-    <h3 style="margin-top:1.2rem;">Waitlist</h3>
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="waitlist">
-      <select name="member_id" required>{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
-      <button type="submit">В лист ожидания</button>
-    </form>
-    <form method="post" style="margin-top:.5rem;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="promote">
-      <button type="submit" class="btn secondary">Продвинуть первого</button>
-    </form>
-    <table class="table" style="margin-top:.5rem;">
-      {% for w in waitlist %}<tr><td>{{ w.position }}</td><td>{{ w.full_name }}</td></tr>{% else %}<tr><td class="muted">Пусто</td></td></tr>{% endfor %}
-    </table>
+    <div class="panel">
+      <div class="panel-head"><h3 class="mb-0"><i class="bi bi-hourglass me-2" aria-hidden="true"></i>Waitlist</h3></div>
+      <form method="post" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="waitlist">
+        <select class="form-select" name="member_id" required>
+          {% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}
+        </select>
+        <button class="mt-2" type="submit">В лист ожидания</button>
+      </form>
+      <form method="post" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="promote">
+        <button type="submit" class="btn secondary">Продвинуть первого</button>
+      </form>
+      <div class="table-responsive mt-3">
+        <table class="table align-middle mb-0">
+          <tbody>
+            {% for w in waitlist %}
+            <tr><td class="muted">#{{ w.position }}</td><td>{{ w.full_name }}</td></tr>
+            {% else %}
+            <tr><td class="muted">Пусто</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% endif %}
   </div>
   {% endif %}
