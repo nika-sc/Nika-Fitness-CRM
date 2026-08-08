@@ -50,15 +50,37 @@
 
 ## Скриншоты {#screenshots}
 
+<p align="center"><strong>Dashboard</strong> · <strong>Ресепшен</strong></p>
 <p align="center">
-  <img src="static/foto/gallery-1.jpg" alt="Атмосфера клуба" width="48%">
+  <img src="static/foto/gallery-2.jpg" alt="Dashboard CRM" width="48%">
   &nbsp;
-  <img src="static/foto/gallery-2.jpg" alt="Тренировки" width="48%">
+  <img src="static/foto/gallery-3.jpg" alt="Ресепшен" width="48%">
 </p>
+
+<p align="center"><strong>Клиенты</strong> · <strong>Расписание</strong></p>
 <p align="center">
-  <img src="static/foto/gallery-3.jpg" alt="Зал" width="48%">
-  &nbsp;
   <img src="static/foto/gallery-4.jpg" alt="Клиенты" width="48%">
+  &nbsp;
+  <img src="static/foto/gallery-5.jpg" alt="Расписание" width="48%">
+</p>
+
+<p align="center"><strong>ЛК клиента</strong> · <strong>Абонементы</strong></p>
+<p align="center">
+  <img src="static/foto/gallery-6.jpg" alt="Личный кабинет клиента" width="48%">
+  &nbsp;
+  <img src="static/foto/gallery-7.jpg" alt="Абонементы" width="48%">
+</p>
+
+<p align="center"><strong>Отчёты</strong> · <strong>Сайт клуба</strong></p>
+<p align="center">
+  <img src="static/foto/gallery-8.jpg" alt="Отчёты" width="48%">
+  &nbsp;
+  <img src="static/foto/gallery-9.jpg" alt="Публичный сайт клуба" width="48%">
+</p>
+
+<p align="center"><strong>Настройки</strong></p>
+<p align="center">
+  <img src="static/foto/gallery-10.jpg" alt="Настройки CRM" width="72%">
 </p>
 
 ---
