@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Документация — Nika Fitness CRM</title>
-  <meta name="description" content="Руководства Nika Fitness CRM: облачный SaaS и установка на Linux / Windows.">
+  <meta name="description" content="Руководства Nika Fitness CRM: установка на Linux (VPS/Docker) и Windows.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -19,34 +19,27 @@
       <a href="{{ url_for('public.docs') }}">Документация</a>
       <a href="{{ url_for('public.blog') }}">Блог</a>
       <a href="{{ url_for('public.updates') }}">Обновления</a>
-      {% if saas_mode %}<a href="{{ url_for('platform.register') }}">Регистрация</a>{% endif %}
     </nav>
   </header>
 
   <main class="lp-section lp-docs-page">
-    <p class="lp-eyebrow">{% if saas_mode %}SaaS · {% endif %}Self-hosted</p>
+    <p class="lp-eyebrow">Self-hosted</p>
     <h1 class="lp-page-title">Документация</h1>
     <p class="lp-section-lead">
-      {% if saas_mode %}
-      Основной путь — облако. Нужен контроль данных — ставьте на Linux или Windows.
-      {% else %}
       Установка на Linux (VPS/Docker) или Windows в клубе. Полный контроль данных на своём сервере.
-      {% endif %}
       Руководства читаются здесь; исходники — в репозитории.
     </p>
 
     <div class="lp-grid-2" id="deploy">
-      {% if saas_mode %}
       <article class="panel">
-        <h3>Облако (SaaS)</h3>
-        <p class="muted">Регистрация клуба, отдельная БД, админка платформы. Без своей инфраструктуры.</p>
-        <a class="btn" href="{{ url_for('platform.register') }}">Создать клуб</a>
+        <h3>Linux / VPS</h3>
+        <p class="muted">Docker Compose, reverse-proxy, HTTPS и бэкапы.</p>
+        <a class="btn" href="https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/DEPLOY.md" target="_blank" rel="noopener">DEPLOY.md</a>
       </article>
-      {% endif %}
       <article class="panel">
-        <h3>Свой сервер</h3>
-        <p class="muted">Linux (Docker/VPS) или Windows в клубе. Один продукт — полный контроль данных.</p>
-        <a class="btn secondary" href="https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/DEPLOY.md" target="_blank" rel="noopener">DEPLOY.md</a>
+        <h3>Windows</h3>
+        <p class="muted">Локальный сервер в зале: Python + PostgreSQL, автозапуск службы.</p>
+        <a class="btn secondary" href="https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/DEPLOY.md" target="_blank" rel="noopener">Читать установку</a>
       </article>
     </div>
 
@@ -54,12 +47,12 @@
       <article class="panel" id="user-guide">
         <h3>Полное руководство</h3>
         <p class="muted">Справочник по CRM, ролям, ресепшену, ЛК и отчётам.</p>
-        <a class="btn" href="https://github.com/nika-sc/Nika_Fitness_CRM/blob/master/docs/USER_GUIDE.md" target="_blank" rel="noopener">Открыть USER_GUIDE</a>
+        <a class="btn" href="https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/USER_GUIDE.md" target="_blank" rel="noopener">Открыть USER_GUIDE</a>
       </article>
       <article class="panel" id="walkthrough">
         <h3>Пошаговый сценарий</h3>
         <p class="muted">Рабочий день клуба: от входа до сверки и отчётов.</p>
-        <a class="btn" href="https://github.com/nika-sc/Nika_Fitness_CRM/blob/master/docs/USER_WALKTHROUGH.md" target="_blank" rel="noopener">Открыть WALKTHROUGH</a>
+        <a class="btn" href="https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/USER_WALKTHROUGH.md" target="_blank" rel="noopener">Открыть WALKTHROUGH</a>
       </article>
     </div>
 
@@ -77,7 +70,7 @@
 
   <footer class="lp-footer">
     <div class="brand">Nika <span>Fit</span></div>
-    <p class="muted"><a href="{{ url_for('public.index') }}">На главную</a> · Облако + свой сервер</p>
+    <p class="muted"><a href="{{ url_for('public.index') }}">На главную</a> · Свой сервер</p>
   </footer>
 </body>
 </html>

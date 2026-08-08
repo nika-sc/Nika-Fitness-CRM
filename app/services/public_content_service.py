@@ -25,7 +25,7 @@ class PublicEntry:
 class PublicContentService:
     @staticmethod
     def docs_sections() -> list[dict]:
-        base = 'https://github.com/nika-sc/Nika_Fitness_CRM/blob/master/'
+        base = 'https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/'
         return [
             {
                 'title': 'Полное руководство пользователя',
@@ -46,7 +46,7 @@ class PublicContentService:
                 'path': 'docs/DEPLOY.md',
                 'url': f'{base}docs/DEPLOY.md',
                 'button': 'Открыть DEPLOY',
-                'summary': 'Облако, Linux (Docker/VPS) и Windows: установка, reverse proxy, бэкапы.',
+                'summary': 'Linux (Docker/VPS) и Windows: установка, reverse proxy, бэкапы.',
             },
             {
                 'title': 'Open Source checklist',

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Блог — Nika Fitness CRM</title>
-  <meta name="description" content="Новости Nika Fitness CRM: SaaS, self-hosted, ЛК клиента, сайт клуба.">
+  <meta name="description" content="Новости Nika Fitness CRM: ЛК клиента, сайт клуба, релизы для своего сервера.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
       <a href="{{ url_for('public.docs') }}">Документация</a>
       <a href="{{ url_for('public.blog') }}">Блог</a>
       <a href="{{ url_for('public.updates') }}">Обновления</a>
-      {% if saas_mode %}<a href="{{ url_for('platform.register') }}">Регистрация</a>{% endif %}
     </nav>
   </header>
 
@@ -27,7 +26,7 @@
     <p class="lp-eyebrow">Новости продукта</p>
     <h1 class="lp-page-title">Блог Nika Fitness CRM</h1>
     <p class="lp-section-lead">
-      Фичи облака и self-hosted, практики внедрения, релизы. Один продукт — облако или свой сервер.
+      Практики внедрения, фичи и релизы для установки на Linux или Windows.
     </p>
 
     <div class="lp-blog-list">

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Обновления — Nika Fitness CRM</title>
-  <meta name="description" content="История обновлений Nika Fitness CRM на русском: SaaS и self-hosted.">
+  <meta name="description" content="История обновлений Nika Fitness CRM на русском.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
       <a href="{{ url_for('public.docs') }}">Документация</a>
       <a href="{{ url_for('public.blog') }}">Блог</a>
       <a href="{{ url_for('public.updates') }}">Обновления</a>
-      {% if saas_mode %}<a href="{{ url_for('platform.register') }}">Регистрация</a>{% endif %}
     </nav>
   </header>
 
@@ -27,7 +26,7 @@
     <p class="lp-eyebrow">Журнал релизов</p>
     <h1 class="lp-page-title">История обновлений</h1>
     <p class="lp-section-lead">
-      Что нового в облаке и в self-hosted сборке. Все заметки на русском.
+      Что нового в сборке для своего сервера. Все заметки на русском.
     </p>
 
     <div class="lp-updates-list">

@@ -1,65 +1,124 @@
-# Nika Fitness CRM (self-hosted)
+<p align="center">
+  <a href="https://github.com/nika-sc/Nika-Fitness-CRM">
+    <img src="static/foto/gallery-1.jpg" alt="Nika Fitness CRM" width="100%">
+  </a>
+</p>
 
-CRM для фитнес-клубов: установка на **свой сервер** — Linux (Docker/VPS) или Windows в зале.
+<h1 align="center">Nika <em>Fit</em></h1>
 
-Ресепшен, абонементы, расписание, ЛК клиента, сайт клуба — полноценная локальная / VPS-версия без облачной платформы SaaS.
+<p align="center"><strong>CRM для фитнес-клубов на своём сервере</strong></p>
 
-Облачная SaaS-версия доступна отдельно по запросу.
+<p align="center">
+  Ресепшен · абонементы · расписание · ЛК клиента · сайт клуба<br>
+  Linux (Docker / VPS) или Windows в зале — полный контроль данных.
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](requirements.txt)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%2B-336791.svg)](docs/DEPLOY.md)
+<p align="center">
+  <a href="#features">Возможности</a> ·
+  <a href="#screenshots">Скриншоты</a> ·
+  <a href="#install">Установка</a> ·
+  <a href="#linux">Linux</a> ·
+  <a href="#windows">Windows</a> ·
+  <a href="#docs">Документация</a>
+</p>
 
-[Документация](docs/USER_GUIDE.md) · [Сценарий дня](docs/USER_WALKTHROUGH.md) · [Установка](docs/DEPLOY.md) · [Поддержка](SUPPORT.md)
+<p align="center">
+  <a href="#install"><img src="https://img.shields.io/badge/Install-свой%20сервер-1f6f5b?style=for-the-badge" alt="Install"></a>
+  <a href="docs/DEPLOY.md"><img src="https://img.shields.io/badge/Deploy-Linux%20%2F%20Windows-0b3d2e?style=for-the-badge" alt="Deploy"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2d6a4f?style=for-the-badge" alt="MIT"></a>
+</p>
 
-## Режимы установки
+<p align="center">
+  <a href="docs/USER_GUIDE.md">Руководство</a> ·
+  <a href="docs/USER_WALKTHROUGH.md">Сценарий дня</a> ·
+  <a href="docs/DEPLOY.md">Установка</a> ·
+  <a href="SUPPORT.md">Поддержка</a>
+</p>
 
-| Режим | Для кого | Как |
-|-------|----------|-----|
-| **Linux** | VPS / свой сервер | Docker Compose, PostgreSQL, reverse-proxy + HTTPS |
-| **Windows** | Сервер в зале | Python + PostgreSQL, автозапуск службы |
+---
 
-## Возможности
+## Возможности {#features}
 
-- Ресепшен: чекин, гости, алерты, истекающие абонементы
-- Абонементы, заморозки, оплаты, долги, кассовые смены
-- Групповые занятия: запись, waitlist, no-show
-- ЛК клиента: запись, аналитика визитов, оплаты, QR
-- Публичный сайт клуба и редактор в CRM
-- Dashboard owner/admin
+- **Ресепшен** — чекин, гости, алерты, истекающие абонементы
+- **Абонементы** — планы, заморозки, оплаты, долги, кассовые смены
+- **Расписание** — групповые занятия, запись, waitlist, no-show
+- **ЛК клиента** — запись на занятия, визиты, оплаты, QR
+- **Сайт клуба** — публичная витрина и редактор в CRM
+- **Dashboard** — owner / admin, отчёты и операционный день
 
-## Быстрый старт
+---
+
+## Скриншоты {#screenshots}
+
+<p align="center">
+  <img src="static/foto/gallery-1.jpg" alt="Атмосфера клуба" width="48%">
+  &nbsp;
+  <img src="static/foto/gallery-2.jpg" alt="Тренировки" width="48%">
+</p>
+<p align="center">
+  <img src="static/foto/gallery-3.jpg" alt="Зал" width="48%">
+  &nbsp;
+  <img src="static/foto/gallery-4.jpg" alt="Клиенты" width="48%">
+</p>
+
+---
+
+## Установка {#install}
+
+Нужны **Python 3.12+** и **PostgreSQL 16+** (или Docker Compose на Linux).
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # Linux
+# Windows:
+.venv\Scripts\activate
+# Linux:
+# source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env            # Windows: copy .env.example .env
-# задайте DATABASE_URL и SECRET_KEY
+cp .env.example .env          # Windows: copy .env.example .env
+# задайте SECRET_KEY и DATABASE_URL
 python scripts/run_migrations.py --legacy --seed-admin
 python run.py
 ```
 
-Откройте `http://127.0.0.1:5001/login` · документация `/docs`.
+Откройте `http://127.0.0.1:5001/login` · встроенная документация `/docs`.
 
-## Docker (Linux)
+### Linux (Docker / VPS) {#linux}
 
 ```bash
+git clone https://github.com/nika-sc/Nika-Fitness-CRM.git
+cd Nika-Fitness-CRM
+cp .env.example .env
 docker compose up --build
 ```
 
-## Документация
+HTTPS, reverse-proxy и бэкапы — в [docs/DEPLOY.md](docs/DEPLOY.md).
 
-- `docs/USER_GUIDE.md` — руководство оператора
-- `docs/USER_WALKTHROUGH.md` — сценарий рабочего дня
-- `docs/DEPLOY.md` — Linux / Windows
-- `docs/CHANGELOG.md` — история изменений
+### Windows (сервер в зале) {#windows}
 
-## OSS
+1. Установите Python 3.12+ и PostgreSQL 16+.
+2. Скопируйте `.env.example` → `.env`, укажите `DATABASE_URL`.
+3. Миграции и запуск как выше.
+4. Автозапуск — служба Windows или Планировщик задач.
 
-- Лицензия: MIT (`LICENSE`)
-- `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`
-- Не коммитить: `.env`, персональные uploads
+Подробно: [docs/DEPLOY.md](docs/DEPLOY.md).
 
-Публичный репозиторий: [`nika-sc/Nika-Fitness-CRM`](https://github.com/nika-sc/Nika-Fitness-CRM)
+---
+
+## Документация {#docs}
+
+| Документ | О чём |
+|----------|--------|
+| [USER_GUIDE.md](docs/USER_GUIDE.md) | Руководство оператора |
+| [USER_WALKTHROUGH.md](docs/USER_WALKTHROUGH.md) | Сценарий рабочего дня |
+| [DEPLOY.md](docs/DEPLOY.md) | Linux / Windows |
+| [CHANGELOG.md](docs/CHANGELOG.md) | История изменений |
+
+---
+
+## Лицензия и поддержка
+
+- MIT — [`LICENSE`](LICENSE)
+- Вопросы и помощь с VPS/Windows — [`SUPPORT.md`](SUPPORT.md)
+- Не коммитьте `.env` и персональные uploads
+
+Репозиторий: [`nika-sc/Nika-Fitness-CRM`](https://github.com/nika-sc/Nika-Fitness-CRM)
