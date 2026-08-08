@@ -3,12 +3,12 @@
 ## Reporting a vulnerability
 
 If you find a security issue, do not open a public issue first.  
-Contact maintainers privately and include:
+Email maintainers privately at **info@nika-sc.ru** (subject: `Nika Fit — security`) and include:
 
 - affected endpoint/module;
 - reproduction steps;
 - potential impact;
-- suggested mitigation.
+- suggested mitigation (if any).
 
 ## Baseline controls in this project
 
@@ -17,7 +17,7 @@ Contact maintainers privately and include:
 - CSRF protection for state-changing forms;
 - secure session cookie settings in production;
 - upload restrictions and path safety;
-- tenant isolation by database and slug context.
+- single-club database isolation (`DATABASE_URL` per deployment).
 
 ## Responsible disclosure
 

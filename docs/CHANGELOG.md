@@ -4,6 +4,8 @@
 
 ## 2026-08-08
 
+- Публичный README: оглавление, функции, установка Linux/Windows, архитектура, security (self-hosted).
+- Issue templates (bug / feature), CONTRIBUTING / SECURITY для OSS-снимка.
 - Публичные страницы: `/docs`, `/blog`, `/updates`.
 - Миграция `012_booking_tracking` (источник записи, метки времени).
 - Безопасная запись/отмена из ЛК и блоки portal-записей на dashboard.
