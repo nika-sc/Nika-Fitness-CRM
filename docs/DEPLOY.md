@@ -8,8 +8,8 @@
 Рекомендуемый стек: Ubuntu 22.04+, Docker Compose, Nginx/Caddy, HTTPS.
 
 ```bash
-git clone https://github.com/nika-sc/nika-fitness-crm.git
-cd nika-fitness-crm
+git clone https://github.com/nika-sc/Nika-Fitness-CRM.git
+cd Nika-Fitness-CRM
 cp .env.example .env
 # SECRET_KEY, DATABASE_URL, TRUSTED_HOSTS
 docker compose up -d --build

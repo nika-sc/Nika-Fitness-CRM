@@ -62,4 +62,4 @@ docker compose up --build
 - `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`
 - Не коммитить: `.env`, персональные uploads
 
-Публичный репозиторий: [`nika-sc/nika-fitness-crm`](https://github.com/nika-sc/nika-fitness-crm)
+Публичный репозиторий: [`nika-sc/Nika-Fitness-CRM`](https://github.com/nika-sc/Nika-Fitness-CRM)
