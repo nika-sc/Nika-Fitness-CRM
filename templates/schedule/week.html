@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Расписание{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Расписание</h1>
+    <p class="muted">Неделя с {{ week_start.strftime('%d.%m.%Y') }}</p>
+  </div>
+  <div style="display:flex;gap:.5rem;">
+    <a class="btn secondary" href="{{ url_for('schedule.week', week=prev_week) }}">←</a>
+    <a class="btn secondary" href="{{ url_for('schedule.week', week=next_week) }}">→</a>
+    {% if has_permission('manage_schedule') %}
+    <a class="btn secondary" href="{{ url_for('schedule.types') }}">Типы занятий</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="panel">
+    <table class="table">
+      <tr><th>Когда</th><th>Занятие</th><th>Тренер</th><th>Зал</th><th>Места</th><th>Цена</th></tr>
+      {% for s in sessions %}
+      <tr>
+        <td><a href="{{ url_for('schedule.session_detail', session_id=s.id) }}">{{ s.starts_at.strftime('%a %d.%m %H:%M') }}</a></td>
+        <td>{{ s.class_name }}</td>
+        <td>{{ s.trainer_name or '—' }}</td>
+        <td>{{ s.room_name }}</td>
+        <td>{{ s.booked_count }}/{{ s.capacity }}</td>
+        <td>{{ '%.0f'|format(s.price_cents/100) }} ₽</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">На эту неделю занятий нет</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% if has_permission('manage_schedule') %}
+  <div class="panel">
+    <h3>Новое занятие</h3>
+    <form method="post" action="{{ url_for('schedule.create_session', week=week_start.date().isoformat()) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Тип</label>
+      <select name="class_type_id" required>
+        {% for t in class_types %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+      </select>
+      <label>Тренер</label>
+      <select name="trainer_id">
+        <option value="">—</option>
+        {% for t in trainers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}
+      </select>
+      <div class="form-row">
+        <div><label>Начало</label><input type="datetime-local" name="starts_at" required></div>
+        <div><label>Конец</label><input type="datetime-local" name="ends_at"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Зал</label><input name="room_name" value="Зал 1"></div>
+        <div><label>Вместимость</label><input type="number" name="capacity"></div>
+      </div>
+      <label>Цена, ₽ (пусто = из типа)</label>
+      <input type="number" name="price" step="1">
+      <button style="margin-top:.8rem;" type="submit">Добавить</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

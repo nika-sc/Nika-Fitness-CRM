@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Сайт клуба — Nika Fitness{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Сайт клуба</h1>
+    <p class="muted">Контент и единый дизайн публичного сайта и ЛК{% if public_url %} · <a href="{{ public_url }}" target="_blank" rel="noopener">открыть</a>{% endif %}</p>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="siteDesignForm">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="action" value="save">
+  <div class="grid grid-2">
+    <div class="panel">
+      <h3>О клубе</h3>
+      <label>Заголовок</label>
+      <input name="headline" value="{{ site.headline or '' }}" required>
+      <label>Описание</label>
+      <textarea name="about_text" rows="5">{{ site.about_text or '' }}</textarea>
+      <label>Телефон</label>
+      <input name="phone" value="{{ site.phone or '' }}">
+      <label>Адрес</label>
+      <input name="address" value="{{ site.address or '' }}">
+      <label>Часы работы</label>
+      <textarea name="hours_text" rows="3">{{ site.hours_text or '' }}</textarea>
+      <label>Карта (Яндекс) — ссылка или iframe src</label>
+      <textarea name="map_embed_url" rows="3">{{ site.map_embed_url or '' }}</textarea>
+      <label>Отдельное Hero-фото</label>
+      {% if site.hero_photo_path %}
+      <img src="{{ url_for('static', filename=site.hero_photo_path) }}" alt="" style="max-width:220px;border-radius:8px;margin:.4rem 0;">
+      {% endif %}
+      <input type="file" name="hero_photo" accept="image/jpeg,image/png,image/webp">
+    </div>
+
+    <div class="panel">
+      <h3>Дизайн</h3>
+      <p class="muted">Один фон и тема применяются к сайту клуба и ЛК клиента.</p>
+      <label>Стиль</label>
+      <div class="theme-preset-grid">
+        {% for value, label, color in [
+          ('inferno', 'Inferno', '#ff3b30'),
+          ('midnight', 'Midnight', '#2e8cff'),
+          ('graphite', 'Graphite', '#b8ff3d')
+        ] %}
+        <label class="theme-preset-card" style="--preview-accent:{{ color }}">
+          <input type="radio" name="theme_preset" value="{{ value }}" {% if theme.preset == value %}checked{% endif %}>
+          <span class="theme-preset-dot"></span>
+          <strong>{{ label }}</strong>
+        </label>
+        {% endfor %}
+      </div>
+
+      <label>Акцентный цвет</label>
+      <div style="display:flex;gap:.7rem;align-items:center;">
+        <input type="color" name="accent_color" value="{{ theme.accent }}" style="width:64px;height:44px;padding:3px;">
+        <code id="accentValue">{{ theme.accent }}</code>
+      </div>
+
+      <label>Общий фон сайта и ЛК</label>
+      <img src="{{ url_for('static', filename=theme.background_photo_path) }}" alt="" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin:.4rem 0;">
+      <input type="file" name="background_photo" accept="image/jpeg,image/png,image/webp">
+
+      <label>Затемнение: <strong id="overlayValue">{{ theme.overlay }}%</strong></label>
+      <input type="range" name="background_overlay" min="0" max="90" step="1" value="{{ theme.overlay }}">
+
+      <div class="theme-live-preview" id="themePreview"
+           style="--preview-accent:{{ theme.accent }};background-image:linear-gradient(rgba(0,0,0,{{ theme.overlay / 100 }}),rgba(0,0,0,{{ theme.overlay / 100 }})),url('{{ url_for('static', filename=theme.background_photo_path) }}')">
+        <span>Ваш клуб</span>
+        <strong>{{ site.headline or club_name }}</strong>
+        <button type="button">Записаться</button>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:.5rem;margin-top:.8rem;">
+        <input type="checkbox" name="is_published" value="1" {% if site.is_published %}checked{% endif %}>
+        Опубликовать сайт
+      </label>
+    </div>
+  </div>
+  <button style="margin:1rem 0 1.5rem;" type="submit">Сохранить сайт и дизайн</button>
+</form>
+
+<div class="panel">
+  <h3>Галерея</h3>
+  <form method="post" enctype="multipart/form-data" style="margin-bottom:1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add_photo">
+    <label>Фото</label>
+    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required>
+    <label>Подпись</label>
+    <input name="caption">
+    <button type="submit">Добавить</button>
+  </form>
+  <div class="club-gallery">
+    {% for p in photos %}
+    <figure>
+      <img src="{{ url_for('static', filename=p.photo_path) }}" alt="">
+      <form method="post" style="margin-top:.4rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="delete_photo">
+        <input type="hidden" name="photo_id" value="{{ p.id }}">
+        <button type="submit" class="btn secondary">Удалить</button>
+      </form>
+    </figure>
+    {% else %}
+    <p class="muted">Пока пусто</p>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.theme-preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin:.5rem 0 1rem}
+.theme-preset-card{padding:.8rem;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:rgba(255,255,255,.03)}
+.theme-preset-card:has(input:checked){border-color:var(--preview-accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--preview-accent) 25%,transparent)}
+.theme-preset-card input{display:none}
+.theme-preset-dot{display:block;width:24px;height:24px;border-radius:50%;background:var(--preview-accent);margin-bottom:.45rem}
+.theme-live-preview{min-height:170px;margin-top:1rem;padding:1.2rem;border-radius:16px;background-position:center;background-size:cover;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start}
+.theme-live-preview span{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
+.theme-live-preview strong{font-size:1.5rem;margin:.25rem 0 .7rem}
+.theme-live-preview button{border:0;border-radius:999px;padding:.6rem 1rem;color:#fff;background:var(--preview-accent);font-weight:800}
+</style>
+<script>
+(function(){
+  const form=document.getElementById('siteDesignForm');
+  const accent=form.elements.accent_color;
+  const overlay=form.elements.background_overlay;
+  const preview=document.getElementById('themePreview');
+  const accentValue=document.getElementById('accentValue');
+  const overlayValue=document.getElementById('overlayValue');
+  function update(){
+    accentValue.textContent=accent.value;
+    overlayValue.textContent=overlay.value+'%';
+    preview.style.setProperty('--preview-accent',accent.value);
+  }
+  accent.addEventListener('input',update);
+  overlay.addEventListener('input',update);
+  update();
+})();
+</script>
+{% endblock %}

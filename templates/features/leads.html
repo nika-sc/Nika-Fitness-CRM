@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Лиды{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Лиды</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create">
+      <label>ФИО</label><input name="full_name" required>
+      <label>Телефон</label><input name="phone"><label>Email</label><input name="email">
+      <label>Источник</label><input name="source" value="manual">
+      <label>Менеджер</label><select name="assigned_to"><option value="">—</option>{% for u in users %}<option value="{{ u.id }}">{{ u.full_name }}</option>{% endfor %}</select>
+      <button type="submit">Создать лид</button>
+    </form>
+  </div>
+  <div class="panel">
+    <table class="table"><tr><th>Имя</th><th>Статус</th><th>Менеджер</th><th></th></tr>
+    {% for l in leads %}
+    <tr><td>{{ l.full_name }}<br><span class="muted">{{ l.phone }}</span></td><td>{{ l.status }}</td><td>{{ l.assignee_name or '—' }}</td>
+      <td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="status"><input type="hidden" name="lead_id" value="{{ l.id }}">
+      <select name="status"><option>new</option><option>contacted</option><option>trial</option><option>won</option><option>lost</option></select>
+      <button type="submit">OK</button></form></td></tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

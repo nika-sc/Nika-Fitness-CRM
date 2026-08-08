@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Типы занятий{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Типы занятий</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <table class="table">
+      <tr><th>Название</th><th>Цена</th><th>Вместимость</th></tr>
+      {% for t in types %}
+      <tr><td>{{ t.name }}</td><td>{{ '%.0f'|format(t.default_price_cents/100) }} ₽</td><td>{{ t.default_capacity }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Добавить тип</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Название</label><input name="name" required>
+      <label>Описание</label><input name="description">
+      <div class="form-row">
+        <div><label>Цена, ₽</label><input type="number" name="price" value="0"></div>
+        <div><label>Вместимость</label><input type="number" name="capacity" value="15"></div>
+      </div>
+      <button style="margin-top:.8rem;" type="submit">Сохранить</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

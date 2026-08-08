@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Nika Fitness CRM{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Nika <span>Fit</span></div>
+    {% if club_name %}
+    <p class="muted" style="margin:0 0 .8rem;font-size:.8rem;">{{ club_name }}{% if tenant_slug and tenant_slug != 'legacy' %} · {{ tenant_slug }}{% endif %}</p>
+    {% endif %}
+    <nav class="nav">
+      {% set ep = request.endpoint or '' %}
+      {% if has_permission('checkin') %}
+      <a href="{{ url_for('reception.desk') }}" class="{% if ep.startswith('reception.') %}active{% endif %}">Ресепшен</a>
+      {% endif %}
+      {% if has_permission('view_members') %}
+      <a href="{{ url_for('members.list_members') }}" class="{% if ep.startswith('members.') %}active{% endif %}">Клиенты</a>
+      {% endif %}
+      {% if has_permission('view_memberships') %}
+      <a href="{{ url_for('memberships.plans') }}" class="{% if ep == 'memberships.plans' %}active{% endif %}">Абонементы</a>
+      <a href="{{ url_for('memberships.payments') }}" class="{% if ep == 'memberships.payments' %}active{% endif %}">Оплаты</a>
+      {% endif %}
+      {% if has_permission('view_schedule') %}
+      <a href="{{ url_for('schedule.week') }}" class="{% if ep.startswith('schedule.') %}active{% endif %}">Расписание</a>
+      {% endif %}
+      {% if has_permission('view_trainers') %}
+      <a href="{{ url_for('trainers.list_trainers') }}" class="{% if ep.startswith('trainers.') %}active{% endif %}">Тренеры</a>
+      {% endif %}
+      {% if has_permission('view_alerts') %}
+      <a href="{{ url_for('alerts.list_alerts') }}" class="{% if ep.startswith('alerts.') %}active{% endif %}">Алерты {% if unread_alerts %}<span class="badge">{{ unread_alerts }}</span>{% endif %}</a>
+      {% endif %}
+      {% if has_permission('view_reports') %}
+      <a href="{{ url_for('reports.index') }}" class="{% if ep.startswith('reports.') %}active{% endif %}">Отчёты</a>
+      {% endif %}
+      {% if has_permission('manage_settings') %}
+      <a href="{{ url_for('settings.index') }}" class="{% if ep.startswith('settings.') %}active{% endif %}">Настройки</a>
+      {% endif %}
+      {% if has_permission('manage_club_site') %}
+      <a href="{{ url_for('site_admin.edit') }}" class="{% if ep.startswith('site_admin.') %}active{% endif %}">Сайт клуба</a>
+      {% endif %}
+      {% if has_permission('manage_pt') %}
+      <a href="{{ url_for('pt.index') }}" class="{% if ep.startswith('pt.') %}active{% endif %}">PT</a>
+      {% endif %}
+      {% if has_permission('manage_messaging') %}
+      <a href="{{ url_for('messaging.index') }}" class="{% if ep.startswith('messaging.') %}active{% endif %}">Сообщения</a>
+      {% endif %}
+      {% if has_permission('manage_zones') %}
+      <a href="{{ url_for('zones.index') }}" class="{% if ep.startswith('zones.') %}active{% endif %}">Зоны</a>
+      {% endif %}
+      {% if has_permission('manage_corporate') %}
+      <a href="{{ url_for('corporate.index') }}" class="{% if ep.startswith('corporate.') %}active{% endif %}">Корп.</a>
+      {% endif %}
+      {% if has_permission('manage_cash') %}
+      <a href="{{ url_for('cash.index') }}" class="{% if ep.startswith('cash.') %}active{% endif %}">Касса</a>
+      {% endif %}
+      {% if has_permission('manage_lockers') %}
+      <a href="{{ url_for('lockers.index') }}" class="{% if ep.startswith('lockers.') %}active{% endif %}">Шкафчики</a>
+      {% endif %}
+      {% if has_permission('manage_loyalty') %}
+      <a href="{{ url_for('loyalty.index') }}" class="{% if ep.startswith('loyalty.') %}active{% endif %}">Лояльность</a>
+      {% endif %}
+      {% if has_permission('manage_leads') %}
+      <a href="{{ url_for('leads.index') }}" class="{% if ep.startswith('leads.') %}active{% endif %}">Лиды</a>
+      {% endif %}
+      {% if has_permission('manage_branches') %}
+      <a href="{{ url_for('branches.index') }}" class="{% if ep.startswith('branches.') %}active{% endif %}">Филиалы</a>
+      {% endif %}
+      {% if has_permission('manage_payments_online') %}
+      <a href="{{ url_for('payments_online.index') }}" class="{% if ep.startswith('payments_online.') %}active{% endif %}">Онлайн-оплаты</a>
+      {% endif %}
+      {% if has_permission('manage_spa') %}
+      <a href="{{ url_for('spa.index') }}" class="{% if ep.startswith('spa.') %}active{% endif %}">SPA/бар</a>
+      {% endif %}
+      <a href="{{ url_for('auth.logout') }}">Выход</a>
+    </nav>
+    <p class="muted" style="margin-top:1.5rem;font-size:.85rem;">{{ current_user.full_name }} · {{ current_user.role }}</p>
+  </aside>
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-wrap">
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  {% block body %}{% endblock %}
+{% endif %}
+</body>
+</html>

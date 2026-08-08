@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if member else 'Новый клиент' }} — Nika Fitness{% endblock %}
+{% block content %}
+<div class="topbar"><h1>{{ 'Редактирование' if member else 'Новый клиент' }}</h1></div>
+<form class="panel" method="post" enctype="multipart/form-data" style="max-width:720px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>ФИО</label>
+  <input name="full_name" required value="{{ member.full_name if member else '' }}">
+  <div class="form-row">
+    <div>
+      <label>Телефон</label>
+      <input name="phone" value="{{ member.phone if member else '' }}">
+    </div>
+    <div>
+      <label>Email</label>
+      <input type="email" name="email" value="{{ member.email if member else '' }}">
+    </div>
+  </div>
+  {% if member %}
+  <label>Статус</label>
+  <select name="status">
+    <option value="active" {% if member.status=='active' %}selected{% endif %}>active</option>
+    <option value="inactive" {% if member.status=='inactive' %}selected{% endif %}>inactive</option>
+  </select>
+  {% endif %}
+  <label>Заметки</label>
+  <textarea name="notes" rows="3">{{ member.notes if member else '' }}</textarea>
+  <label>Фото</label>
+  <input type="file" name="photo" accept="image/jpeg,image/png,image/webp">
+  <div style="margin-top:1rem;display:flex;gap:.6rem;">
+    <button type="submit">Сохранить</button>
+    <a class="btn secondary" href="{{ url_for('members.list_members') }}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

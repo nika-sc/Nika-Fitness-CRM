@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}PT{% endblock %}
+{% block content %}
+<div class="topbar"><h1>PT-пакеты</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <h3>Продать пакет</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="sell">
+      <label>Клиент</label><select name="member_id" required>{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <label>Тренер</label><select name="trainer_id"><option value="">—</option>{% for t in trainers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}</select>
+      <label>Название</label><input name="title" value="PT 10">
+      <label>Сессий</label><input name="sessions" type="number" value="10">
+      <label>Цена ₽</label><input name="price" type="number" value="15000">
+      <button style="margin-top:.8rem;" type="submit">Оформить</button>
+    </form>
+  </div>
+  <div class="panel">
+    <h3>Запланировать сессию</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="schedule">
+      <label>Пакет</label><select name="package_id">{% for p in packages %}<option value="{{ p.id }}">#{{ p.id }} {{ p.member_name }} · {{ p.sessions_left }}/{{ p.sessions_total }}</option>{% endfor %}</select>
+      <label>Начало</label><input name="starts_at" type="datetime-local" required>
+      <button style="margin-top:.8rem;" type="submit">Создать</button>
+    </form>
+  </div>
+</div>
+<div class="panel" style="margin-top:1rem;">
+  <h3>Сессии</h3>
+  <table class="table"><tr><th>Когда</th><th>Клиент</th><th>Тренер</th><th>Статус</th><th></th></tr>
+  {% for s in sessions %}
+  <tr><td>{{ s.starts_at }}</td><td>{{ s.member_name }}</td><td>{{ s.trainer_name or '—' }}</td><td>{{ s.status }}</td>
+  <td>{% if s.status=='scheduled' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="complete"><input type="hidden" name="session_id" value="{{ s.id }}"><button type="submit">Списать</button></form>{% endif %}</td></tr>
+  {% endfor %}
+  </table>
+</div>
+<div class="panel" style="margin-top:1rem;">
+  <h3>Комиссии PT (30 дн.)</h3>
+  <table class="table"><tr><th>Тренер</th><th>Сессий</th><th>%</th><th>База ₽</th></tr>
+  {% for c in commissions %}
+  <tr><td>{{ c.full_name }}</td><td>{{ c.sessions_done }}</td><td>{{ c.percent }}</td><td>{{ '%.0f'|format(c.session_value_cents/100) }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted">Нет данных</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

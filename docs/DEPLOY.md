@@ -1,0 +1,77 @@
+# Установка и деплой — Nika Fitness CRM (self-hosted)
+
+Эта редакция — **только свой сервер**: Linux (Docker/VPS) или Windows.  
+Облачная SaaS-версия платформы доступна отдельно по запросу.
+
+## 1. Linux (Docker / VPS)
+
+Рекомендуемый стек: Ubuntu 22.04+, Docker Compose, Nginx/Caddy, HTTPS.
+
+```bash
+git clone https://github.com/nika-sc/nika-fitness-crm.git
+cd nika-fitness-crm
+cp .env.example .env
+# SECRET_KEY, DATABASE_URL, TRUSTED_HOSTS
+docker compose up -d --build
+```
+
+Миграции при необходимости:
+
+```bash
+python scripts/run_migrations.py --legacy --seed-admin
+```
+
+Чеклист reverse-proxy:
+
+- проксирование на порт приложения;
+- HTTPS и редирект с HTTP;
+- `TRUSTED_HOSTS`, `SESSION_COOKIE_SECURE=1`;
+- лимиты размера для uploads.
+
+Бэкапы: `pg_dump` базы клуба, шифрованные копии offsite, тест восстановления раз в месяц.
+
+## 2. Windows (локальный сервер клуба)
+
+1. Установите **Python 3.12+** и **PostgreSQL 16+**.
+2. Создайте БД и пропишите `DATABASE_URL` в `.env`.
+3. В каталоге проекта:
+
+```bat
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+python scripts/run_migrations.py --legacy --seed-admin
+python run.py
+```
+
+4. Автозапуск: задача планировщика или служба Windows с `.venv\Scripts\python.exe run.py`.
+5. В сети клуба: `http://<IP-сервера>:5001/`.
+
+Для production желательны HTTPS (Caddy/IIS) и регулярные бэкапы PostgreSQL.
+
+## 3. Переменные окружения
+
+```env
+APP_EDITION=selfhosted
+SECRET_KEY=смените
+DATABASE_URL=postgresql://user:pass@host:5432/nika_fitness
+APP_PORT=5001
+TRUSTED_HOSTS=localhost,127.0.0.1,your.domain
+```
+
+Не коммитьте `.env`. В этой редакции нет `PLATFORM_*` / мультитенантности.
+
+## 4. Безопасность
+
+- строгий `TRUSTED_HOSTS`;
+- secure cookies в production;
+- смена пароля admin после установки;
+- обновления ОС и зависимостей.
+
+## 5. Поддержка
+
+Помощь с установкой на VPS или Windows — по запросу.  
+Кастомные доработки — платные по согласованию.
+
+См. [SUPPORT.md](../SUPPORT.md).

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Ресепшен — Nika Fitness{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Ресепшен</h1>
+    <p class="muted">Поиск клиента и чекин по карте / QR</p>
+  </div>
+</div>
+
+<div class="checkin-hero">
+  <div class="panel">
+    <form method="post" action="{{ url_for('reception.checkin') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Номер карты или QR-сканер</label>
+      <input class="checkin-input card-number" name="card_number" placeholder="Сканируйте QR из ЛК или введите NF…" autofocus autocomplete="off">
+      {% if zones %}
+      <label style="margin-top:.6rem;">Зона доступа</label>
+      <select name="zone">
+        {% for z in zones %}
+        <option value="{{ z.code }}" {% if z.code == 'gym' %}selected{% endif %}>{{ z.name }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+      <div style="margin-top:.8rem;display:flex;gap:.6rem;">
+        <button type="submit">Отметить визит</button>
+      </div>
+    </form>
+    <form method="get" style="margin-top:1.2rem;">
+      <label>Поиск (ФИО / телефон / карта)</label>
+      <input name="q" value="{{ q }}" placeholder="Иванов или +7…">
+    </form>
+    {% if members %}
+    <table class="table" style="margin-top:.8rem;">
+      <tr><th></th><th>Клиент</th><th>Карта</th><th></th></tr>
+      {% for m in members %}
+      <tr>
+        <td>
+          {% if m.photo_path %}
+          <img class="avatar" src="{{ url_for('static', filename=m.photo_path) }}" alt="">
+          {% else %}
+          <span class="avatar placeholder">{{ m.full_name[:1] }}</span>
+          {% endif %}
+        </td>
+        <td><a href="{{ url_for('members.detail', member_id=m.id) }}">{{ m.full_name }}</a><br><span class="muted">{{ m.phone }}</span></td>
+        <td class="card-number">{{ m.card_number }}</td>
+        <td>
+          <form method="post" action="{{ url_for('reception.checkin') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="member_id" value="{{ m.id }}">
+            <button type="submit">Чекин</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  <div class="panel">
+    <h3>Гостевой визит</h3>
+    <form method="post" action="{{ url_for('reception.guest') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>ФИО гостя</label>
+      <input name="guest_name" required>
+      <label>Телефон</label>
+      <input name="guest_phone">
+      <label>Хост (клиент клуба)</label>
+      <select name="host_member_id">
+        <option value="">— без хоста —</option>
+        {% for h in host_candidates %}
+        <option value="{{ h.id }}">{{ h.full_name }} · {{ h.card_number }}</option>
+        {% endfor %}
+      </select>
+      <label>Оплата, ₽</label>
+      <input name="amount" type="number" min="0" step="1" value="0">
+      <label>Способ</label>
+      <select name="method">
+        <option value="cash">Наличные</option>
+        <option value="card">Карта</option>
+        <option value="transfer">Перевод</option>
+      </select>
+      <label>Комментарий</label>
+      <input name="note">
+      <button style="margin-top:.8rem;" type="submit">Записать гостя</button>
+    </form>
+    <h3 style="margin-top:1.2rem;">Скоро заканчивается</h3>
+    {% for e in expiring %}
+      <p>
+        <a href="{{ url_for('members.detail', member_id=e.id) }}"><strong>{{ e.full_name }}</strong></a>
+        <span class="card-number">{{ e.card_number }}</span><br>
+        <span class="pill warn">до {{ e.ends_on }}</span>
+      </p>
+    {% else %}
+      <p class="muted">Нет истекающих в ближайшие дни</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Гости сегодня</h3>
+  <table class="table">
+    <tr><th>Гость</th><th>Телефон</th><th>Хост</th><th>Сумма</th><th>Время</th></tr>
+    {% for g in guests_today %}
+    <tr>
+      <td>{{ g.guest_name }}</td>
+      <td>{{ g.guest_phone or '—' }}</td>
+      <td>{% if g.host_member_id %}<a href="{{ url_for('members.detail', member_id=g.host_member_id) }}">{{ g.host_name }}</a>{% else %}—{% endif %}</td>
+      <td>{% if g.amount_cents %}{{ '%.0f'|format(g.amount_cents/100) }} ₽{% else %}—{% endif %}</td>
+      <td>{{ g.created_at.strftime('%H:%M') if g.created_at else '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Гостей ещё не было</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="panel">
+  <h3>Последние визиты</h3>
+  <table class="table">
+    <tr><th>Клиент</th><th>Карта</th><th>Статус</th><th>Время</th></tr>
+    {% for c in recent %}
+    <tr>
+      <td>{{ c.full_name }}</td>
+      <td class="card-number">{{ c.card_number }}</td>
+      <td><span class="pill {{ 'danger' if c.alert_level=='expired' else ('warn' if c.alert_level=='expiring' else 'ok') }}">{{ c.message }}</span></td>
+      <td>{{ c.checked_at.strftime('%d.%m.%Y %H:%M') if c.checked_at else '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">Ещё нет чекинов</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

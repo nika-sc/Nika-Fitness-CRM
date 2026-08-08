@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ trainer.full_name }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>{{ trainer.full_name }}</h1></div>
+  {% if has_permission('manage_trainers') %}
+  <a class="btn secondary" href="{{ url_for('trainers.edit', trainer_id=trainer.id) }}">Редактировать</a>
+  {% endif %}
+</div>
+<div class="panel" style="display:flex;gap:1rem;max-width:820px;">
+  {% if trainer.photo_path %}<img class="avatar-lg" src="{{ url_for('static', filename=trainer.photo_path) }}" alt="">
+  {% else %}<span class="avatar-lg placeholder">{{ trainer.full_name[:1] }}</span>{% endif %}
+  <div>
+    <p>{{ trainer.phone or '—' }}<br>{{ trainer.email or '—' }}</p>
+    <p>{{ trainer.bio }}</p>
+    <p class="muted">{{ 'Активен' if trainer.is_active else 'Неактивен' }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Клиенты — Nika Fitness{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Клиенты</h1>
+    <p class="muted">Карточки с уникальным номером</p>
+  </div>
+  {% if has_permission('manage_members') %}
+  <a class="btn" href="{{ url_for('members.create') }}">Новый клиент</a>
+  {% endif %}
+</div>
+<form class="panel" method="get" style="margin-bottom:1rem;">
+  <input name="q" value="{{ q }}" placeholder="Поиск…">
+</form>
+<div class="panel">
+  <table class="table">
+    <tr><th></th><th>ФИО</th><th>Карта</th><th>Телефон</th><th>Статус</th></tr>
+    {% for m in members %}
+    <tr>
+      <td>
+        {% if m.photo_path %}<img class="avatar" src="{{ url_for('static', filename=m.photo_path) }}" alt="">
+        {% else %}<span class="avatar placeholder">{{ m.full_name[:1] }}</span>{% endif %}
+      </td>
+      <td><a href="{{ url_for('members.detail', member_id=m.id) }}">{{ m.full_name }}</a></td>
+      <td class="card-number">{{ m.card_number }}</td>
+      <td>{{ m.phone }}</td>
+      <td>{{ m.status }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Клиентов пока нет</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

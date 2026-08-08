@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Сообщения{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Outbox SMS / Telegram / Push</h1></div>
+<div class="panel">
+  <form method="post" action="{{ url_for('messaging.send') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Канал</label><select name="channel"><option>sms</option><option>telegram</option><option>push</option><option>log</option></select>
+    <label>Кому</label><input name="recipient" required>
+    <label>Шаблон</label><input name="template_key" value="manual">
+    <label>Текст</label><input name="text">
+    <button type="submit">Отправить (stub)</button>
+  </form>
+</div>
+<div class="panel" style="margin-top:1rem;">
+  <table class="table"><tr><th>Когда</th><th>Канал</th><th>Кому</th><th>Шаблон</th><th>Статус</th></tr>
+  {% for m in messages %}
+  <tr><td>{{ m.created_at }}</td><td>{{ m.channel }}</td><td>{{ m.recipient }}</td><td>{{ m.template_key }}</td><td>{{ m.status }}</td></tr>
+  {% endfor %}
+  </table>
+</div>
+{% endblock %}

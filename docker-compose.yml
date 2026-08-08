@@ -1,0 +1,38 @@
+# Self-hosted: one PostgreSQL + app. No platform / multi-tenant DB.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: nika_fitness
+      POSTGRES_USER: nikafit
+      POSTGRES_PASSWORD: nikafit
+    volumes:
+      - pgdata:/var/lib/postgresql
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nikafit -d nika_fitness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      FLASK_ENV: production
+      APP_EDITION: selfhosted
+      SECRET_KEY: ${SECRET_KEY:-change-me-docker}
+      DATABASE_URL: postgresql://nikafit:nikafit@db:5432/nika_fitness
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

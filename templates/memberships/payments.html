@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Оплаты{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Оплаты</h1></div>
+<div class="panel">
+  <table class="table">
+    <tr><th>Клиент</th><th>Карта</th><th>Сумма</th><th>Метод</th><th>Дата</th></tr>
+    {% for p in payments %}
+    <tr>
+      <td><a href="{{ url_for('members.detail', member_id=p.member_id) }}">{{ p.full_name }}</a></td>
+      <td class="card-number">{{ p.card_number }}</td>
+      <td>{{ '%.0f'|format(p.amount_cents/100) }} ₽</td>
+      <td>{{ p.method }}</td>
+      <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Оплат пока нет</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

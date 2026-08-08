@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Алерты{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Алерты для сотрудников</h1><p class="muted">Видят все пользователи CRM</p></div>
+  <form method="post" action="{{ url_for('alerts.read_all') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="secondary" type="submit">Отметить все прочитанными</button>
+  </form>
+</div>
+<div class="panel">
+  {% for a in alerts %}
+  <div style="padding:.7rem 0;border-bottom:1px solid var(--line);">
+    <span class="pill {{ 'danger' if a.severity=='danger' else ('warn' if a.severity=='warning' else 'ok') }}">{{ a.severity }}</span>
+    <strong>{{ a.title }}</strong>
+    {% if not a.is_read %}<span class="pill warn">новое</span>{% endif %}
+    <p class="muted">{{ a.body }} · {{ a.created_at.strftime('%d.%m.%Y %H:%M') if a.created_at else '' }}</p>
+  </div>
+  {% else %}
+  <p class="muted">Алертов нет</p>
+  {% endfor %}
+</div>
+{% endblock %}

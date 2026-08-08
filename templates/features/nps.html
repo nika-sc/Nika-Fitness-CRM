@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}NPS{% endblock %}
+{% block body %}
+<div class="login-page"><div class="login-card">
+  <h1>Оцените клуб</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if member_id %}<input type="hidden" name="member_id" value="{{ member_id }}">{% endif %}
+    <label>Оценка 0–10</label>
+    <input type="number" name="score" min="0" max="10" required>
+    <label>Комментарий</label>
+    <input name="comment">
+    <button type="submit">Отправить</button>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Корп. контракты{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Корпоративные контракты</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create">
+      <label>Компания</label><input name="name" required>
+      <label>Телефон</label><input name="contact_phone"><label>Email</label><input name="contact_email">
+      <label>Лимит мест</label><input name="seats_limit" type="number" value="10">
+      <button type="submit">Создать</button>
+    </form>
+    <h3 style="margin-top:1rem;">Привязать клиента</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="assign">
+      <label>Клиент</label><select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <label>Контракт</label><select name="corporate_id"><option value="">— снять —</option>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select>
+      <button type="submit">Сохранить</button>
+    </form>
+  </div>
+  <div class="panel">
+    <table class="table"><tr><th>Компания</th><th>Места</th><th>Контакт</th></tr>
+    {% for a in accounts %}<tr><td>{{ a.name }}</td><td>{{ a.seats_used }}/{{ a.seats_limit }}</td><td>{{ a.contact_phone }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

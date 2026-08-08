@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Шкафчики{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Шкафчики</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create">
+      <label>Код</label><input name="code" required><label>Зона</label><input name="zone" value="main">
+      <button type="submit">Добавить</button></form>
+    <h3>Выдать</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="assign">
+      <select name="locker_id">{% for l in lockers if l.status=='free' %}<option value="{{ l.id }}">{{ l.code }}</option>{% endfor %}</select>
+      <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <button type="submit">Выдать</button></form>
+  </div>
+  <div class="panel">
+    <table class="table"><tr><th>Код</th><th>Статус</th><th>Клиент</th><th></th></tr>
+    {% for l in lockers %}
+    <tr><td>{{ l.code }}</td><td>{{ l.status }}</td><td>{{ l.full_name or '—' }}</td>
+      <td>{% if l.status=='busy' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="release"><input type="hidden" name="locker_id" value="{{ l.id }}"><button type="submit">Вернуть</button></form>{% endif %}</td></tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

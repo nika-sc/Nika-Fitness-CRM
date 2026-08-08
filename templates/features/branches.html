@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Филиалы{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Филиалы</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Код</label><input name="code" required><label>Название</label><input name="name" required>
+      <label>Адрес</label><input name="address"><button type="submit">Добавить</button>
+    </form>
+  </div>
+  <div class="panel">
+    <table class="table"><tr><th>Код</th><th>Название</th><th>Адрес</th></tr>
+    {% for b in branches %}<tr><td>{{ b.code }}</td><td>{{ b.name }}</td><td>{{ b.address }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

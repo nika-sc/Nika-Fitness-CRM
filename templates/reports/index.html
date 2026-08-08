@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Отчёты{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Отчёты</h1></div>
+<div class="grid grid-4">
+  <div class="panel stat"><span class="muted">Активные клиенты</span><strong>{{ summary.active_members }}</strong></div>
+  <div class="panel stat"><span class="muted">Активные абонементы</span><strong>{{ summary.active_memberships }}</strong></div>
+  <div class="panel stat"><span class="muted">Оплаты 7 дней</span><strong>{{ '%.0f'|format(summary.payments_week_cents/100) }} ₽</strong></div>
+  <div class="panel stat"><span class="muted">Средняя заполняемость</span><strong>{{ summary.avg_fill_pct }}%</strong></div>
+</div>
+<div class="grid grid-4" style="margin-top:1rem;">
+  <div class="panel stat"><span class="muted">Заморожено</span><strong>{{ summary.frozen_memberships }}</strong></div>
+  <div class="panel stat"><span class="muted">Гости сегодня</span><strong>{{ summary.guests_today }}</strong></div>
+  <div class="panel stat"><span class="muted">No-show за 7 дней</span><strong>{{ summary.noshows_week }}</strong></div>
+  <div class="panel stat"><span class="muted">Оплат за неделю</span><strong>{{ summary.payments_week_count }}</strong></div>
+</div>
+<div class="grid grid-2" style="margin-top:1rem;">
+  <div class="panel stat"><span class="muted">Средний LTV</span><strong>{{ '%.0f'|format((summary.ltv_avg_cents or 0)/100) }} ₽</strong></div>
+  <div class="panel stat"><span class="muted">Churn 30 дн.</span><strong>{{ summary.churn_30_pct or 0 }}%</strong></div>
+</div>
+<div class="grid grid-2" style="margin-top:1rem;">
+  <div class="panel">
+    <h3>Истекающие абонементы</h3>
+    <table class="table">
+      <tr><th>Клиент</th><th>До</th><th>План</th></tr>
+      {% for e in summary.expiring %}
+      <tr>
+        <td><a href="{{ url_for('members.detail', member_id=e.id) }}">{{ e.full_name }}</a></td>
+        <td>{{ e.ends_on }}</td>
+        <td>{{ e.plan_name or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="muted">Нет</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Заполняемость занятий (неделя)</h3>
+    <table class="table">
+      <tr><th>Занятие</th><th>Когда</th><th>%</th></tr>
+      {% for s in summary.fill_sessions %}
+      <tr>
+        <td>{{ s.class_name }}</td>
+        <td>{{ s.starts_at.strftime('%d.%m %H:%M') }}</td>
+        <td>{{ s.fill_pct }}%</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="muted">Нет занятий</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<div class="panel" style="margin-top:1rem;">
+  <h3>Оплаты за 30 дней</h3>
+  <table class="table">
+    <tr><th>Клиент</th><th>Сумма</th><th>Метод</th><th>Дата</th></tr>
+    {% for p in payments %}
+    <tr>
+      <td>{{ p.full_name }}</td>
+      <td>{{ '%.0f'|format(p.amount_cents/100) }} ₽</td>
+      <td>{{ p.method }}</td>
+      <td>{{ p.paid_at.strftime('%d.%m.%Y') if p.paid_at else '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">Нет оплат</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

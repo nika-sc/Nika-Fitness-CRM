@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Лояльность{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Лояльность, сегменты, NPS</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <h3>Начислить / списать баллы</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <input name="delta" type="number" value="10" required>
+      <input name="reason" placeholder="Причина">
+      <button type="submit">Применить</button>
+    </form>
+    <h3 style="margin-top:1rem;">Сегменты</h3>
+    <ul>{% for s in segments %}<li><a href="{{ url_for('loyalty.index', segment=s.rule_key) }}">{{ s.name }}</a></li>{% endfor %}</ul>
+    {% if selected %}
+    <table class="table"><tr><th>Клиент</th><th>Карта</th></tr>
+    {% for m in segment_members %}<tr><td><a href="{{ url_for('members.detail', member_id=m.id) }}">{{ m.full_name }}</a></td><td class="card-number">{{ m.card_number }}</td></tr>{% else %}<tr><td colspan="2" class="muted">Пусто</td></tr>{% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  <div class="panel">
+    <h3>NPS</h3>
+    <p class="muted">Публичная форма: <code>/t/&lt;slug&gt;/nps/</code></p>
+    <table class="table"><tr><th>Оценка</th><th>Клиент</th><th>Комментарий</th></tr>
+    {% for n in nps %}<tr><td>{{ n.score }}</td><td>{{ n.full_name or '—' }}</td><td>{{ n.comment }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Касса{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Касса и долги</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <p>Смена: {% if shift %}<span class="pill ok">открыта #{{ shift.id }}</span>{% else %}<span class="pill warn">закрыта</span>{% endif %}</p>
+    {% if not shift %}
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="open">
+      <label>Наличка на открытие, ₽</label><input name="opening" type="number" value="0"><button type="submit">Открыть смену</button></form>
+    {% else %}
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="close">
+      <label>Наличка на закрытие, ₽</label><input name="closing" type="number" value="0"><button type="submit">Закрыть смену</button></form>
+    {% endif %}
+    <h3>Новый долг</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="debt">
+      <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <input name="amount" type="number" placeholder="Сумма ₽" required>
+      <input name="note" placeholder="Комментарий">
+      <button type="submit">Создать долг</button>
+    </form>
+  </div>
+  <div class="panel">
+    <h3>Открытые долги</h3>
+    <table class="table"><tr><th>Клиент</th><th>Сумма</th><th>Оплачено</th><th></th></tr>
+    {% for d in debts %}
+    <tr><td>{{ d.full_name }}</td><td>{{ '%.0f'|format(d.amount_cents/100) }}</td><td>{{ '%.0f'|format(d.paid_cents/100) }}</td>
+      <td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="pay_debt"><input type="hidden" name="debt_id" value="{{ d.id }}">
+      <input name="amount" type="number" placeholder="₽" style="width:5rem;"><button type="submit">Оплатить</button></form></td></tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

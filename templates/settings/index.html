@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Настройки{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Настройки</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <h3>Сотрудники</h3>
+    <table class="table">
+      <tr><th>Логин</th><th>Имя</th><th>Роль</th></tr>
+      {% for u in users %}
+      <tr><td>{{ u.username }}</td><td>{{ u.full_name }}</td><td>{{ u.role }}</td></tr>
+      {% endfor %}
+    </table>
+    {% if has_permission('manage_users') %}
+    <h3 style="margin-top:1rem;">Новый пользователь</h3>
+    <form method="post" action="{{ url_for('settings.create_user') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Логин</label><input name="username" required>
+      <label>Пароль</label><input type="password" name="password" required>
+      <label>ФИО</label><input name="full_name">
+      <label>Роль</label>
+      <select name="role">
+        <option value="reception">reception</option>
+        <option value="trainer">trainer</option>
+        <option value="admin">admin</option>
+        <option value="owner">owner</option>
+      </select>
+      <button style="margin-top:.8rem;" type="submit">Создать</button>
+    </form>
+    {% endif %}
+  </div>
+  <div class="panel">
+    <h3>Email-напоминания</h3>
+    <p class="muted">Отправить клиентам письма о скором окончании абонемента (нужны SMTP-настройки в .env).</p>
+    <form method="post" action="{{ url_for('settings.run_reminders') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit">Запустить рассылку сейчас</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

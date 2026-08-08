@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Зоны{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Зоны доступа</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Код</label><input name="code" required><label>Название</label><input name="name" required>
+      <button type="submit">Добавить</button>
+    </form>
+  </div>
+  <div class="panel">
+    <table class="table"><tr><th>Код</th><th>Название</th><th>Активна</th></tr>
+    {% for z in zones %}<tr><td>{{ z.code }}</td><td>{{ z.name }}</td><td>{{ z.is_active }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

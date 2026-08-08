@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Планы абонементов{% endblock %}
+{% block content %}
+<div class="topbar"><h1>Планы абонементов</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <table class="table">
+      <tr><th>Название</th><th>Дни</th><th>Визиты</th><th>Цена</th></tr>
+      {% for p in plans %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.duration_days }}</td>
+        <td>{{ p.visit_limit if p.visit_limit is not none else '∞' }}</td>
+        <td>{{ '%.0f'|format(p.price_cents/100) }} ₽</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Новый план</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Название</label><input name="name" required>
+      <label>Описание</label><input name="description">
+      <div class="form-row">
+        <div><label>Дней</label><input type="number" name="duration_days" value="30"></div>
+        <div><label>Лимит визитов (пусто = безлимит)</label><input type="number" name="visit_limit"></div>
+      </div>
+      <label>Цена, ₽</label><input type="number" step="1" name="price" required>
+      <button style="margin-top:.8rem;" type="submit">Добавить</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

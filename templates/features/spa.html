@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}SPA / бар / дети{% endblock %}
+{% block content %}
+<div class="topbar"><h1>SPA, бар, детский клуб</h1></div>
+<div class="grid grid-2">
+  <div class="panel">
+    <h3>Бронь SPA</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="book">
+      <select name="service_id">{% for s in services if s.category=='spa' %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+      <select name="member_id"><option value="">Гость</option>{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <input name="starts_at" type="datetime-local" required><button type="submit">Записать</button>
+    </form>
+    <h3>Бар</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="bar">
+      <input name="item_name" value="Вода 0.5"><input name="amount" type="number" value="80">
+      <select name="member_id"><option value="">—</option>{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <button type="submit">Продать</button>
+    </form>
+    <h3>Детский слот</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="kids">
+      <select name="parent_member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
+      <input name="child_name" placeholder="Имя ребёнка" required>
+      <input name="starts_at" type="datetime-local" required><input name="ends_at" type="datetime-local" required>
+      <button type="submit">Забронировать</button>
+    </form>
+  </div>
+  <div class="panel">
+    <h3>Брони SPA</h3>
+    <table class="table">{% for b in bookings %}<tr><td>{{ b.starts_at }}</td><td>{{ b.service_name }}</td><td>{{ b.full_name or '—' }}</td></tr>{% endfor %}</table>
+    <h3>Дети</h3>
+    <table class="table">{% for k in kids %}<tr><td>{{ k.child_name }}</td><td>{{ k.parent_name }}</td><td>{{ k.starts_at }}</td></tr>{% endfor %}</table>
+  </div>
+</div>
+{% endblock %}

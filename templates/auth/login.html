@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Вход{% if club_name %} — {{ club_name }}{% endif %} — Nika Fitness CRM{% endblock %}
+{% block body %}
+<div class="login-page">
+  <div class="login-card">
+    <h1>Nika <span style="color:var(--accent)">Fitness</span></h1>
+    {% if club_name %}
+    <p class="muted">{{ club_name }}</p>
+    {% else %}
+    <p class="muted">CRM для фитнес-клуба</p>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-wrap" style="margin-top:1rem;">
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Логин</label>
+      <input name="username" autocomplete="username" required autofocus value="{{ demo_credentials.staff_user if demo_mode else '' }}">
+      <label>Пароль</label>
+      <input type="password" name="password" autocomplete="current-password" required value="{{ demo_credentials.staff_password if demo_mode else '' }}">
+      <button class="btn" type="submit">Войти</button>
+    </form>
+    {% if demo_mode %}
+    <p class="muted" style="margin-top:.8rem;font-size:.82rem;">Демо-данные уже заполнены.</p>
+    {% endif %}
+    {% if saas_mode %}
+    <p class="muted" style="margin-top:1.2rem;">
+      <a href="{{ url_for('public.index') }}">Выбрать другой клуб</a>
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

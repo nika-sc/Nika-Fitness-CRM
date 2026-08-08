@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Обновления — Nika Fitness CRM</title>
+  <meta name="description" content="История обновлений Nika Fitness CRM на русском: SaaS и self-hosted.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body class="landing-page">
+  <header class="lp-nav">
+    <a class="brand" href="{{ url_for('public.index') }}">Nika <span>Fit</span></a>
+    <nav class="lp-public-nav">
+      <a href="{{ url_for('public.index') }}#deploy">Развёртывание</a>
+      <a href="{{ url_for('public.docs') }}">Документация</a>
+      <a href="{{ url_for('public.blog') }}">Блог</a>
+      <a href="{{ url_for('public.updates') }}">Обновления</a>
+      {% if saas_mode %}<a href="{{ url_for('platform.register') }}">Регистрация</a>{% endif %}
+    </nav>
+  </header>
+
+  <main class="lp-section lp-docs-page">
+    <p class="lp-eyebrow">Журнал релизов</p>
+    <h1 class="lp-page-title">История обновлений</h1>
+    <p class="lp-section-lead">
+      Что нового в облаке и в self-hosted сборке. Все заметки на русском.
+    </p>
+
+    <div class="lp-updates-list">
+      {% for item in items %}
+      <article class="panel lp-markdown-body">
+        <p class="muted">{{ item.entry.published_on }}</p>
+        <h3>{{ item.entry.title }}</h3>
+        <p class="muted">{{ item.entry.summary }}</p>
+        {{ item.body_html|safe }}
+      </article>
+      {% else %}
+      <article class="panel">
+        <h3>Обновлений пока нет</h3>
+        <p class="muted">Добавьте markdown-файлы в <code>docs/updates/</code>.</p>
+      </article>
+      {% endfor %}
+    </div>
+  </main>
+
+  <footer class="lp-footer">
+    <div class="brand">Nika <span>Fit</span></div>
+    <p class="muted"><a href="{{ url_for('public.index') }}">На главную</a></p>
+  </footer>
+</body>
+</html>

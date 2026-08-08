@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Личный кабинет — {{ site.headline or club_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/club-theme.css') }}">
+</head>
+<body
+  class="club-theme"
+  data-theme="{{ theme.preset }}"
+  style="--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}')"
+>
+  {% if not member %}
+  <main class="portal-login-wrap">
+    <section class="portal-login club-glass">
+      <p class="club-kicker">{{ club_name }}</p>
+      <h1 class="club-heading">Личный кабинет</h1>
+      <p class="muted">Абонемент, QR-пропуск, оплаты и запись на тренировки.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="login">
+        <label>Телефон, email или карта</label>
+        <input name="login" required autocomplete="username" autofocus placeholder="+7… или NF2026…" value="{{ demo_credentials.portal_login if demo_mode else '' }}">
+        <label>Пароль</label>
+        <input name="password" type="password" required autocomplete="current-password" value="{{ demo_credentials.portal_password if demo_mode else '' }}">
+        <button class="btn" type="submit" style="width:100%;margin-top:.8rem;">Войти</button>
+      </form>
+      <p class="muted" style="font-size:.82rem;margin:1rem 0 0;">{% if demo_mode %}Демо-данные уже заполнены.{% else %}Пароль выдаёт сотрудник клуба в карточке клиента.{% endif %}</p>
+      {% if tenant_slug and tenant_slug != 'legacy' %}
+      <a class="btn secondary" style="width:100%;margin-top:.7rem;" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
+      {% endif %}
+    </section>
+  </main>
+  {% else %}
+  <header class="club-nav">
+    <span class="club-brand">{{ club_name }}<span>.</span></span>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="logout">
+      <button class="btn secondary" type="submit">Выйти</button>
+    </form>
+  </header>
+
+  <main class="portal-shell">
+    <div class="club-container">
+      <div class="portal-top">
+        <div>
+          <p class="club-kicker">Личный кабинет</p>
+          <h1 class="club-heading">{{ member.full_name }}</h1>
+          <p class="muted">
+            Карта {{ member.card_number }}
+            {% if dash.member_since %} · с клубом с {{ dash.member_since.strftime('%d.%m.%Y') }}{% endif %}
+            {% if dash.visits.last_visit %} · последний визит {{ dash.visits.last_visit.strftime('%d.%m.%Y') }}{% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="portal-grid">
+        <section class="membership-pass club-glass">
+          <p class="club-kicker">Digital membership</p>
+          {% if membership %}
+          <h2>{{ membership.plan_name or 'Абонемент клуба' }}</h2>
+          <span class="pill {{ 'danger' if membership.computed_status=='expired' else ('warn' if membership.computed_status in ('expiring','frozen') else 'ok') }}">
+            {{ membership.computed_status }}
+          </span>
+          <div class="membership-dates">
+            <div class="membership-date">
+              <small>Начало</small>
+              <strong>{{ membership.starts_on }}</strong>
+            </div>
+            <div class="membership-date">
+              <small>Действует до</small>
+              <strong>{{ membership.ends_on }}</strong>
+            </div>
+            {% if membership.visits_remaining is not none %}
+            <div class="membership-date">
+              <small>Осталось визитов</small>
+              <strong>{{ membership.visits_remaining }}</strong>
+            </div>
+            {% endif %}
+            {% if dash.first_membership_start %}
+            <div class="membership-date">
+              <small>Первый абонемент</small>
+              <strong>{{ dash.first_membership_start }}</strong>
+            </div>
+            {% endif %}
+          </div>
+          {% else %}
+          <h2>Нет активного абонемента</h2>
+          <p class="muted">Обратитесь на ресепшен, чтобы выбрать подходящий тариф.</p>
+          {% endif %}
+        </section>
+
+        <section class="portal-qr club-glass">
+          <p class="club-kicker">Ваш пропуск</p>
+          <h2>QR для ресепшена</h2>
+          <img src="{{ url_for('portal.qr_png') }}" alt="QR {{ member.card_number }}">
+          <strong style="margin-top:.75rem;">{{ member.card_number }}</strong>
+          <p class="muted">Покажите QR на стойке — вводить номер не нужно.</p>
+        </section>
+      </div>
+
+      <section class="club-section-new">
+        <p class="club-kicker">Посещения</p>
+        <h2 class="club-heading">Ваша активность</h2>
+        <div class="portal-kpi-grid">
+          <article class="club-glass portal-kpi"><small>Всего визитов</small><strong>{{ dash.visits.total }}</strong></article>
+          <article class="club-glass portal-kpi"><small>За 30 дней</small><strong>{{ dash.visits.last_30 }}</strong></article>
+          <article class="club-glass portal-kpi"><small>В этом месяце</small><strong>{{ dash.visits.this_month }}</strong></article>
+          <article class="club-glass portal-kpi"><small>Среднее / месяц</small><strong>{{ dash.visits.avg_per_month }}</strong></article>
+        </div>
+        <div class="club-glass portal-chart-wrap">
+          <div class="portal-chart-meta">
+            <strong>12 недель</strong>
+            <span class="muted">первый визит:
+              {% if dash.visits.first_visit %}{{ dash.visits.first_visit.strftime('%d.%m.%Y') }}{% else %}—{% endif %}
+              · последний:
+              {% if dash.visits.last_visit %}{{ dash.visits.last_visit.strftime('%d.%m.%Y') }}{% else %}—{% endif %}
+            </span>
+          </div>
+          {% set max_v = (dash.weekly_visits | map(attribute='visits') | max) if dash.weekly_visits else 1 %}
+          {% if max_v < 1 %}{% set max_v = 1 %}{% endif %}
+          <div class="portal-bars" aria-label="Визиты по неделям">
+            {% for w in dash.weekly_visits %}
+            <div class="portal-bar-col" title="{{ w.week_start }}: {{ w.visits }}">
+              <div class="portal-bar" style="height: {{ (w.visits / max_v * 100)|round }}%"></div>
+              <span>{{ w.visits }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section class="club-section-new" id="my-bookings">
+        <p class="club-kicker">Мои записи</p>
+        <h2 class="club-heading">Подтверждённые занятия</h2>
+        <div class="club-card-grid">
+          {% for b in dash.upcoming_bookings %}
+          <article class="club-card">
+            <time class="club-schedule-time">{{ b.starts_at.strftime('%d.%m · %H:%M') if b.starts_at else '' }}</time>
+            <h3>{{ b.class_name }}</h3>
+            <p class="muted">{{ b.trainer_name or 'Тренер клуба' }} · {{ b.room_name }}</p>
+            <span class="pill ok">Подтверждено</span>
+            {% if b.can_cancel %}
+            <form method="post" style="margin-top:.75rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="cancel">
+              <input type="hidden" name="booking_id" value="{{ b.id }}">
+              <button class="btn secondary" type="submit">Отменить</button>
+            </form>
+            {% else %}
+            <p class="muted" style="margin-top:.75rem;font-size:.82rem;">Отмена недоступна (менее {{ dash.cancel_before_hours }} ч. до старта)</p>
+            {% endif %}
+          </article>
+          {% else %}
+          <article class="club-card">
+            <h3>Пока нет записей</h3>
+            <p class="muted">Выберите занятие в каталоге ниже — после записи оно появится здесь.</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="club-section-new">
+        <p class="club-kicker">Групповые программы</p>
+        <h2 class="club-heading">Доступные занятия</h2>
+        <div class="club-card-grid">
+          {% for item in dash.catalog %}
+          <article class="club-card">
+            <time class="club-schedule-time">{{ item.starts_at.strftime('%d.%m · %H:%M') }}</time>
+            <h3>{{ item.class_name }}</h3>
+            <p class="muted">{{ item.trainer_name or 'Тренер клуба' }} · {{ item.booked_count }}/{{ item.capacity }} мест</p>
+            {% if item.state == 'booked' %}
+            <span class="pill ok">Записан</span>
+            <p class="muted" style="margin-top:.5rem;font-size:.82rem;">Смотрите блок «Мои записи»</p>
+            {% elif item.state == 'full' %}
+            <span class="pill warn">Мест нет</span>
+            {% else %}
+            <form method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="book">
+              <input type="hidden" name="session_id" value="{{ item.id }}">
+              <button class="btn" type="submit">Записаться</button>
+            </form>
+            {% endif %}
+          </article>
+          {% else %}
+          <article class="club-card">
+            <h3>Пока свободная неделя</h3>
+            <p class="muted">Новые занятия скоро появятся в расписании.</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="club-section-new">
+        <p class="club-kicker">Финансы</p>
+        <h2 class="club-heading">Оплаты</h2>
+        <div class="portal-kpi-grid">
+          <article class="club-glass portal-kpi"><small>Всего оплачено</small><strong>{{ '%.0f'|format(dash.payments.total_cents / 100) }} ₽</strong></article>
+          <article class="club-glass portal-kpi">
+            <small>Последняя оплата</small>
+            <strong>
+              {% if dash.payments.last %}
+                {{ '%.0f'|format(dash.payments.last.amount_cents / 100) }} ₽
+              {% else %}—{% endif %}
+            </strong>
+            {% if dash.payments.last and dash.payments.last.paid_at %}
+            <span class="muted" style="font-size:.78rem;">{{ dash.payments.last.paid_at.strftime('%d.%m.%Y') }}</span>
+            {% endif %}
+          </article>
+          <article class="club-glass portal-kpi">
+            <small>Открытый долг</small>
+            <strong class="{{ 'warn-text' if dash.payments.open_debt_cents else '' }}">{{ '%.0f'|format(dash.payments.open_debt_cents / 100) }} ₽</strong>
+          </article>
+        </div>
+        <div class="club-glass" style="padding:1rem;margin-top:1rem;">
+          <table class="table portal-table">
+            <tr><th>Дата</th><th>Сумма</th><th>Способ</th><th>Комментарий</th></tr>
+            {% for p in dash.payments.recent %}
+            <tr>
+              <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
+              <td>{{ '%.0f'|format(p.amount_cents / 100) }} ₽</td>
+              <td>{{ p.method }}</td>
+              <td class="muted">{{ p.note or '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="muted">Оплат пока нет</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      </section>
+
+      <section class="club-section-new">
+        <div class="portal-mini-grid">
+          <article class="club-glass portal-mini">
+            <p class="club-kicker">Лояльность</p>
+            <h3>{{ dash.loyalty.points or 0 }} баллов</h3>
+            <p class="muted">Начисляются за визиты и акции клуба.</p>
+          </article>
+          <article class="club-glass portal-mini">
+            <p class="club-kicker">Медсправка</p>
+            {% if dash.medical %}
+            <h3>{{ 'Действует' if dash.medical_valid else 'Истекла' }}</h3>
+            <p class="muted">до {{ dash.medical.expires_on }}</p>
+            {% else %}
+            <h3>Не загружена</h3>
+            <p class="muted">Принесите справку на ресепшен.</p>
+            {% endif %}
+          </article>
+          <article class="club-glass portal-mini">
+            <p class="club-kicker">Персональные</p>
+            {% if dash.pt_packages %}
+              {% for pkg in dash.pt_packages[:3] %}
+              <p><strong>{{ pkg.title }}</strong> · осталось {{ pkg.sessions_left }}</p>
+              {% endfor %}
+            {% else %}
+            <h3>Нет активных пакетов</h3>
+            <p class="muted">PT можно купить у тренера или на стойке.</p>
+            {% endif %}
+          </article>
+        </div>
+      </section>
+
+      {% if dash.booking_history %}
+      <section class="club-section-new">
+        <p class="club-kicker">История</p>
+        <h2 class="club-heading">Прошлые записи</h2>
+        <div class="club-glass" style="padding:1rem;">
+          <table class="table portal-table">
+            <tr><th>Дата</th><th>Занятие</th><th>Статус</th></tr>
+            {% for b in dash.booking_history %}
+            <tr>
+              <td>{{ b.starts_at.strftime('%d.%m.%Y %H:%M') if b.starts_at else '' }}</td>
+              <td>{{ b.class_name }}</td>
+              <td><span class="pill">{{ b.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </main>
+  {% endif %}
+</body>
+</html>
