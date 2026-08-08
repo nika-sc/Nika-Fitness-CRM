@@ -4,6 +4,7 @@
 
 ## 2026-08-08
 
+- USER_GUIDE и USER_WALKTHROUGH: подробные сценарии со скриншотами всех ключевых экранов (`docs/assets/walkthrough/`).
 - Публичный README: оглавление, функции, установка Linux/Windows, архитектура, security (self-hosted).
 - Issue templates (bug / feature), CONTRIBUTING / SECURITY для OSS-снимка.
 - Публичные страницы: `/docs`, `/blog`, `/updates`.

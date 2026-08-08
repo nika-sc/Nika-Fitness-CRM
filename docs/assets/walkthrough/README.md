@@ -1,23 +1,43 @@
-# Скриншоты для USER_WALKTHROUGH
+# Скриншоты для USER_GUIDE / USER_WALKTHROUGH
 
-Положите сюда реальные скриншоты интерфейса с теми же именами:
+Реальные скриншоты UI (PNG). Обновить:
 
-- `01-login.png`
-- `02-dashboard.png`
-- `03-members-list.png`
-- `04-member-card.png`
-- `05-portal-login.png`
-- `06-portal-booking.png`
-- `07-portal-my-bookings.png`
-- `08-dashboard-portal-bookings.png`
-- `09-class-session.png`
-- `10-alerts.png`
-- `11-portal-cancel.png`
-- `12-reports.png`
-- `13-operations-summary.png`
+```bash
+# сервер должен слушать http://127.0.0.1:5001
+python scripts/capture_walkthrough_shots.py
+```
 
-Рекомендации:
+## Walkthrough (нумерованные)
 
-- формат PNG или WebP;
-- ширина 1200-1600 px;
-- скрывайте персональные данные перед публикацией.
+| Файл | Экран |
+|------|--------|
+| `01-login.png` | Вход staff |
+| `02-dashboard.png` | Dashboard |
+| `03-members-list.png` | Список клиентов |
+| `04-member-card.png` | Карточка клиента |
+| `05-portal-login.png` | Вход в ЛК |
+| `06-portal-home.png` | ЛК — карта / QR |
+| `06-portal-booking.png` | Каталог занятий |
+| `07-portal-my-bookings.png` | Мои записи |
+| `08-dashboard-portal-bookings.png` | Записи из ЛК на dashboard |
+| `09-class-session.png` | Карточка занятия |
+| `10-alerts.png` | Алерты |
+| `11-portal-cancel.png` | Отмена в ЛК |
+| `12-reports.png` | Отчёты |
+| `13-operations-summary.png` | Операционная сводка |
+
+## Guide extras
+
+| Файл | Экран |
+|------|--------|
+| `14-reception.png` | Ресепшен |
+| `15-schedule.png` | Расписание |
+| `16-memberships.png` | Планы абонементов |
+| `17-payments.png` | Оплаты |
+| `18-trainers.png` | Тренеры |
+| `19-settings.png` | Настройки |
+| `20-site-admin.png` | Редактор сайта |
+| `21-alerts.png` | Алерты (alias) |
+| `22-club-site.png` | Публичный сайт клуба |
+
+Рекомендации: ширина ~1400 px; перед публикацией скрывайте лишние персональные данные.
