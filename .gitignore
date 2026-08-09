@@ -15,7 +15,10 @@ database/backups/
 static/uploads/*
 !static/uploads/.gitkeep
 NikaFitnessCrm.code-workspace
-.cursor/
+# Cursor: игнор кэша агента, но project rules коммитим (перенос на другой ПК)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 /foto/
 app.log
 .DS_Store

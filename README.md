@@ -10,14 +10,17 @@
 Ресепшен · абонементы · расписание · ЛК клиента · сайт клуба · отчёты
 
 <p align="center">
+  <a href="https://www.nika-crm.ru/"><img src="https://img.shields.io/badge/Hub-nika--crm.ru-ff5a3c?style=for-the-badge" alt="Nika CRM hub"></a>
+  <a href="https://fitness.nika-crm.ru/"><img src="https://img.shields.io/badge/Demo-Fitness-ff5a3c?style=for-the-badge" alt="Live demo Fitness"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2d6a4f?style=for-the-badge" alt="MIT"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/Python-3.12%2B-3776ab?style=for-the-badge" alt="Python"></a>
   <a href="docs/DEPLOY.md"><img src="https://img.shields.io/badge/PostgreSQL-16%2B-336791?style=for-the-badge" alt="PostgreSQL"></a>
-  <a href="requirements.txt"><img src="https://img.shields.io/badge/Flask-app-000000?style=for-the-badge" alt="Flask"></a>
   <a href="docker-compose.yml"><img src="https://img.shields.io/badge/Docker-Compose-2496ed?style=for-the-badge" alt="Docker"></a>
 </p>
 
 <p align="center">
+  <a href="https://www.nika-crm.ru/"><b>Все продукты</b></a> ·
+  <a href="https://fitness.nika-crm.ru/"><b>Демо Fitness</b></a> ·
   <a href="#установка"><b>Установка</b></a> ·
   <a href="docs/USER_GUIDE.md"><b>Руководство</b></a> ·
   <a href="docs/USER_WALKTHROUGH.md"><b>Сценарий дня</b></a> ·
@@ -25,6 +28,8 @@
   <a href="https://github.com/nika-sc/Nika-Fitness-CRM/issues"><b>Issues</b></a> ·
   <a href="#лицензия-и-контакты"><b>Связаться</b></a>
 </p>
+
+**Домены:** [www.nika-crm.ru](https://www.nika-crm.ru/) (хаб) · [fitness.nika-crm.ru](https://fitness.nika-crm.ru/) (демо Fitness) · Service CRM — [service.nika-crm.ru](https://service.nika-crm.ru/) / [Nika-Service-CRM](https://github.com/nika-sc/Nika-Service-CRM)
 
 > **Не хотите разбираться с установкой сами?**  
 > Помогу развернуть CRM на **Linux VPS** или **Windows в зале** (Docker, домен, HTTPS, бэкапы) — по запросу.  
@@ -42,7 +47,7 @@ CRM для работы клуба: стойка ресепшена, клиен�
 - на VPS / Docker с вашим доменом (Linux);
 - полный контроль данных клуба в одной PostgreSQL.
 
-Это **не** CRM сервисного центра. Сервисные заказы/склад/ремонты — отдельный продукт: [nika-sc/Nika-Service-CRM](https://github.com/nika-sc/Nika-Service-CRM).
+Это **не** CRM сервисного центра. Сервисные заказы/склад/ремонты — отдельный продукт: [Nika Service CRM](https://github.com/nika-sc/Nika-Service-CRM) · демо [service.nika-crm.ru](https://service.nika-crm.ru/). Бренд: [www.nika-crm.ru](https://www.nika-crm.ru/).
 
 Если нашли баг или хотите предложить улучшение — [Issues](https://github.com/nika-sc/Nika-Fitness-CRM/issues) или письмо на `info@nika-sc.ru` с темой `Nika Fit`.
 

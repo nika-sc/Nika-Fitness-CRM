@@ -37,7 +37,7 @@
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
           {% block nav_items %}
           {% if saas_mode %}
-          <li class="nav-item"><a class="nav-link" href="https://www.nika-crm.ru/">Все продукты</a></li>
+          <li class="nav-item"><a class="nav-link" href="https://www.nika-crm.ru/" rel="noopener">Все продукты</a></li>
           {% endif %}
           <li class="nav-item"><a class="nav-link {% if ep == 'public.docs' %}active{% endif %}" href="{{ url_for('public.docs') }}">Документация</a></li>
           <li class="nav-item"><a class="nav-link {% if ep.startswith('public.blog') %}active{% endif %}" href="{{ url_for('public.blog') }}">Блог</a></li>
