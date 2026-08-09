@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/nika-sc/Nika-Fitness-CRM">
-    <img src="static/foto/gallery-1.jpg" alt="Nika Fitness CRM" width="100%">
+    <img src="static/foto/shot-dashboard.jpg" alt="Nika Fitness CRM — Dashboard" width="100%">
   </a>
 </p>
 
