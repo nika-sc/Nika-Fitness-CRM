@@ -1,0 +1,567 @@
+/*
+ * Club site + member portal on AdminLTE 4.
+ * Keeps per-club theme tokens (--club-*) while matching Nika Fit AdminLTE chrome.
+ */
+.nika-club {
+  font-family: "Manrope", sans-serif;
+}
+
+.nika-club .app-wrapper {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.nika-club .app-header {
+  min-height: 68px;
+  padding-block: .35rem;
+  background: rgba(var(--club-surface), 0.82) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 28%, rgba(255, 255, 255, .08));
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.nika-club .navbar-brand.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  color: var(--club-text);
+  text-decoration: none;
+}
+
+.nika-club .brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 55%, #ff8b3d));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--club-accent) 35%, transparent);
+}
+
+.nika-club .brand-mark-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  font-size: .78rem;
+}
+
+.nika-club .brand-copy {
+  line-height: 1.1;
+}
+
+.nika-club .brand-title {
+  display: block;
+  max-width: min(46vw, 280px);
+  overflow: hidden;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nika-club .brand-subtitle {
+  display: block;
+  color: var(--club-muted);
+  font-size: .7rem;
+}
+
+.nika-club .app-header .nav-link {
+  color: var(--club-muted);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: .55rem .8rem;
+}
+
+.nika-club .app-header .nav-link:hover,
+.nika-club .app-header .nav-link.active {
+  color: #fff;
+  background: rgba(255, 255, 255, .06);
+}
+
+.nika-club .navbar-toggler {
+  color: var(--club-text);
+}
+
+.nika-club .app-main {
+  background: transparent;
+}
+
+.nika-club .app-footer {
+  margin-top: auto;
+  padding: 1.25rem 0;
+  color: var(--club-muted);
+  background: rgba(var(--club-surface), .72);
+  border-top: 1px solid color-mix(in srgb, var(--club-accent) 22%, rgba(255, 255, 255, .08));
+}
+
+.nika-club .club-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .85rem 1.1rem;
+}
+
+.nika-club .club-footer-links a {
+  color: var(--club-muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nika-club .club-footer-links a:hover {
+  color: #fff;
+}
+
+.nika-club .club-kicker,
+.nika-club .public-eyebrow {
+  margin: 0 0 .7rem;
+  color: var(--club-accent);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.nika-club .club-heading,
+.nika-club .public-title {
+  margin: 0;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+
+.nika-club .panel,
+.nika-club .card,
+.nika-club .club-card,
+.nika-club .club-glass {
+  color: var(--club-text);
+  background: linear-gradient(145deg, rgba(var(--club-surface), .88), rgba(var(--club-surface), .78));
+  border: 1px solid color-mix(in srgb, var(--club-accent) 22%, rgba(255, 255, 255, .1));
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(14px);
+}
+
+.nika-club .panel,
+.nika-club .club-card {
+  padding: 1.1rem 1.15rem;
+}
+
+.nika-club .panel h3,
+.nika-club .club-card h3 {
+  margin-top: 0;
+  font-family: "Syne", sans-serif;
+  font-size: 1.08rem;
+}
+
+.nika-club .btn,
+.nika-club button:not(.navbar-toggler):not(.btn-close),
+.nika-club input[type="submit"] {
+  width: auto;
+  padding: .64rem .95rem;
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 70%, #ff793d));
+  border: 1px solid transparent;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.nika-club .btn:hover,
+.nika-club button:not(.navbar-toggler):hover {
+  color: #fff;
+  filter: brightness(1.06);
+}
+
+.nika-club .btn.secondary {
+  color: var(--club-text);
+  background: rgba(255, 255, 255, .06);
+  border-color: color-mix(in srgb, var(--club-accent) 20%, rgba(255, 255, 255, .12));
+}
+
+.nika-club input:not([type="checkbox"]):not([type="radio"]),
+.nika-club select,
+.nika-club textarea,
+.nika-club .form-control {
+  width: 100%;
+  min-height: 42px;
+  color: var(--club-text);
+  background-color: rgba(0, 0, 0, .28);
+  border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .12));
+  border-radius: 10px;
+}
+
+.nika-club input:focus,
+.nika-club select:focus,
+.nika-club textarea:focus {
+  color: var(--club-text);
+  background-color: rgba(0, 0, 0, .38);
+  border-color: color-mix(in srgb, var(--club-accent) 70%, transparent);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--club-accent) 18%, transparent);
+  outline: 0;
+}
+
+.nika-club .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--club-text);
+  --bs-table-border-color: color-mix(in srgb, var(--club-accent) 14%, rgba(255, 255, 255, .08));
+  color: var(--club-text);
+}
+
+.nika-club .table th {
+  color: var(--club-muted);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+.nika-club .pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: .2rem .55rem;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.nika-club .pill.ok { color: #2fd4a3; background: rgba(47, 212, 163, .13); }
+.nika-club .pill.warn { color: #f0b429; background: rgba(240, 180, 41, .13); }
+.nika-club .pill.danger { color: #ff5a6a; background: rgba(255, 90, 106, .13); }
+
+.nika-club .feature-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: .75rem;
+  border-radius: 12px;
+  color: #fff;
+  background: color-mix(in srgb, var(--club-accent) 28%, transparent);
+  font-size: 1.15rem;
+}
+
+.nika-club .club-site-hero {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.nika-club .club-site-hero h1 {
+  margin: 0 0 1rem;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.02;
+}
+
+.nika-club .club-site-hero-lead {
+  max-width: 34rem;
+  color: var(--club-muted);
+  font-size: 1.08rem;
+}
+
+.nika-club .club-section-new {
+  padding: 2.5rem 0;
+}
+
+.nika-club .club-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.nika-club .club-price {
+  display: block;
+  margin-top: .75rem;
+  font-family: "Syne", sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.nika-club .trainer-modern {
+  padding: 0;
+  overflow: hidden;
+}
+
+.nika-club .trainer-modern img,
+.nika-club .trainer-placeholder {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.nika-club .trainer-placeholder {
+  display: grid;
+  place-items: center;
+  font-family: "Syne", sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  background: color-mix(in srgb, var(--club-accent) 22%, rgba(0, 0, 0, .35));
+}
+
+.nika-club .trainer-modern-body {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.nika-club .gallery-modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.nika-club .gallery-modern figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .1));
+}
+
+.nika-club .gallery-modern img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.nika-club .gallery-modern figcaption {
+  padding: .65rem .85rem;
+  color: var(--club-muted);
+  font-size: .85rem;
+  background: rgba(var(--club-surface), .8);
+}
+
+.nika-club .schedule-modern {
+  padding: .35rem 0;
+}
+
+.nika-club .club-schedule-card {
+  display: grid;
+  grid-template-columns: 4.8rem minmax(0, 1fr) auto;
+  gap: .85rem;
+  align-items: center;
+  padding: .9rem 1.1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 12%, rgba(255, 255, 255, .06));
+}
+
+.nika-club .club-schedule-card:last-child {
+  border-bottom: 0;
+}
+
+.nika-club .club-schedule-time {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+}
+
+.nika-club .load-modern {
+  display: flex;
+  gap: .55rem;
+  align-items: flex-end;
+  overflow-x: auto;
+  padding: 1.1rem;
+}
+
+.nika-club .load-modern-item {
+  flex: 0 0 auto;
+  width: 2.6rem;
+  text-align: center;
+}
+
+.nika-club .load-modern-item div {
+  margin: .35rem auto;
+  width: 100%;
+  border-radius: 10px 10px 4px 4px;
+  background: linear-gradient(180deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 40%, transparent));
+}
+
+.nika-club .contacts-modern {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 1rem;
+}
+
+.nika-club .contact-modern-card small {
+  display: block;
+  color: var(--club-muted);
+  margin-bottom: .2rem;
+}
+
+.nika-club .club-map-modern,
+.nika-club .club-map-modern iframe,
+.nika-club .lp-map {
+  width: 100%;
+  min-height: 280px;
+  border: 0;
+  border-radius: 14px;
+}
+
+/* Portal */
+.nika-club .portal-login-wrap {
+  min-height: calc(100vh - 68px);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+}
+
+.nika-club .portal-login {
+  width: min(100%, 420px);
+  padding: 1.4rem 1.35rem;
+}
+
+.nika-club .portal-shell {
+  padding: 1.5rem 0 2.5rem;
+}
+
+.nika-club .portal-top {
+  margin-bottom: 1.25rem;
+}
+
+.nika-club .portal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: 1rem;
+}
+
+.nika-club .membership-pass,
+.nika-club .portal-qr {
+  padding: 1.2rem;
+}
+
+.nika-club .membership-dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: .75rem;
+  margin-top: 1rem;
+}
+
+.nika-club .membership-date {
+  padding: .7rem .8rem;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 16%, rgba(255, 255, 255, .08));
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .18);
+}
+
+.nika-club .membership-date small,
+.nika-club .portal-kpi small {
+  display: block;
+  color: var(--club-muted);
+  margin-bottom: .25rem;
+}
+
+.nika-club .portal-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.nika-club .portal-qr img {
+  width: 160px;
+  height: 160px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 14px;
+}
+
+.nika-club .portal-kpi-grid,
+.nika-club .portal-mini-grid,
+.nika-club .club-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.nika-club .portal-kpi,
+.nika-club .portal-mini {
+  padding: 1rem 1.05rem;
+}
+
+.nika-club .portal-kpi strong {
+  font-family: "Syne", sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.nika-club .portal-chart-wrap {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.nika-club .portal-chart-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .85rem;
+}
+
+.nika-club .portal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: .4rem;
+  min-height: 120px;
+}
+
+.nika-club .portal-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.nika-club .portal-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(180deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 35%, transparent));
+}
+
+.nika-club .portal-bar-col span {
+  color: var(--club-muted);
+  font-size: .7rem;
+}
+
+.nika-club .warn-text {
+  color: #f0b429;
+}
+
+.nika-club .flash {
+  margin-bottom: .75rem;
+  padding: .8rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .1));
+  border-left: 4px solid #55a7ff;
+  border-radius: 10px;
+  background: rgba(85, 167, 255, .08);
+}
+
+.nika-club .flash.success { border-left-color: #2fd4a3; background: rgba(47, 212, 163, .08); }
+.nika-club .flash.warning { border-left-color: #f0b429; background: rgba(240, 180, 41, .08); }
+.nika-club .flash.error { border-left-color: #ff5a6a; background: rgba(255, 90, 106, .08); }
+
+@media (max-width: 991.98px) {
+  .nika-club .portal-grid,
+  .nika-club .contacts-modern {
+    grid-template-columns: 1fr;
+  }
+  .nika-club .club-schedule-card {
+    grid-template-columns: 3.8rem minmax(0, 1fr);
+  }
+  .nika-club .club-schedule-card > span:last-child {
+    grid-column: 2;
+  }
+}

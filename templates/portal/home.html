@@ -1,24 +1,47 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Личный кабинет — {{ site.headline or club_name }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/club-theme.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-</head>
-<body
-  class="club-theme nika-surface"
-  data-theme="{{ theme.preset }}"
-  style="--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}')"
->
+{% extends "club/base_club.html" %}
+{% block title %}Личный кабинет — {{ site.headline or club_name }}{% endblock %}
+{% block body_class %}portal-page{% endblock %}
+{% block body %}
+<div class="app-wrapper">
+  <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация личного кабинета">
+    <div class="container-xxl">
+      <a class="navbar-brand brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
+        <span class="brand-mark">{{ club_name[:1] }}</span>
+        <span class="brand-copy">
+          <span class="brand-title">{{ club_name }}</span>
+          <span class="brand-subtitle">Личный кабинет</span>
+        </span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#portalNav" aria-controls="portalNav" aria-expanded="false" aria-label="Меню">
+        <i class="bi bi-list fs-3" aria-hidden="true"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="portalNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item">
+            {% if tenant_slug and tenant_slug != 'legacy' %}
+            <a class="nav-link" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">Сайт клуба</a>
+            {% else %}
+            <a class="nav-link" href="{{ url_for('club_public.landing') }}">Сайт клуба</a>
+            {% endif %}
+          </li>
+          {% if member %}
+          <li class="nav-item"><a class="nav-link" href="#my-bookings">Мои записи</a></li>
+          <li class="nav-item">
+            <form method="post" class="ms-lg-2 mb-0">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="logout">
+              <button class="btn secondary btn-sm" type="submit">Выйти</button>
+            </form>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
   {% if not member %}
-  <main class="portal-login-wrap">
-    <section class="portal-login club-glass">
+  <main class="app-main portal-login-wrap">
+    <section class="portal-login panel">
       <p class="club-kicker">{{ club_name }}</p>
       <h1 class="club-heading">Личный кабинет</h1>
       <p class="muted">Абонемент, QR-пропуск, оплаты и запись на тренировки.</p>
@@ -27,52 +50,34 @@
         <div class="flash {{ category }}">{{ message }}</div>
         {% endfor %}
       {% endwith %}
-      <form method="post">
+      <form method="post" class="mt-3">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="login">
-        <label>Телефон, email или карта</label>
-        <input name="login" required autocomplete="username" autofocus placeholder="+7… или NF2026…" value="{{ demo_credentials.portal_login if demo_mode else '' }}">
-        <label>Пароль</label>
-        <input name="password" type="password" required autocomplete="current-password" value="{{ demo_credentials.portal_password if demo_mode else '' }}">
-        <button class="btn" type="submit" style="width:100%;margin-top:.8rem;">Войти</button>
+        <label class="form-label">Телефон, email или карта</label>
+        <input class="form-control" name="login" required autocomplete="username" autofocus placeholder="+7… или NF2026…" value="{{ demo_credentials.portal_login if demo_mode else '' }}">
+        <label class="form-label mt-2">Пароль</label>
+        <input class="form-control" name="password" type="password" required autocomplete="current-password" value="{{ demo_credentials.portal_password if demo_mode else '' }}">
+        <button class="btn w-100 mt-3" type="submit">Войти</button>
       </form>
-      <p class="muted" style="font-size:.82rem;margin:1rem 0 0;">{% if demo_mode %}Демо-данные уже заполнены.{% else %}Пароль выдаёт сотрудник клуба в карточке клиента.{% endif %}</p>
+      <p class="muted small mt-3 mb-0">{% if demo_mode %}Демо-данные уже заполнены.{% else %}Пароль выдаёт сотрудник клуба в карточке клиента.{% endif %}</p>
       {% if tenant_slug and tenant_slug != 'legacy' %}
-      <a class="btn secondary" style="width:100%;margin-top:.7rem;" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
+      <a class="btn secondary w-100 mt-3" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
       {% else %}
-      <a class="btn secondary" style="width:100%;margin-top:.7rem;" href="{{ url_for('club_public.landing') }}">На сайт клуба</a>
+      <a class="btn secondary w-100 mt-3" href="{{ url_for('club_public.landing') }}">На сайт клуба</a>
       {% endif %}
     </section>
   </main>
   {% else %}
-  <header class="club-nav">
-    <span class="club-brand">{{ club_name }}<span>.</span></span>
-    <nav class="club-nav-links" style="display:flex;gap:.75rem;align-items:center;">
-      {% if tenant_slug and tenant_slug != 'legacy' %}
-      <a href="{{ url_for('club_public.landing', slug=tenant_slug) }}">Сайт клуба</a>
-      {% else %}
-      <a href="{{ url_for('club_public.landing') }}">Сайт клуба</a>
-      {% endif %}
-      <form method="post" style="margin:0;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="action" value="logout">
-        <button class="btn secondary" type="submit">Выйти</button>
-      </form>
-    </nav>
-  </header>
-
-  <main class="portal-shell">
+  <main class="app-main portal-shell">
     <div class="club-container">
       <div class="portal-top">
-        <div>
-          <p class="club-kicker">Личный кабинет</p>
-          <h1 class="club-heading">{{ member.full_name }}</h1>
-          <p class="muted">
-            Карта {{ member.card_number }}
-            {% if dash.member_since %} · с клубом с {{ dash.member_since.strftime('%d.%m.%Y') }}{% endif %}
-            {% if dash.visits.last_visit %} · последний визит {{ dash.visits.last_visit.strftime('%d.%m.%Y') }}{% endif %}
-          </p>
-        </div>
+        <p class="club-kicker">Личный кабинет</p>
+        <h1 class="club-heading">{{ member.full_name }}</h1>
+        <p class="muted mb-0">
+          Карта {{ member.card_number }}
+          {% if dash.member_since %} · с клубом с {{ dash.member_since.strftime('%d.%m.%Y') }}{% endif %}
+          {% if dash.visits.last_visit %} · последний визит {{ dash.visits.last_visit.strftime('%d.%m.%Y') }}{% endif %}
+        </p>
       </div>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -81,11 +86,11 @@
         {% endfor %}
       {% endwith %}
 
-      <div class="portal-grid">
+      <div class="portal-grid mb-4">
         <section class="membership-pass club-glass">
           <p class="club-kicker">Digital membership</p>
           {% if membership %}
-          <h2>{{ membership.plan_name or 'Абонемент клуба' }}</h2>
+          <h2 class="club-heading" style="font-size:1.45rem;">{{ membership.plan_name or 'Абонемент клуба' }}</h2>
           <span class="pill {{ 'danger' if membership.computed_status=='expired' else ('warn' if membership.computed_status in ('expiring','frozen') else 'ok') }}">
             {{ membership.computed_status }}
           </span>
@@ -112,23 +117,23 @@
             {% endif %}
           </div>
           {% else %}
-          <h2>Нет активного абонемента</h2>
-          <p class="muted">Обратитесь на ресепшен, чтобы выбрать подходящий тариф.</p>
+          <h2 class="club-heading" style="font-size:1.45rem;">Нет активного абонемента</h2>
+          <p class="muted mb-0">Обратитесь на ресепшен, чтобы выбрать подходящий тариф.</p>
           {% endif %}
         </section>
 
         <section class="portal-qr club-glass">
           <p class="club-kicker">Ваш пропуск</p>
-          <h2>QR для ресепшена</h2>
+          <h2 class="club-heading" style="font-size:1.2rem;">QR для ресепшена</h2>
           <img src="{{ url_for('portal.qr_png') }}" alt="QR {{ member.card_number }}">
-          <strong style="margin-top:.75rem;">{{ member.card_number }}</strong>
-          <p class="muted">Покажите QR на стойке — вводить номер не нужно.</p>
+          <strong class="mt-2">{{ member.card_number }}</strong>
+          <p class="muted mb-0">Покажите QR на стойке — вводить номер не нужно.</p>
         </section>
       </div>
 
-      <section class="club-section-new">
+      <section class="club-section-new pt-0">
         <p class="club-kicker">Посещения</p>
-        <h2 class="club-heading">Ваша активность</h2>
+        <h2 class="club-heading mb-3">Ваша активность</h2>
         <div class="portal-kpi-grid">
           <article class="club-glass portal-kpi"><small>Всего визитов</small><strong>{{ dash.visits.total }}</strong></article>
           <article class="club-glass portal-kpi"><small>За 30 дней</small><strong>{{ dash.visits.last_30 }}</strong></article>
@@ -159,7 +164,7 @@
 
       <section class="club-section-new" id="my-bookings">
         <p class="club-kicker">Мои записи</p>
-        <h2 class="club-heading">Подтверждённые занятия</h2>
+        <h2 class="club-heading mb-3">Подтверждённые занятия</h2>
         <div class="club-card-grid">
           {% for b in dash.upcoming_bookings %}
           <article class="club-card">
@@ -168,20 +173,20 @@
             <p class="muted">{{ b.trainer_name or 'Тренер клуба' }} · {{ b.room_name }}</p>
             <span class="pill ok">Подтверждено</span>
             {% if b.can_cancel %}
-            <form method="post" style="margin-top:.75rem;">
+            <form method="post" class="mt-3">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="action" value="cancel">
               <input type="hidden" name="booking_id" value="{{ b.id }}">
               <button class="btn secondary" type="submit">Отменить</button>
             </form>
             {% else %}
-            <p class="muted" style="margin-top:.75rem;font-size:.82rem;">Отмена недоступна (менее {{ dash.cancel_before_hours }} ч. до старта)</p>
+            <p class="muted small mt-3 mb-0">Отмена недоступна (менее {{ dash.cancel_before_hours }} ч. до старта)</p>
             {% endif %}
           </article>
           {% else %}
           <article class="club-card">
             <h3>Пока нет записей</h3>
-            <p class="muted">Выберите занятие в каталоге ниже — после записи оно появится здесь.</p>
+            <p class="muted mb-0">Выберите занятие в каталоге ниже — после записи оно появится здесь.</p>
           </article>
           {% endfor %}
         </div>
@@ -189,7 +194,7 @@
 
       <section class="club-section-new">
         <p class="club-kicker">Групповые программы</p>
-        <h2 class="club-heading">Доступные занятия</h2>
+        <h2 class="club-heading mb-3">Доступные занятия</h2>
         <div class="club-card-grid">
           {% for item in dash.catalog %}
           <article class="club-card">
@@ -198,11 +203,11 @@
             <p class="muted">{{ item.trainer_name or 'Тренер клуба' }} · {{ item.booked_count }}/{{ item.capacity }} мест</p>
             {% if item.state == 'booked' %}
             <span class="pill ok">Записан</span>
-            <p class="muted" style="margin-top:.5rem;font-size:.82rem;">Смотрите блок «Мои записи»</p>
+            <p class="muted small mt-2 mb-0">Смотрите блок «Мои записи»</p>
             {% elif item.state == 'full' %}
             <span class="pill warn">Мест нет</span>
             {% else %}
-            <form method="post">
+            <form method="post" class="mt-2">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="action" value="book">
               <input type="hidden" name="session_id" value="{{ item.id }}">
@@ -213,7 +218,7 @@
           {% else %}
           <article class="club-card">
             <h3>Пока свободная неделя</h3>
-            <p class="muted">Новые занятия скоро появятся в расписании.</p>
+            <p class="muted mb-0">Новые занятия скоро появятся в расписании.</p>
           </article>
           {% endfor %}
         </div>
@@ -221,7 +226,7 @@
 
       <section class="club-section-new">
         <p class="club-kicker">Финансы</p>
-        <h2 class="club-heading">Оплаты</h2>
+        <h2 class="club-heading mb-3">Оплаты</h2>
         <div class="portal-kpi-grid">
           <article class="club-glass portal-kpi"><small>Всего оплачено</small><strong>{{ '%.0f'|format(dash.payments.total_cents / 100) }} ₽</strong></article>
           <article class="club-glass portal-kpi">
@@ -232,7 +237,7 @@
               {% else %}—{% endif %}
             </strong>
             {% if dash.payments.last and dash.payments.last.paid_at %}
-            <span class="muted" style="font-size:.78rem;">{{ dash.payments.last.paid_at.strftime('%d.%m.%Y') }}</span>
+            <span class="muted small">{{ dash.payments.last.paid_at.strftime('%d.%m.%Y') }}</span>
             {% endif %}
           </article>
           <article class="club-glass portal-kpi">
@@ -240,20 +245,24 @@
             <strong class="{{ 'warn-text' if dash.payments.open_debt_cents else '' }}">{{ '%.0f'|format(dash.payments.open_debt_cents / 100) }} ₽</strong>
           </article>
         </div>
-        <div class="club-glass" style="padding:1rem;margin-top:1rem;">
-          <table class="table portal-table">
-            <tr><th>Дата</th><th>Сумма</th><th>Способ</th><th>Комментарий</th></tr>
-            {% for p in dash.payments.recent %}
-            <tr>
-              <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
-              <td>{{ '%.0f'|format(p.amount_cents / 100) }} ₽</td>
-              <td>{{ p.method }}</td>
-              <td class="muted">{{ p.note or '—' }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="4" class="muted">Оплат пока нет</td></tr>
-            {% endfor %}
-          </table>
+        <div class="club-glass mt-3 p-3">
+          <div class="table-responsive">
+            <table class="table portal-table mb-0">
+              <thead><tr><th>Дата</th><th>Сумма</th><th>Способ</th><th>Комментарий</th></tr></thead>
+              <tbody>
+                {% for p in dash.payments.recent %}
+                <tr>
+                  <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
+                  <td>{{ '%.0f'|format(p.amount_cents / 100) }} ₽</td>
+                  <td>{{ p.method }}</td>
+                  <td class="muted">{{ p.note or '—' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="muted">Оплат пока нет</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -262,27 +271,27 @@
           <article class="club-glass portal-mini">
             <p class="club-kicker">Лояльность</p>
             <h3>{{ dash.loyalty.points or 0 }} баллов</h3>
-            <p class="muted">Начисляются за визиты и акции клуба.</p>
+            <p class="muted mb-0">Начисляются за визиты и акции клуба.</p>
           </article>
           <article class="club-glass portal-mini">
             <p class="club-kicker">Медсправка</p>
             {% if dash.medical %}
             <h3>{{ 'Действует' if dash.medical_valid else 'Истекла' }}</h3>
-            <p class="muted">до {{ dash.medical.expires_on }}</p>
+            <p class="muted mb-0">до {{ dash.medical.expires_on }}</p>
             {% else %}
             <h3>Не загружена</h3>
-            <p class="muted">Принесите справку на ресепшен.</p>
+            <p class="muted mb-0">Принесите справку на ресепшен.</p>
             {% endif %}
           </article>
           <article class="club-glass portal-mini">
             <p class="club-kicker">Персональные</p>
             {% if dash.pt_packages %}
               {% for pkg in dash.pt_packages[:3] %}
-              <p><strong>{{ pkg.title }}</strong> · осталось {{ pkg.sessions_left }}</p>
+              <p class="{% if loop.last %}mb-0{% endif %}"><strong>{{ pkg.title }}</strong> · осталось {{ pkg.sessions_left }}</p>
               {% endfor %}
             {% else %}
             <h3>Нет активных пакетов</h3>
-            <p class="muted">PT можно купить у тренера или на стойке.</p>
+            <p class="muted mb-0">PT можно купить у тренера или на стойке.</p>
             {% endif %}
           </article>
         </div>
@@ -291,23 +300,43 @@
       {% if dash.booking_history %}
       <section class="club-section-new">
         <p class="club-kicker">История</p>
-        <h2 class="club-heading">Прошлые записи</h2>
-        <div class="club-glass" style="padding:1rem;">
-          <table class="table portal-table">
-            <tr><th>Дата</th><th>Занятие</th><th>Статус</th></tr>
-            {% for b in dash.booking_history %}
-            <tr>
-              <td>{{ b.starts_at.strftime('%d.%m.%Y %H:%M') if b.starts_at else '' }}</td>
-              <td>{{ b.class_name }}</td>
-              <td><span class="pill">{{ b.status }}</span></td>
-            </tr>
-            {% endfor %}
-          </table>
+        <h2 class="club-heading mb-3">Прошлые записи</h2>
+        <div class="club-glass p-3">
+          <div class="table-responsive">
+            <table class="table portal-table mb-0">
+              <thead><tr><th>Дата</th><th>Занятие</th><th>Статус</th></tr></thead>
+              <tbody>
+                {% for b in dash.booking_history %}
+                <tr>
+                  <td>{{ b.starts_at.strftime('%d.%m.%Y %H:%M') if b.starts_at else '' }}</td>
+                  <td>{{ b.class_name }}</td>
+                  <td><span class="pill">{{ b.status }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
       {% endif %}
     </div>
   </main>
   {% endif %}
-</body>
-</html>
+
+  <footer class="app-footer">
+    <div class="container-xxl d-flex flex-wrap justify-content-between gap-2 align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="brand-mark brand-mark-sm">{{ club_name[:1] }}</span>
+        <strong>{{ club_name }}</strong>
+      </div>
+      <div class="club-footer-links">
+        {% if tenant_slug and tenant_slug != 'legacy' %}
+        <a href="{{ url_for('club_public.landing', slug=tenant_slug) }}">Сайт клуба</a>
+        {% else %}
+        <a href="{{ url_for('club_public.landing') }}">Сайт клуба</a>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+</div>
+{% endblock %}

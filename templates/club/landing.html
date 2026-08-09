@@ -1,89 +1,103 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ site.headline or club_name }} — {{ club_name }}</title>
-  <meta name="description" content="{{ (site.about_text or club_name)[:155] }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/club-theme.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-</head>
-<body
-  class="club-theme nika-surface"
-  data-theme="{{ theme.preset }}"
-  style="--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}')"
->
-  <header class="club-nav">
-    <a class="club-brand" href="#top">{{ club_name }}<span>.</span></a>
-    <nav class="club-nav-links">
-      <a href="#prices">Тарифы</a>
-      <a href="#trainers">Тренеры</a>
-      <a href="#schedule">Расписание</a>
-      <a href="#contacts">Контакты</a>
-      {% if saas %}
-      <a class="btn" href="{{ url_for('portal.home', slug=slug) }}">Личный кабинет</a>
-      {% else %}
-      <a class="btn" href="{{ url_for('portal.home') }}">Личный кабинет</a>
-      {% endif %}
-    </nav>
-  </header>
-
-  <main id="top">
-    <section class="club-site-hero">
-      <div class="club-container club-site-hero-inner">
-        <div>
-          <p class="club-kicker">Сильнее каждый день</p>
-          <h1>{{ site.headline or club_name }}</h1>
-          <p>{{ site.about_text or 'Тренируйтесь в современном клубе с сильной командой и удобным расписанием.' }}</p>
-          <div class="club-cta-row">
+{% extends "club/base_club.html" %}
+{% block title %}{{ site.headline or club_name }} — {{ club_name }}{% endblock %}
+{% block meta %}
+<meta name="description" content="{{ (site.about_text or club_name)[:155] }}">
+{% endblock %}
+{% block body_class %}club-landing{% endblock %}
+{% block body %}
+<div class="app-wrapper">
+  <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация сайта клуба">
+    <div class="container-xxl">
+      <a class="navbar-brand brand-link" href="#top">
+        <span class="brand-mark">{{ club_name[:1] }}</span>
+        <span class="brand-copy">
+          <span class="brand-title">{{ club_name }}</span>
+          <span class="brand-subtitle">Сайт клуба</span>
+        </span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#clubNav" aria-controls="clubNav" aria-expanded="false" aria-label="Меню">
+        <i class="bi bi-list fs-3" aria-hidden="true"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="clubNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="#prices">Тарифы</a></li>
+          <li class="nav-item"><a class="nav-link" href="#trainers">Тренеры</a></li>
+          <li class="nav-item"><a class="nav-link" href="#schedule">Расписание</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contacts">Контакты</a></li>
+          <li class="nav-item">
             {% if saas %}
-            <a class="btn" href="{{ url_for('portal.home', slug=slug) }}">Начать тренировку</a>
-            <a class="btn secondary" href="{{ url_for('auth.login', slug=slug) }}">Вход сотрудникам</a>
+            <a class="btn btn-sm ms-lg-2" href="{{ url_for('portal.home', slug=slug) }}">Личный кабинет</a>
             {% else %}
-            <a class="btn" href="{{ url_for('portal.home') }}">Начать тренировку</a>
+            <a class="btn btn-sm ms-lg-2" href="{{ url_for('portal.home') }}">Личный кабинет</a>
             {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app-main" id="top">
+    <section class="club-site-hero">
+      <div class="club-container">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-7">
+            <p class="club-kicker">Сильнее каждый день</p>
+            <h1>{{ site.headline or club_name }}</h1>
+            <p class="club-site-hero-lead">{{ site.about_text or 'Тренируйтесь в современном клубе с сильной командой и удобным расписанием.' }}</p>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              {% if saas %}
+              <a class="btn" href="{{ url_for('portal.home', slug=slug) }}">Начать тренировку</a>
+              <a class="btn secondary" href="{{ url_for('auth.login', slug=slug) }}">Вход сотрудникам</a>
+              {% else %}
+              <a class="btn" href="{{ url_for('portal.home') }}">Начать тренировку</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <aside class="panel">
+              <div class="feature-icon"><i class="bi bi-clock" aria-hidden="true"></i></div>
+              <p class="club-kicker mb-1">Сегодня открыты</p>
+              <strong style="font-size:1.15rem;">{{ site.hours_text or 'Уточните часы работы' }}</strong>
+              {% if site.address %}<p class="muted mt-2 mb-1"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ site.address }}</p>{% endif %}
+              {% if site.phone %}<p class="mb-0"><a href="tel:{{ site.phone }}"><i class="bi bi-telephone me-1" aria-hidden="true"></i>{{ site.phone }}</a></p>{% endif %}
+            </aside>
           </div>
         </div>
-        <aside class="club-glass club-hero-contact">
-          <span class="club-kicker">Сегодня открыты</span>
-          <strong>{{ site.hours_text or 'Уточните часы работы' }}</strong>
-          {% if site.address %}<p>{{ site.address }}</p>{% endif %}
-          {% if site.phone %}<a href="tel:{{ site.phone }}">{{ site.phone }}</a>{% endif %}
-        </aside>
       </div>
     </section>
 
     <section class="club-section-new" id="about">
-      <div class="club-container club-about-grid">
-        <div>
-          <p class="club-kicker">О клубе</p>
-          <h2 class="club-heading">Пространство для результата</h2>
+      <div class="club-container">
+        <div class="row g-3 align-items-start">
+          <div class="col-md-4">
+            <p class="club-kicker">О клубе</p>
+            <h2 class="club-heading">Пространство для результата</h2>
+          </div>
+          <div class="col-md-8">
+            <p class="muted mb-0" style="font-size:1.05rem;">{{ site.about_text or 'Всё необходимое для персональных и групповых тренировок в одном клубе.' }}</p>
+          </div>
         </div>
-        <p class="club-about-copy">{{ site.about_text or 'Всё необходимое для персональных и групповых тренировок в одном клубе.' }}</p>
       </div>
     </section>
 
     <section class="club-section-new" id="prices">
       <div class="club-container">
         <p class="club-kicker">Членство</p>
-        <h2 class="club-heading">Выберите свой ритм</h2>
+        <h2 class="club-heading mb-3">Выберите свой ритм</h2>
         <div class="club-card-grid">
           {% for plan in plans %}
           <article class="club-card">
+            <div class="feature-icon"><i class="bi bi-card-checklist" aria-hidden="true"></i></div>
             <h3>{{ plan.name }}</h3>
             <p class="muted">{{ plan.description or 'Доступ к тренировкам клуба' }}</p>
-            <p>
+            <p class="muted mb-0">
               {% if plan.duration_days %}{{ plan.duration_days }} дней{% endif %}
               {% if plan.visit_limit %} · {{ plan.visit_limit }} посещений{% endif %}
             </p>
             <strong class="club-price">{{ '%.0f'|format((plan.price_cents or 0) / 100) }} ₽</strong>
           </article>
           {% else %}
-          <article class="club-card"><p class="muted">Тарифы уточняйте на ресепшене</p></article>
+          <article class="club-card"><p class="muted mb-0">Тарифы уточняйте на ресепшене</p></article>
           {% endfor %}
         </div>
       </div>
@@ -92,7 +106,7 @@
     <section class="club-section-new" id="trainers">
       <div class="club-container">
         <p class="club-kicker">Команда</p>
-        <h2 class="club-heading">Тренеры, которые ведут к цели</h2>
+        <h2 class="club-heading mb-3">Тренеры, которые ведут к цели</h2>
         <div class="club-card-grid">
           {% for trainer in trainers %}
           <article class="club-card trainer-modern">
@@ -106,12 +120,12 @@
               <p class="muted">{{ trainer.bio or 'Персональный тренер клуба' }}</p>
               {% if trainer.upcoming %}
               <small class="club-kicker">Ближайшее</small>
-              <p>{{ trainer.upcoming[0].starts_at.strftime('%d.%m · %H:%M') }} · {{ trainer.upcoming[0].class_name }}</p>
+              <p class="mb-0">{{ trainer.upcoming[0].starts_at.strftime('%d.%m · %H:%M') }} · {{ trainer.upcoming[0].class_name }}</p>
               {% endif %}
             </div>
           </article>
           {% else %}
-          <article class="club-card"><p class="muted">Команда скоро появится</p></article>
+          <article class="club-card"><p class="muted mb-0">Команда скоро появится</p></article>
           {% endfor %}
         </div>
       </div>
@@ -121,7 +135,7 @@
     <section class="club-section-new" id="gallery">
       <div class="club-container">
         <p class="club-kicker">Атмосфера</p>
-        <h2 class="club-heading">Посмотрите клуб</h2>
+        <h2 class="club-heading mb-3">Посмотрите клуб</h2>
         <div class="gallery-modern">
           {% for photo in photos %}
           <figure>
@@ -137,19 +151,19 @@
     <section class="club-section-new" id="schedule">
       <div class="club-container">
         <p class="club-kicker">Групповые тренировки</p>
-        <h2 class="club-heading">Расписание недели</h2>
+        <h2 class="club-heading mb-3">Расписание недели</h2>
         <div class="club-glass schedule-modern">
           {% for item in sessions %}
           <div class="club-schedule-card">
             <time class="club-schedule-time">{{ item.starts_at.strftime('%d.%m') }}<br>{{ item.starts_at.strftime('%H:%M') }}</time>
             <div>
               <strong>{{ item.class_name }}</strong>
-              <p class="muted">{{ item.trainer_name or 'Тренер клуба' }}</p>
+              <p class="muted mb-0">{{ item.trainer_name or 'Тренер клуба' }}</p>
             </div>
-            <span>{{ item.booked_count }}/{{ item.capacity }} мест</span>
+            <span class="pill ok">{{ item.booked_count }}/{{ item.capacity }}</span>
           </div>
           {% else %}
-          <div class="club-schedule-card"><p class="muted">На эту неделю занятий нет</p></div>
+          <div class="club-schedule-card"><p class="muted mb-0">На эту неделю занятий нет</p></div>
           {% endfor %}
         </div>
       </div>
@@ -158,7 +172,7 @@
     <section class="club-section-new" id="load">
       <div class="club-container">
         <p class="club-kicker">Когда тренироваться</p>
-        <h2 class="club-heading">Нагрузка зала за 14 дней</h2>
+        <h2 class="club-heading mb-3">Нагрузка зала за 14 дней</h2>
         {% set max_c = (load_by_day|map(attribute='cnt')|list|max) if load_by_day else 1 %}
         {% if max_c < 1 %}{% set max_c = 1 %}{% endif %}
         <div class="club-glass load-modern">
@@ -176,14 +190,14 @@
     <section class="club-section-new" id="contacts">
       <div class="club-container">
         <p class="club-kicker">Приходите</p>
-        <h2 class="club-heading">Контакты</h2>
+        <h2 class="club-heading mb-3">Контакты</h2>
         <div class="contacts-modern">
-          <div class="club-glass contact-modern-card">
+          <div class="club-glass contact-modern-card panel">
             {% if site.address %}<p><small>Адрес</small><strong>{{ site.address }}</strong></p>{% endif %}
             {% if site.phone %}<p><small>Телефон</small><strong>{{ site.phone }}</strong></p>{% endif %}
-            {% if site.hours_text %}<p><small>Режим работы</small><strong style="white-space:pre-line">{{ site.hours_text }}</strong></p>{% endif %}
+            {% if site.hours_text %}<p class="mb-0"><small>Режим работы</small><strong style="white-space:pre-line">{{ site.hours_text }}</strong></p>{% endif %}
           </div>
-          <div class="club-map-modern">
+          <div class="club-map-modern overflow-hidden">
             <iframe src="{{ map_embed_url }}" title="Карта клуба" loading="lazy" allowfullscreen></iframe>
           </div>
         </div>
@@ -191,11 +205,14 @@
     </section>
   </main>
 
-  <footer class="club-footer-new">
-    <div class="club-container">
-      <span class="club-brand">{{ club_name }}<span>.</span></span>
-      <span>Тренируйтесь. Прогрессируйте. Возвращайтесь.</span>
+  <footer class="app-footer">
+    <div class="container-xxl d-flex flex-wrap justify-content-between gap-2 align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="brand-mark brand-mark-sm">{{ club_name[:1] }}</span>
+        <strong>{{ club_name }}</strong>
+      </div>
+      <span class="muted">Тренируйтесь. Прогрессируйте. Возвращайтесь.</span>
     </div>
   </footer>
-</body>
-</html>
+</div>
+{% endblock %}
