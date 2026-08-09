@@ -20,8 +20,50 @@ def index():
 
 @bp.route('/docs')
 def docs():
-    sections = PublicContentService.docs_sections()
-    return render_template('public/docs.html', sections=sections)
+    return render_template('public/docs.html')
+
+
+def _render_docs_page(key: str, *, note: str):
+    page = PublicContentService.read_docs_page(key)
+    if not page:
+        abort(404)
+    heading, markdown = page
+    return render_template(
+        'public/docs_page.html',
+        page_heading=heading,
+        page_note=note,
+        content_html=PublicContentService.markdown_to_html(markdown),
+    )
+
+
+@bp.route('/docs/about')
+def docs_about():
+    return _render_docs_page(
+        'about',
+        note=(
+            'Бесплатная open-source CRM для фитнес-клубов: что умеет система и как '
+            'поставить облако SaaS или свой сервер (Linux/Windows).'
+        ),
+    )
+
+
+@bp.route('/docs/guide')
+def docs_guide():
+    return _render_docs_page(
+        'guide',
+        note=(
+            'Полное руководство бесплатной Nika Fitness CRM — текст открывается '
+            'прямо на демо, без обязательного перехода в GitHub.'
+        ),
+    )
+
+
+@bp.route('/docs/walkthrough')
+def docs_walkthrough():
+    return _render_docs_page(
+        'walkthrough',
+        note='Пошаговый маршрут рабочего дня в бесплатной CRM клуба — прямо на сайте.',
+    )
 
 
 @bp.route('/blog')
@@ -41,15 +83,8 @@ def blog_post(slug: str):
 
 @bp.route('/updates')
 def updates():
-    items = PublicContentService.updates()
-    rendered = [
-        {
-            'entry': item,
-            'body_html': PublicContentService.markdown_to_html(item.body_markdown),
-        }
-        for item in items
-    ]
-    return render_template('public/updates.html', items=rendered)
+    """Legacy URL — release notes live in /blog."""
+    return redirect(url_for('public.blog'), 301)
 
 
 @bp.route('/health')

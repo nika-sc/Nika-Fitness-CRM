@@ -435,7 +435,6 @@
 .warn-text { color: #ffb86b; }
 
 @media (max-width: 820px) {
-  .club-nav-links a:not(.btn) { display: none; }
   .club-site-hero-inner,
   .club-about-grid,
   .contacts-modern { grid-template-columns: 1fr; }

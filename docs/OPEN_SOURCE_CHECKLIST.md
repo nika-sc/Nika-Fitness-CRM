@@ -30,7 +30,7 @@ Checklist before switching repository visibility to **Public**.
 
 ## 5) Post-publication validation
 
-- [ ] Local app pages `/docs`, `/blog`, `/updates` open correctly.
+- [ ] Local app pages `/docs` and `/blog` open correctly (`/updates` redirects to `/blog`).
 - [ ] README badges and links are valid.
 - [ ] No broken links in docs.
 - [ ] Opened at least one issue template or discussion path for feedback.

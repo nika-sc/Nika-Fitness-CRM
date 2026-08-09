@@ -39,16 +39,21 @@
   border-radius: 12px;
   font-family: "Syne", sans-serif;
   font-weight: 800;
+  font-size: 0.84rem;
+  letter-spacing: -0.08em;
+  line-height: 1;
   color: #fff;
   background: linear-gradient(135deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 55%, #ff8b3d));
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--club-accent) 35%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--club-accent) 22%, transparent);
 }
 
 .nika-club .brand-mark-sm {
   width: 28px;
   height: 28px;
   border-radius: 9px;
-  font-size: .78rem;
+  font-size: 0.7rem;
+  letter-spacing: -0.08em;
+  line-height: 1;
 }
 
 .nika-club .brand-copy {
@@ -73,10 +78,14 @@
 }
 
 .nika-club .app-header .nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: var(--club-muted);
   font-weight: 700;
   border-radius: 10px;
-  padding: .55rem .8rem;
+  padding: .45rem .8rem;
+  line-height: 1.2;
 }
 
 .nika-club .app-header .nav-link:hover,
@@ -554,6 +563,10 @@
 .nika-club .flash.error { border-left-color: #ff5a6a; background: rgba(255, 90, 106, .08); }
 
 @media (max-width: 991.98px) {
+  body.nika-club,
+  .nika-club .app-wrapper {
+    overflow-x: hidden;
+  }
   .nika-club .portal-grid,
   .nika-club .contacts-modern {
     grid-template-columns: 1fr;
@@ -563,5 +576,31 @@
   }
   .nika-club .club-schedule-card > span:last-child {
     grid-column: 2;
+  }
+  .nika-club .navbar-toggler {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nika-club .brand-title {
+    max-width: min(58vw, 13.5rem);
+    white-space: normal;
+    line-height: 1.15;
+    font-size: clamp(.82rem, 3.5vw, 1rem);
+  }
+  .nika-club .app-header .navbar-brand.brand-link {
+    max-width: calc(100% - 3.5rem);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .nika-club .portal-login-card,
+  .nika-club .panel {
+    padding: 1rem .95rem;
+  }
+  .nika-club .btn {
+    min-height: 44px;
   }
 }

@@ -2,16 +2,26 @@
 {% block title %}{{ post.title }} — Nika Fitness CRM{% endblock %}
 {% block meta_description %}{{ post.summary }}{% endblock %}
 {% block content %}
-<div class="public-page">
-  <p class="muted mb-2"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ post.published_on }}</p>
-  <h1 class="public-title">{{ post.title }}</h1>
-  <p class="public-lead">{{ post.summary }}</p>
-  <article class="panel lp-markdown-body">
+<div class="public-page docs-article">
+  <nav class="docs-breadcrumbs muted" aria-label="Хлебные крошки">
+    <a href="{{ url_for('public.index') }}">Главная</a>
+    <span aria-hidden="true">/</span>
+    <a href="{{ url_for('public.blog') }}">Блог</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ post.title }}</span>
+  </nav>
+  <header class="docs-header">
+    <p class="public-eyebrow">Блог</p>
+    <p class="blog-date mb-2"><time datetime="{{ post.published_on }}">{{ post.published_on }}</time></p>
+    <h1 class="public-title">{{ post.title }}</h1>
+    <p class="public-lead">{{ post.summary }}</p>
+  </header>
+  <article class="panel docs-content">
     {{ body_html|safe }}
   </article>
   <div class="d-flex flex-wrap gap-2 mt-3">
-    <a class="btn secondary" href="{{ url_for('public.blog') }}">Назад в блог</a>
-    <a class="btn secondary" href="{{ url_for('public.index') }}#deploy">Варианты развёртывания</a>
+    <a class="btn secondary" href="{{ url_for('public.blog') }}">Все записи</a>
+    <a class="btn secondary" href="{{ url_for('public.docs') }}">Документация</a>
   </div>
 </div>
 {% endblock %}

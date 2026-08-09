@@ -373,9 +373,9 @@ URL: `/portal`.
 
 - `/docs` — раздел документации  
 - `/blog` — блог продукта  
-- `/updates` — release notes  
+- `/blog` — новости и релиз-ноты  
 
-Markdown-источники: `docs/blog/*.md`, `docs/updates/*.md`, `docs/CHANGELOG.md`.
+Markdown-источники: `docs/blog/*.md`, `docs/CHANGELOG.md`.
 
 ---
 

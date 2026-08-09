@@ -2,11 +2,13 @@
 {% block title %}Личный кабинет — {{ site.headline or club_name }}{% endblock %}
 {% block body_class %}portal-page{% endblock %}
 {% block body %}
+{% set _parts = (club_name or 'NF').split() %}
+{% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
 <div class="app-wrapper">
   <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация личного кабинета">
     <div class="container-xxl">
       <a class="navbar-brand brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
-        <span class="brand-mark">{{ club_name[:1] }}</span>
+        <span class="brand-mark">{{ brand_letters }}</span>
         <span class="brand-copy">
           <span class="brand-title">{{ club_name }}</span>
           <span class="brand-subtitle">Личный кабинет</span>
@@ -326,7 +328,7 @@
   <footer class="app-footer">
     <div class="container-xxl d-flex flex-wrap justify-content-between gap-2 align-items-center">
       <div class="d-flex align-items-center gap-2">
-        <span class="brand-mark brand-mark-sm">{{ club_name[:1] }}</span>
+        <span class="brand-mark brand-mark-sm">{{ brand_letters }}</span>
         <strong>{{ club_name }}</strong>
       </div>
       <div class="club-footer-links">

@@ -371,6 +371,7 @@
 
 .lp-compare {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 0 !important;
 }
 .lp-compare-table {
@@ -410,8 +411,34 @@
 @media (max-width: 900px) {
   .lp-hero { grid-template-columns: 1fr; min-height: auto; padding-top: 2rem; }
   .lp-grid-3, .lp-grid-2, .lp-contacts, .lp-strip-track, .lp-deploy-grid, .lp-shot-grid { grid-template-columns: 1fr 1fr; }
-  .lp-nav nav { display: none; }
 }
 @media (max-width: 560px) {
   .lp-strip-track, .lp-contacts, .lp-deploy-grid, .lp-shot-grid { grid-template-columns: 1fr; }
+  .lp-compare {
+    margin-inline: -.25rem;
+    padding-inline: .25rem !important;
+  }
+  .lp-compare-table {
+    min-width: 0;
+    width: 100%;
+  }
+  .lp-compare-table th,
+  .lp-compare-table td {
+    padding: .65rem .55rem;
+    font-size: .88rem;
+    word-break: break-word;
+  }
+  .lp-compare-table td:first-child {
+    width: 34%;
+  }
+  .lp-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .65rem;
+  }
+  .lp-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

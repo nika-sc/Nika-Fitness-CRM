@@ -45,16 +45,21 @@ body.nika-admin {
 }
 
 .nika-admin .app-header {
-  min-height: 64px;
+  min-height: 68px;
   padding-inline: .6rem 1rem;
-  background: rgba(9, 17, 30, 0.9) !important;
+  background: rgba(9, 17, 30, 0.93) !important;
   border-bottom: 1px solid var(--nika-line);
   backdrop-filter: blur(14px);
 }
 
 .nika-admin .app-header .nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: var(--nika-muted);
   border-radius: 10px;
+  padding: .45rem .8rem;
+  line-height: 1.2;
 }
 
 .nika-admin .app-header .nav-link:hover,
@@ -93,9 +98,12 @@ body.nika-admin {
   border-radius: 12px;
   font-family: "Syne", sans-serif;
   font-weight: 800;
+  font-size: 0.84rem;
+  letter-spacing: -0.08em;
+  line-height: 1;
   color: #fff;
   background: linear-gradient(135deg, var(--nika-accent), #ff8b3d);
-  box-shadow: 0 8px 22px rgba(255, 90, 60, .28);
+  box-shadow: 0 4px 12px rgba(255, 90, 60, .18);
 }
 
 .nika-admin .brand-copy {
@@ -649,6 +657,21 @@ body.nika-admin {
 }
 
 @media (max-width: 991.98px) {
+  body.nika-admin,
+  .nika-admin .app-wrapper {
+    overflow-x: hidden;
+  }
+  .nika-admin .app-main {
+    margin-left: 0 !important;
+  }
+  .nika-admin .app-header [data-lte-toggle="sidebar"],
+  .nika-admin .nav-link[data-lte-toggle="sidebar"] {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
   .nika-admin .app-content-header {
     padding: 1rem .85rem .25rem;
   }
@@ -693,5 +716,15 @@ body.nika-admin {
     grid-column: 2;
     flex-direction: row;
     align-items: center;
+  }
+  .nika-admin .btn-sm {
+    min-height: 40px;
+    padding: .5rem .85rem;
+    font-size: .9rem;
+  }
+  .nika-admin .week-nav .btn,
+  .nika-admin .btn-icon {
+    min-width: 40px;
+    min-height: 40px;
   }
 }

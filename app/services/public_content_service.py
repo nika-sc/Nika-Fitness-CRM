@@ -1,4 +1,4 @@
-"""Public docs/blog/updates content provider for landing pages."""
+"""Public docs/blog content provider for landing pages."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -10,7 +10,12 @@ import re
 
 DOCS_DIR = Path(__file__).resolve().parents[2] / "docs"
 BLOG_DIR = DOCS_DIR / "blog"
-UPDATES_DIR = DOCS_DIR / "updates"
+
+_DOCS_FILES = {
+    "about": ("ABOUT.md", "О проекте и установка"),
+    "guide": ("USER_GUIDE.md", "Полное руководство"),
+    "walkthrough": ("USER_WALKTHROUGH.md", "Сценарий рабочего дня"),
+}
 
 
 @dataclass
@@ -24,46 +29,27 @@ class PublicEntry:
 
 class PublicContentService:
     @staticmethod
-    def docs_sections() -> list[dict]:
-        base = 'https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/'
-        return [
-            {
-                'title': 'Полное руководство пользователя',
-                'path': 'docs/USER_GUIDE.md',
-                'url': f'{base}docs/USER_GUIDE.md',
-                'button': 'Открыть USER_GUIDE',
-                'summary': 'Разделы по ролям, ресепшену, расписанию, ЛК клиента и отчётам.',
-            },
-            {
-                'title': 'Пошаговый сценарий рабочего дня',
-                'path': 'docs/USER_WALKTHROUGH.md',
-                'url': f'{base}docs/USER_WALKTHROUGH.md',
-                'button': 'Открыть WALKTHROUGH',
-                'summary': 'Маршрут администратора и ресепшена: от входа до финальной сверки дня.',
-            },
-            {
-                'title': 'Деплой и эксплуатация',
-                'path': 'docs/DEPLOY.md',
-                'url': f'{base}docs/DEPLOY.md',
-                'button': 'Открыть DEPLOY',
-                'summary': 'Linux (Docker/VPS) и Windows: установка, reverse proxy, бэкапы.',
-            },
-            {
-                'title': 'Open Source checklist',
-                'path': 'docs/OPEN_SOURCE_CHECKLIST.md',
-                'url': f'{base}docs/OPEN_SOURCE_CHECKLIST.md',
-                'button': 'Открыть CHECKLIST',
-                'summary': 'Проверки перед открытием репозитория, публикацией и первым релизом.',
-            },
-        ]
+    def read_docs_page(key: str) -> tuple[str, str] | None:
+        """Return (heading, markdown_body) for a known docs page key."""
+        meta = _DOCS_FILES.get(key)
+        if not meta:
+            return None
+        filename, heading = meta
+        path = DOCS_DIR / filename
+        if not path.is_file():
+            return None
+        text = path.read_text(encoding="utf-8")
+        # Drop leading H1 — page template already shows heading
+        lines = text.splitlines()
+        if lines and lines[0].startswith("# "):
+            lines = lines[1:]
+            while lines and not lines[0].strip():
+                lines = lines[1:]
+        return heading, "\n".join(lines).strip()
 
     @staticmethod
     def blog_posts() -> list[PublicEntry]:
         return PublicContentService._read_entries(BLOG_DIR)
-
-    @staticmethod
-    def updates() -> list[PublicEntry]:
-        return PublicContentService._read_entries(UPDATES_DIR)
 
     @staticmethod
     def blog_post(slug: str) -> PublicEntry | None:
@@ -77,6 +63,10 @@ class PublicContentService:
         lines = markdown_text.splitlines()
         html_chunks: list[str] = []
         in_ul = False
+        in_code = False
+        code_lang = ""
+        code_buf: list[str] = []
+        table_buf: list[str] = []
 
         def close_ul() -> None:
             nonlocal in_ul
@@ -84,22 +74,77 @@ class PublicContentService:
                 html_chunks.append("</ul>")
                 in_ul = False
 
+        def flush_table() -> None:
+            nonlocal table_buf
+            if not table_buf:
+                return
+            rows = []
+            for row in table_buf:
+                cells = [c.strip() for c in row.strip().strip("|").split("|")]
+                rows.append(cells)
+            table_buf = []
+            if len(rows) < 2:
+                return
+            # Skip separator row |---|---|
+            body_rows = rows[1:]
+            if body_rows and all(re.fullmatch(r":?-+:?", c or "") for c in body_rows[0]):
+                body_rows = body_rows[1:]
+            html_chunks.append('<div class="table-responsive"><table class="table">')
+            html_chunks.append("<thead><tr>")
+            for cell in rows[0]:
+                html_chunks.append(f"<th>{PublicContentService._inline_markup(cell)}</th>")
+            html_chunks.append("</tr></thead><tbody>")
+            for row in body_rows:
+                html_chunks.append("<tr>")
+                for cell in row:
+                    html_chunks.append(f"<td>{PublicContentService._inline_markup(cell)}</td>")
+                html_chunks.append("</tr>")
+            html_chunks.append("</tbody></table></div>")
+
         for raw in lines:
-            line = raw.rstrip()
+            line = raw.rstrip("\n")
+            if in_code:
+                if line.strip().startswith("```"):
+                    escaped_code = escape("\n".join(code_buf))
+                    lang_cls = f' class="language-{escape(code_lang)}"' if code_lang else ""
+                    html_chunks.append(f"<pre><code{lang_cls}>{escaped_code}</code></pre>")
+                    in_code = False
+                    code_buf = []
+                    code_lang = ""
+                else:
+                    code_buf.append(line)
+                continue
+
+            if line.strip().startswith("```"):
+                close_ul()
+                flush_table()
+                in_code = True
+                code_lang = line.strip()[3:].strip()
+                code_buf = []
+                continue
+
+            if line.strip().startswith("|") and "|" in line.strip()[1:]:
+                close_ul()
+                table_buf.append(line)
+                continue
+            if table_buf:
+                flush_table()
+
+            line = line.rstrip()
             if not line:
                 close_ul()
                 continue
             if line.startswith("### "):
                 close_ul()
-                html_chunks.append(f"<h3>{escape(line[4:])}</h3>")
+                html_chunks.append(f"<h3>{PublicContentService._inline_markup(line[4:])}</h3>")
                 continue
             if line.startswith("## "):
                 close_ul()
-                html_chunks.append(f"<h2>{escape(line[3:])}</h2>")
+                html_chunks.append(f"<h2>{PublicContentService._inline_markup(line[3:])}</h2>")
                 continue
             if line.startswith("# "):
                 close_ul()
-                html_chunks.append(f"<h1>{escape(line[2:])}</h1>")
+                html_chunks.append(f"<h1>{PublicContentService._inline_markup(line[2:])}</h1>")
                 continue
             if line.startswith("- "):
                 if not in_ul:
@@ -111,6 +156,10 @@ class PublicContentService:
             html_chunks.append(f"<p>{PublicContentService._inline_markup(line)}</p>")
 
         close_ul()
+        flush_table()
+        if in_code:
+            escaped_code = escape("\n".join(code_buf))
+            html_chunks.append(f"<pre><code>{escaped_code}</code></pre>")
         return "\n".join(html_chunks)
 
     @staticmethod
@@ -158,9 +207,12 @@ class PublicContentService:
         escaped = escape(text)
         escaped = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped)
         escaped = re.sub(r"`([^`]+?)`", r"<code>\1</code>", escaped)
-        escaped = re.sub(
-            r"\[([^\]]+)\]\(([^)]+)\)",
-            r'<a href="\2" target="_blank" rel="noopener">\1</a>',
-            escaped,
-        )
+
+        def _link(match: re.Match[str]) -> str:
+            label, href = match.group(1), match.group(2)
+            external = href.startswith("http://") or href.startswith("https://") or href.startswith("mailto:")
+            target = ' target="_blank" rel="noopener"' if external and not href.startswith("mailto:") else ""
+            return f'<a href="{href}"{target}>{label}</a>'
+
+        escaped = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", _link, escaped)
         return escaped

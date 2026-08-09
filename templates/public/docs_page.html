@@ -1,0 +1,27 @@
+{% extends "public/base_public.html" %}
+{% block title %}{{ page_heading }} — бесплатная Nika Fitness CRM{% endblock %}
+{% block meta_description %}{{ page_note }}{% endblock %}
+{% block meta_keywords %}бесплатная CRM для фитнес клуба, Nika Fitness CRM, документация, {{ page_heading }}, open source, self-hosted{% endblock %}
+{% block content %}
+<div class="public-page docs-article">
+  <nav class="docs-breadcrumbs muted" aria-label="Хлебные крошки">
+    <a href="{{ url_for('public.index') }}">Главная</a>
+    <span aria-hidden="true">/</span>
+    <a href="{{ url_for('public.docs') }}">Документация</a>
+    <span aria-hidden="true">/</span>
+    <span>{{ page_heading }}</span>
+  </nav>
+  <header class="docs-header">
+    <p class="public-eyebrow">Документация</p>
+    <h1 class="public-title">{{ page_heading }}</h1>
+    <p class="public-lead">{{ page_note }}</p>
+  </header>
+  <article class="panel docs-content">
+    {{ content_html|safe }}
+  </article>
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    <a class="btn secondary" href="{{ url_for('public.docs') }}">Все разделы</a>
+    <a class="btn secondary" href="{{ url_for('public.index') }}#deploy">Варианты развёртывания</a>
+  </div>
+</div>
+{% endblock %}

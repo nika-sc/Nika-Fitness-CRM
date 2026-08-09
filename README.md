@@ -286,7 +286,7 @@ TRUSTED_HOSTS=localhost,127.0.0.1,your.domain
 | [SECURITY.md](SECURITY.md) | Политика безопасности |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Как контрибьютить |
 
-На работающем сервере также доступны `/docs`, `/blog`, `/updates`.
+На работающем сервере также доступны `/docs` и `/blog` (релизы и нововведения).
 
 ---
 

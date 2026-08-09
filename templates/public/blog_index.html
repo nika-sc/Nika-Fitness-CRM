@@ -1,30 +1,37 @@
 {% extends "public/base_public.html" %}
-{% block title %}Блог — Nika Fitness CRM{% endblock %}
-{% block meta_description %}Новости Nika Fitness CRM: ЛК клиента, сайт клуба, релизы для своего сервера.{% endblock %}
+{% block title %}Блог — бесплатная CRM для фитнес-клубов | Nika Fit{% endblock %}
+{% block meta_description %}Новости бесплатной open-source Nika Fitness CRM: ЛК клиента, сайт клуба, релизы для своего сервера и обновления демо.{% endblock %}
+{% block meta_keywords %}блог Nika Fitness CRM, бесплатная CRM фитнес, обновления, open source{% endblock %}
 {% block content %}
-<div class="public-page">
-  <p class="public-eyebrow">Новости продукта</p>
-  <h1 class="public-title">Блог Nika Fitness CRM</h1>
-  <p class="public-lead">Практики внедрения, фичи и релизы для установки на Linux или Windows.</p>
+<div class="public-page docs-hub">
+  <header class="docs-header">
+    <p class="public-eyebrow">Блог</p>
+    <h1 class="public-title">Новости и релизы</h1>
+    <p class="public-lead">
+      Короткие заметки о нововведениях Nika Fit — от ресепшена и ЛК до сайта клуба и установки.
+    </p>
+  </header>
 
-  <div class="row g-3 blog-list">
+  <div class="docs-cards">
     {% for post in posts %}
-    <div class="col-md-6">
-      <article class="panel h-100 d-flex flex-column">
-        <p class="muted mb-1"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ post.published_on }}</p>
-        <h3>{{ post.title }}</h3>
-        <p class="muted flex-grow-1">{{ post.summary }}</p>
-        <a class="btn align-self-start" href="{{ url_for('public.blog_post', slug=post.slug) }}">Читать статью</a>
-      </article>
-    </div>
+    <a class="docs-card" href="{{ url_for('public.blog_post', slug=post.slug) }}">
+      <p class="blog-date mb-1"><time datetime="{{ post.published_on }}">{{ post.published_on }}</time></p>
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.summary }}</p>
+      <span class="docs-card-cta">Читать →</span>
+    </a>
     {% else %}
-    <div class="col-12">
-      <article class="panel">
-        <h3>Публикаций пока нет</h3>
-        <p class="muted">Добавьте markdown-файлы в <code>docs/blog/</code>.</p>
-      </article>
-    </div>
+    <article class="panel">
+      <h3>Публикаций пока нет</h3>
+      <p class="muted mb-0">Добавьте markdown-файлы в <code>docs/blog/</code>.</p>
+    </article>
     {% endfor %}
   </div>
+
+  <p class="docs-extra muted">
+    Документация: <a href="{{ url_for('public.docs') }}">/docs</a>
+    · исходники на
+    <a href="https://github.com/nika-sc/Nika-Fitness-CRM" target="_blank" rel="noopener">GitHub</a>
+  </p>
 </div>
 {% endblock %}
