@@ -31,7 +31,7 @@ python scripts/run_migrations.py --legacy --seed-admin
 
 ## 2. Windows (локальный сервер клуба)
 
-1. Установите **Python 3.12+** и **PostgreSQL 16+**.
+1. Установите **Python 3.12+** и **PostgreSQL 18+**.
 2. Создайте БД и пропишите `DATABASE_URL` в `.env`.
 3. В каталоге проекта:
 

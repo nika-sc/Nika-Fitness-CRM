@@ -42,7 +42,8 @@ def docs_about():
         'about',
         note=(
             'Бесплатная open-source CRM для фитнес-клубов: что умеет система и как '
-            'поставить облако SaaS или свой сервер (Linux/Windows).'
+            + ('поставить облако SaaS или ' if saas_enabled() else '')
+            + 'развернуть на своём сервере (Linux/Windows).'
         ),
     )
 

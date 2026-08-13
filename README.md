@@ -4,9 +4,9 @@
   </a>
 </p>
 
-# Nika Fit
+# Nika Fitness CRM
 
-**Бесплатная open-source CRM для фитнес-клубов**  
+**Nika Fit** — бесплатная open-source CRM для фитнес-клубов  
 Ресепшен · абонементы · расписание · ЛК клиента · сайт клуба · отчёты
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://fitness.nika-crm.ru/"><img src="https://img.shields.io/badge/Demo-Fitness-ff5a3c?style=for-the-badge" alt="Live demo Fitness"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2d6a4f?style=for-the-badge" alt="MIT"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/Python-3.12%2B-3776ab?style=for-the-badge" alt="Python"></a>
-  <a href="docs/DEPLOY.md"><img src="https://img.shields.io/badge/PostgreSQL-16%2B-336791?style=for-the-badge" alt="PostgreSQL"></a>
+  <a href="docs/DEPLOY.md"><img src="https://img.shields.io/badge/PostgreSQL-18%2B-336791?style=for-the-badge" alt="PostgreSQL"></a>
   <a href="docker-compose.yml"><img src="https://img.shields.io/badge/Docker-Compose-2496ed?style=for-the-badge" alt="Docker"></a>
 </p>
 
@@ -180,7 +180,7 @@ cd Nika-Fitness-CRM
 
 ## Установка
 
-Нужны **Python 3.12+** и **PostgreSQL 16+** (или Docker Compose на Linux).
+Нужны **Python 3.12+** и **PostgreSQL 18+** (или Docker Compose на Linux).
 
 ### Быстрый старт
 
@@ -226,7 +226,7 @@ python scripts/run_migrations.py --legacy --seed-admin
 
 ### Windows (сервер в зале)
 
-1. Установите Python 3.12+ и PostgreSQL 16+.
+1. Установите Python 3.12+ и PostgreSQL 18+.
 2. Создайте БД и пропишите `DATABASE_URL` в `.env`.
 3. Выполните быстрый старт выше.
 4. Автозапуск: служба Windows или Планировщик задач (`.venv\Scripts\python.exe run.py`).
