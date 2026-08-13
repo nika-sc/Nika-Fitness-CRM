@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import io
+import json
 
 from flask import (
     Blueprint,
     Response,
     abort,
+    current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -38,7 +41,7 @@ from app.services.schedule_service import ScheduleService
 from app.services.trainer_service import TrainerService
 from app.services.user_service import UserService
 from app.services.waitlist_service import WaitlistService
-from app.utils.decorators import permission_required
+from app.utils.decorators import feature_required, permission_required
 
 portal_bp = Blueprint('portal', __name__)
 pt_bp = Blueprint('pt', __name__)
@@ -105,9 +108,59 @@ def qr_png():
     return render_member_qr_png(member['card_number'])
 
 
+@portal_bp.route('/manifest.webmanifest')
+def manifest():
+    body = {
+        'name': 'Личный кабинет',
+        'short_name': 'ЛК клуба',
+        'description': 'Абонемент, QR-пропуск и запись на занятия',
+        'start_url': url_for('portal.home'),
+        'scope': url_for('portal.home'),
+        'display': 'standalone',
+        'background_color': '#0b1220',
+        'theme_color': '#ff5a3c',
+        'icons': [
+            {
+                'src': url_for('static', filename='icons/nf-pwa.svg'),
+                'sizes': 'any',
+                'type': 'image/svg+xml',
+                'purpose': 'any maskable',
+            }
+        ],
+    }
+    return Response(json.dumps(body, ensure_ascii=False), mimetype='application/manifest+json')
+
+
+@portal_bp.route('/sw.js')
+def service_worker():
+    response = current_app.send_static_file('js/portal-sw.js')
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+
+@portal_bp.route('/offline')
+def offline():
+    return render_template('portal/offline.html')
+
+
+@portal_bp.route('/push-subscribe', methods=['POST'])
+def push_subscribe():
+    member = PortalService.current_member()
+    if not member:
+        abort(401)
+    data = request.get_json(silent=True) or {}
+    endpoint = (data.get('endpoint') or '').strip()
+    if not endpoint:
+        return jsonify({'ok': False, 'error': 'endpoint required'}), 400
+    PushService.subscribe(member['id'], endpoint, json.dumps(data.get('keys') or {}, ensure_ascii=False))
+    return jsonify({'ok': True})
+
+
 # ----- PT -----
 @pt_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_pt')
 @permission_required('manage_pt')
 def index():
     if request.method == 'POST':
@@ -148,6 +201,7 @@ def index():
 # ----- Messaging -----
 @messaging_bp.route('/')
 @login_required
+@feature_required('module_messaging')
 @permission_required('manage_messaging')
 def index():
     return render_template('features/messaging.html', messages=MessageService.list_recent())
@@ -155,6 +209,7 @@ def index():
 
 @messaging_bp.route('/send', methods=['POST'])
 @login_required
+@feature_required('module_messaging')
 @permission_required('manage_messaging')
 def send():
     try:
@@ -173,6 +228,7 @@ def send():
 # ----- Zones -----
 @zones_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_zones')
 @permission_required('manage_zones')
 def index():
     if request.method == 'POST':
@@ -188,6 +244,7 @@ def index():
 # ----- Corporate -----
 @corporate_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_corporate')
 @permission_required('manage_corporate')
 def index():
     if request.method == 'POST':
@@ -249,6 +306,8 @@ def index():
     return render_template(
         'features/cash.html',
         shift=CashService.current_shift(),
+        shift_totals=CashService.payment_totals(shift_id=CashService.open_shift_id()) if CashService.current_shift() else None,
+        today=CashService.payment_totals(today=True),
         shifts=CashService.list_shifts(),
         debts=CashService.list_debts(),
         members=MemberService.list_members(limit=200),
@@ -258,6 +317,7 @@ def index():
 # ----- Lockers -----
 @lockers_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_lockers')
 @permission_required('manage_lockers')
 def index():
     if request.method == 'POST':
@@ -283,6 +343,7 @@ def index():
 # ----- Loyalty / segments / NPS list -----
 @loyalty_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_loyalty')
 @permission_required('manage_loyalty')
 def index():
     if request.method == 'POST':
@@ -313,6 +374,7 @@ def index():
 # ----- Leads -----
 @leads_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_leads')
 @permission_required('manage_leads')
 def index():
     if request.method == 'POST':
@@ -347,6 +409,7 @@ def index():
 # ----- Branches -----
 @branches_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_branches')
 @permission_required('manage_branches')
 def index():
     if request.method == 'POST':
@@ -366,6 +429,7 @@ def index():
 # ----- Online payments -----
 @payments_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_payments_online')
 @permission_required('manage_payments_online')
 def index():
     if request.method == 'POST':
@@ -394,6 +458,7 @@ def index():
 
 @payments_bp.route('/webhook', methods=['POST'])
 @csrf.exempt
+@feature_required('module_payments_online')
 def webhook():
     # Stub webhook: mark by external_id
     data = request.get_json(silent=True) or {}
@@ -411,6 +476,7 @@ def webhook():
 # ----- SPA / bar / kids -----
 @spa_bp.route('/', methods=['GET', 'POST'])
 @login_required
+@feature_required('module_spa')
 @permission_required('manage_spa')
 def index():
     if request.method == 'POST':

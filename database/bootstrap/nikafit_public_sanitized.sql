@@ -144,7 +144,8 @@ CREATE TABLE IF NOT EXISTS checkins (
     source VARCHAR(40) NOT NULL DEFAULT 'reception',
     alert_level VARCHAR(40) NOT NULL DEFAULT 'ok',
     message TEXT NOT NULL DEFAULT '',
-    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    checked_out_at TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_checkins_checked_at ON checkins (checked_at);
 CREATE INDEX IF NOT EXISTS idx_checkins_member ON checkins (member_id);
@@ -708,6 +709,48 @@ ALTER TABLE club_site DROP CONSTRAINT IF EXISTS club_site_background_overlay_che
 ALTER TABLE club_site ADD CONSTRAINT club_site_background_overlay_check
     CHECK (background_overlay BETWEEN 0 AND 90);
 
+ALTER TABLE payments
+    ADD COLUMN IF NOT EXISTS cash_shift_id INTEGER REFERENCES cash_shifts(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_payments_cash_shift ON payments (cash_shift_id);
+
+ALTER TABLE checkins
+    ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_checkins_open_presence
+    ON checkins (checked_at DESC)
+    WHERE checked_out_at IS NULL;
+
+INSERT INTO app_settings (key, value) VALUES
+    ('module_leads', 'false'),
+    ('module_loyalty', 'false'),
+    ('module_pt', 'false'),
+    ('module_spa', 'false'),
+    ('module_lockers', 'false'),
+    ('module_corporate', 'false'),
+    ('module_payments_online', 'false'),
+    ('module_zones', 'false'),
+    ('module_messaging', 'false'),
+    ('module_branches', 'false'),
+    ('gym_presence_hours', '4')
+ON CONFLICT (key) DO NOTHING;
+
+DELETE FROM role_permissions
+WHERE role = 'reception'
+  AND permission_id IN (
+    SELECT id FROM permissions WHERE name IN (
+        'manage_leads',
+        'manage_loyalty',
+        'view_segments',
+        'manage_pt',
+        'manage_spa',
+        'manage_lockers',
+        'manage_corporate',
+        'manage_payments_online',
+        'manage_zones',
+        'manage_messaging',
+        'manage_branches'
+    )
+  );
+
 INSERT INTO schema_migrations_pg (version, name)
 VALUES
     ('001', 'initial'),
@@ -721,5 +764,6 @@ VALUES
     ('009', 'portal_password'),
     ('010', 'club_map'),
     ('011', 'club_theme'),
-    ('012', 'booking_tracking')
+    ('012', 'booking_tracking'),
+    ('013', 'starter_pack')
 ON CONFLICT (version) DO NOTHING;

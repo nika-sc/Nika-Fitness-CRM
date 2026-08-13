@@ -265,13 +265,23 @@ class MembershipService:
                 'active',
             ),
         )
+        from app.services.ops_service import CashService
+
         payment = execute_returning(
             """
-            INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by, cash_shift_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING *
             """,
-            (member_id, membership['id'], plan['price_cents'], method, note, created_by),
+            (
+                member_id,
+                membership['id'],
+                plan['price_cents'],
+                method,
+                note,
+                created_by,
+                CashService.open_shift_id(),
+            ),
         )
         membership['payment'] = payment
         membership['computed_status'] = MembershipService.compute_status(

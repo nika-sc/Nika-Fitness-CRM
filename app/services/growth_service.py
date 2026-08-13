@@ -47,12 +47,19 @@ class PaymentIntentService:
             (intent_id,),
         )
         if intent.get('member_id') and intent['amount_cents'] > 0:
+            from app.services.ops_service import CashService
+
             execute_returning(
                 """
-                INSERT INTO payments (member_id, amount_cents, method, note)
-                VALUES (%s, %s, 'online', %s) RETURNING id
+                INSERT INTO payments (member_id, amount_cents, method, note, cash_shift_id)
+                VALUES (%s, %s, 'online', %s, %s) RETURNING id
                 """,
-                (intent['member_id'], intent['amount_cents'], f"Online {intent['external_id']}"),
+                (
+                    intent['member_id'],
+                    intent['amount_cents'],
+                    f"Online {intent['external_id']}",
+                    CashService.open_shift_id(),
+                ),
             )
         return fetch_one('SELECT * FROM payment_intents WHERE id = %s', (intent_id,))
 

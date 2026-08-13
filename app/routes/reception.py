@@ -3,9 +3,11 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from flask_login import current_user, login_required
 
 from app.services.checkin_service import CheckinService
+from app.services.feature_flags_service import FeatureFlagsService
 from app.services.guest_service import GuestService
 from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
+from app.services.portal_service import PortalService
 from app.utils.decorators import permission_required
 
 bp = Blueprint('reception', __name__)
@@ -20,13 +22,18 @@ def desk():
     q = request.args.get('q', '').strip()
     members = MemberService.list_members(q=q, limit=20) if q else []
     recent = CheckinService.recent(20)
-    expiring = MembershipService.expiring_members()
+    expiring = MembershipService.expiring_members()[:5]
     guests_today = GuestService.list_today()
     host_candidates = MemberService.list_members(limit=200)
-    try:
-        zones = ZoneService.list_zones()
-    except Exception:
-        zones = []
+    attendance = CheckinService.today_stats()
+    present = CheckinService.present_now()
+    plans = MembershipService.list_plans(active_only=True)
+    zones = []
+    if FeatureFlagsService.is_enabled('module_zones'):
+        try:
+            zones = ZoneService.list_zones()
+        except Exception:
+            zones = []
     return render_template(
         'reception/desk.html',
         q=q,
@@ -36,6 +43,9 @@ def desk():
         guests_today=guests_today,
         host_candidates=host_candidates,
         zones=zones,
+        attendance=attendance,
+        present=present,
+        plans=plans,
     )
 
 
@@ -94,3 +104,47 @@ def api_search():
     q = request.args.get('q', '')
     members = MemberService.list_members(q=q, limit=15)
     return jsonify({'members': members})
+
+
+@bp.route('/register', methods=['POST'])
+@login_required
+@permission_required('manage_members')
+def register():
+    try:
+        name = (request.form.get('full_name') or '').strip()
+        phone = (request.form.get('phone') or '').strip()
+        if not name or not phone:
+            raise ValueError('Укажите ФИО и телефон')
+        member = MemberService.create({
+            'full_name': name,
+            'phone': phone,
+            'email': (request.form.get('email') or '').strip(),
+        })
+        plan_raw = (request.form.get('plan_id') or '').strip()
+        if plan_raw:
+            MembershipService.sell(
+                member['id'],
+                int(plan_raw),
+                request.form.get('method') or 'cash',
+                current_user.id,
+                note='Ресепшен: новый клиент',
+            )
+        password = (request.form.get('portal_password') or '').strip()
+        if password or request.form.get('issue_portal'):
+            PortalService.set_password(member['id'], password or None, send_email=False)
+        flash(f'Клиент {member["full_name"]} создан, карта {member["card_number"]}', 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('reception.desk'))
+
+
+@bp.route('/checkout', methods=['POST'])
+@login_required
+@permission_required('checkin')
+def checkout():
+    try:
+        CheckinService.checkout(int(request.form.get('checkin_id')))
+        flash('Выход отмечен', 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('reception.desk'))

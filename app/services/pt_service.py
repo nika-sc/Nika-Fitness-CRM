@@ -43,12 +43,14 @@ class PtService:
             (member_id, trainer_id or None, title or 'PT пакет', total, total, price_cents, expires),
         )
         if price_cents > 0:
+            from app.services.ops_service import CashService
+
             execute_returning(
                 """
-                INSERT INTO payments (member_id, amount_cents, method, note)
-                VALUES (%s, %s, 'card', %s) RETURNING id
+                INSERT INTO payments (member_id, amount_cents, method, note, cash_shift_id)
+                VALUES (%s, %s, 'card', %s, %s) RETURNING id
                 """,
-                (member_id, price_cents, f"PT: {pkg['title']}"),
+                (member_id, price_cents, f"PT: {pkg['title']}", CashService.open_shift_id()),
             )
         return pkg
 

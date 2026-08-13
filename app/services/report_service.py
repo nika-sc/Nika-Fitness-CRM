@@ -4,7 +4,9 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from app.database.connection import fetch_all, fetch_one
+from app.services.checkin_service import CheckinService
 from app.services.membership_service import MembershipService
+from app.services.ops_service import CashService
 from app.services.schedule_service import ScheduleService
 
 
@@ -67,6 +69,10 @@ class ReportService:
         today_sessions = ScheduleService.today_sessions()
         portal_bookings = ScheduleService.recent_portal_bookings(hours=24, limit=20)
         upcoming_member_bookings = fetch_all_upcoming_bookings()
+        attendance = CheckinService.today_stats()
+        hourly_raw = {int(r['hour']): int(r['cnt']) for r in CheckinService.hourly_today()}
+        hourly = [{'hour': h, 'cnt': hourly_raw.get(h, 0)} for h in range(6, 23)]
+        revenue = CashService.payment_totals(today=True)
         return {
             'active_memberships': active['c'] if active else 0,
             'frozen_memberships': frozen['c'] if frozen else 0,
@@ -85,6 +91,11 @@ class ReportService:
             'avg_fill_pct': avg_fill,
             'ltv_avg_cents': ReportService.avg_ltv_cents(),
             'churn_30_pct': ReportService.churn_30_pct(),
+            'checkins_today': attendance['checkins'],
+            'unique_checkins_today': attendance['unique_members'],
+            'hourly_checkins': hourly,
+            'revenue_today_cents': revenue['total'],
+            'cash_shift': CashService.current_shift(),
         }
 
     @staticmethod

@@ -14,6 +14,12 @@
   <div class="panel stat"><span class="muted">No-show за 7 дней</span><strong>{{ summary.noshows_week }}</strong></div>
   <div class="panel stat"><span class="muted">Оплат за неделю</span><strong>{{ summary.payments_week_count }}</strong></div>
 </div>
+<div class="grid grid-4" style="margin-top:1rem;">
+  <div class="panel stat"><span class="muted">Чекинов сегодня</span><strong>{{ summary.checkins_today }}</strong></div>
+  <div class="panel stat"><span class="muted">Уникальных сегодня</span><strong>{{ summary.unique_checkins_today }}</strong></div>
+  <div class="panel stat"><span class="muted">Касса</span><strong>{% if summary.cash_shift %}открыта{% else %}закрыта{% endif %}</strong></div>
+  <div class="panel stat"><span class="muted">Выручка сегодня</span><strong>{{ '%.0f'|format((summary.revenue_today_cents or 0)/100) }} ₽</strong></div>
+</div>
 <div class="grid grid-2" style="margin-top:1rem;">
   <div class="panel stat"><span class="muted">Средний LTV</span><strong>{{ '%.0f'|format((summary.ltv_avg_cents or 0)/100) }} ₽</strong></div>
   <div class="panel stat"><span class="muted">Churn 30 дн.</span><strong>{{ summary.churn_30_pct or 0 }}%</strong></div>
@@ -48,6 +54,21 @@
       <tr><td colspan="3" class="muted">Нет занятий</td></tr>
       {% endfor %}
     </table>
+  </div>
+</div>
+<div class="panel" style="margin-top:1rem;">
+  <h3>Чекины сегодня по часам</h3>
+  {% set max_c = (summary.hourly_checkins | map(attribute='cnt') | max) if summary.hourly_checkins else 1 %}
+  {% if max_c < 1 %}{% set max_c = 1 %}{% endif %}
+  <div style="align-items:flex-end;height:140px;gap:4px;display:flex;">
+    {% for h in summary.hourly_checkins %}
+    <div title="{{ h.hour }}:00 — {{ h.cnt }}" style="flex:1;text-align:center;">
+      <div style="height: {{ (h.cnt / max_c * 100)|round }}%;background:#ff5a3c;min-height:{% if h.cnt %}8px{% else %}2px{% endif %};border-radius:4px 4px 0 0;"></div>
+      <small class="muted">{{ h.hour }}</small>
+    </div>
+    {% else %}
+    <p class="muted mb-0">Сегодня чекинов ещё не было</p>
+    {% endfor %}
   </div>
 </div>
 <div class="panel" style="margin-top:1rem;">

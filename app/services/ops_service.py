@@ -112,27 +112,78 @@ class CashService:
         )
 
     @staticmethod
-    def close_shift(user_id: int, closing_cents: int, note: str = '') -> dict:
-        row = fetch_one("SELECT * FROM cash_shifts WHERE status = 'open' ORDER BY id DESC LIMIT 1")
-        if not row:
-            raise ValueError('Нет открытой смены')
-        execute(
-            """
-            UPDATE cash_shifts SET status = 'closed', closed_by = %s, closed_at = NOW(),
-              closing_cents = %s, note = CASE WHEN %s = '' THEN note ELSE %s END
-            WHERE id = %s
-            """,
-            (user_id, closing_cents, note or '', note or '', row['id']),
-        )
-        return fetch_one('SELECT * FROM cash_shifts WHERE id = %s', (row['id'],))
-
-    @staticmethod
     def current_shift() -> dict | None:
         return fetch_one("SELECT * FROM cash_shifts WHERE status = 'open' ORDER BY id DESC LIMIT 1")
 
     @staticmethod
+    def open_shift_id() -> int | None:
+        row = CashService.current_shift()
+        return int(row['id']) if row else None
+
+    @staticmethod
+    def payment_totals(shift_id: int | None = None, today: bool = False) -> dict:
+        sql = """
+            SELECT
+              COALESCE(SUM(amount_cents), 0)::bigint AS total,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method = 'cash'), 0)::bigint AS cash,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method = 'card'), 0)::bigint AS card,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method NOT IN ('cash', 'card')), 0)::bigint AS other,
+              COUNT(*)::int AS cnt
+            FROM payments
+            WHERE 1=1
+        """
+        params: list = []
+        if shift_id:
+            sql += ' AND cash_shift_id = %s'
+            params.append(shift_id)
+        if today:
+            sql += ' AND paid_at::date = CURRENT_DATE'
+        row = fetch_one(sql, params)
+        return {
+            'total': int(row['total']) if row else 0,
+            'cash': int(row['cash']) if row else 0,
+            'card': int(row['card']) if row else 0,
+            'other': int(row['other']) if row else 0,
+            'cnt': int(row['cnt']) if row else 0,
+        }
+
+    @staticmethod
+    def close_shift(user_id: int, closing_cents: int, note: str = '') -> dict:
+        row = fetch_one("SELECT * FROM cash_shifts WHERE status = 'open' ORDER BY id DESC LIMIT 1")
+        if not row:
+            raise ValueError('Нет открытой смены')
+        totals = CashService.payment_totals(shift_id=row['id'])
+        expected = int(row['opening_cents'] or 0) + totals['cash']
+        variance = int(closing_cents) - expected
+        extra = f'ожидалось {expected / 100:.0f} ₽, факт {closing_cents / 100:.0f} ₽, расхождение {variance / 100:.0f} ₽'
+        merged = (note or '').strip()
+        merged = f'{merged}; {extra}' if merged else extra
+        execute(
+            """
+            UPDATE cash_shifts SET status = 'closed', closed_by = %s, closed_at = NOW(),
+              closing_cents = %s, note = %s
+            WHERE id = %s
+            """,
+            (user_id, closing_cents, merged, row['id']),
+        )
+        closed = fetch_one('SELECT * FROM cash_shifts WHERE id = %s', (row['id'],))
+        closed['expected_cents'] = expected
+        closed['variance_cents'] = variance
+        closed['totals'] = totals
+        return closed
+
+    @staticmethod
     def list_shifts(limit: int = 50) -> list[dict]:
-        return fetch_all('SELECT * FROM cash_shifts ORDER BY id DESC LIMIT %s', (limit,))
+        return fetch_all(
+            """
+            SELECT s.*,
+              COALESCE((SELECT SUM(p.amount_cents) FROM payments p WHERE p.cash_shift_id = s.id), 0)::bigint AS sales_cents
+            FROM cash_shifts s
+            ORDER BY s.id DESC
+            LIMIT %s
+            """,
+            (limit,),
+        )
 
     @staticmethod
     def create_debt(member_id: int, amount: float, note: str, user_id: int | None) -> dict:
@@ -170,10 +221,10 @@ class CashService:
         )
         execute_returning(
             """
-            INSERT INTO payments (member_id, amount_cents, method, note, created_by)
-            VALUES (%s, %s, 'cash', %s, %s) RETURNING id
+            INSERT INTO payments (member_id, amount_cents, method, note, created_by, cash_shift_id)
+            VALUES (%s, %s, 'cash', %s, %s, %s) RETURNING id
             """,
-            (debt['member_id'], pay, f'Погашение долга #{debt_id}', user_id),
+            (debt['member_id'], pay, f'Погашение долга #{debt_id}', user_id, CashService.open_shift_id()),
         )
         return fetch_one('SELECT * FROM debts WHERE id = %s', (debt_id,))
 

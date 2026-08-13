@@ -2,6 +2,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from app.services.feature_flags_service import FeatureFlagsService
 from app.services.reminder_service import ReminderService
 from app.services.user_service import UserService
 from app.utils.decorators import permission_required
@@ -13,7 +14,11 @@ bp = Blueprint('settings', __name__)
 @login_required
 @permission_required('manage_settings')
 def index():
-    return render_template('settings/index.html', users=UserService.list_users())
+    return render_template(
+        'settings/index.html',
+        users=UserService.list_users(),
+        modules=FeatureFlagsService.list_for_settings(),
+    )
 
 
 @bp.route('/users', methods=['POST'])
@@ -42,4 +47,25 @@ def run_reminders():
         flash(f'Отправлено напоминаний: {sent}', 'success')
     except Exception as exc:
         flash(str(exc), 'error')
+    return redirect(url_for('settings.index'))
+
+
+@bp.route('/reminders/classes', methods=['POST'])
+@login_required
+@permission_required('manage_settings')
+def class_reminders():
+    try:
+        sent = ReminderService.send_class_push()
+        flash(f'Напоминаний о занятиях: {sent}', 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('settings.index'))
+
+
+@bp.route('/modules', methods=['POST'])
+@login_required
+@permission_required('manage_settings')
+def save_modules():
+    FeatureFlagsService.save_from_form(request.form)
+    flash('Модули клуба сохранены', 'success')
     return redirect(url_for('settings.index'))

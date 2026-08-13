@@ -51,10 +51,12 @@ class GuestService:
 
         payment_id = None
         if amount_cents > 0 and host_id:
+            from app.services.ops_service import CashService
+
             payment = execute_returning(
                 """
-                INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by)
-                VALUES (%s, NULL, %s, %s, %s, %s)
+                INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by, cash_shift_id)
+                VALUES (%s, NULL, %s, %s, %s, %s, %s)
                 RETURNING id
                 """,
                 (
@@ -63,6 +65,7 @@ class GuestService:
                     method or 'cash',
                     (note or f'Гостевой визит: {name}').strip(),
                     created_by,
+                    CashService.open_shift_id(),
                 ),
             )
             payment_id = payment['id'] if payment else None

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.database.connection import execute, execute_returning, fetch_all
+from app.database.connection import execute, execute_returning, fetch_all, fetch_one
 from app.services.alert_service import AlertService
 from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
@@ -27,14 +27,16 @@ class CheckinService:
         from app.services.ops_service import ZoneService
         from app.services.growth_service import MedicalService
         from app.services.crm_extra_service import LoyaltyService
+        from app.services.feature_flags_service import FeatureFlagsService
 
         if SettingsService.get_bool('enforce_medical_cert', False):
             if not MedicalService.is_valid(member_id):
                 raise ValueError('Нет действующей медсправки')
 
         zone = zone_code or SettingsService.get('default_access_zone', 'gym')
-        if not ZoneService.member_can_access(member_id, zone):
-            raise ValueError(f'Нет доступа в зону «{zone}» по текущему абонементу')
+        if FeatureFlagsService.is_enabled('module_zones'):
+            if not ZoneService.member_can_access(member_id, zone):
+                raise ValueError(f'Нет доступа в зону «{zone}» по текущему абонементу')
 
         frozen = MembershipService.current_for_member(member_id)
         if frozen and frozen.get('computed_status') == 'frozen':
@@ -89,7 +91,7 @@ class CheckinService:
             ),
         )
 
-        if alert_level == 'ok':
+        if alert_level == 'ok' and FeatureFlagsService.is_enabled('module_loyalty'):
             try:
                 LoyaltyService.award_visit(member_id)
             except Exception:
@@ -157,4 +159,62 @@ class CheckinService:
             LIMIT %s
             """,
             (member_id, limit),
+        )
+
+    @staticmethod
+    def today_stats() -> dict:
+        row = fetch_one(
+            """
+            SELECT COUNT(*)::int AS checkins,
+                   COUNT(DISTINCT member_id)::int AS unique_members
+            FROM checkins
+            WHERE checked_at::date = CURRENT_DATE
+            """
+        )
+        return {
+            'checkins': int(row['checkins']) if row else 0,
+            'unique_members': int(row['unique_members']) if row else 0,
+        }
+
+    @staticmethod
+    def present_now() -> list[dict]:
+        from app.services.settings_service import SettingsService
+
+        hours = SettingsService.get_int('gym_presence_hours', 4) or 4
+        return fetch_all(
+            """
+            SELECT c.*, m.full_name, m.card_number, m.photo_path
+            FROM checkins c
+            JOIN members m ON m.id = c.member_id
+            WHERE c.checked_out_at IS NULL
+              AND c.checked_at >= NOW() - (%s * INTERVAL '1 hour')
+            ORDER BY c.checked_at DESC
+            """,
+            (hours,),
+        )
+
+    @staticmethod
+    def checkout(checkin_id: int) -> dict:
+        row = execute_returning(
+            """
+            UPDATE checkins SET checked_out_at = NOW()
+            WHERE id = %s AND checked_out_at IS NULL
+            RETURNING *
+            """,
+            (checkin_id,),
+        )
+        if not row:
+            raise ValueError('Чекин не найден или уже закрыт')
+        return row
+
+    @staticmethod
+    def hourly_today() -> list[dict]:
+        return fetch_all(
+            """
+            SELECT EXTRACT(HOUR FROM checked_at)::int AS hour, COUNT(*)::int AS cnt
+            FROM checkins
+            WHERE checked_at::date = CURRENT_DATE
+            GROUP BY 1
+            ORDER BY 1
+            """
         )

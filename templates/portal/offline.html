@@ -1,0 +1,11 @@
+{% extends "club/base_club.html" %}
+{% block title %}Нет сети — {{ club_name }}{% endblock %}
+{% block body %}
+<div class="club-container py-5">
+  <div class="panel">
+    <h1 class="club-heading">Нет сети</h1>
+    <p class="muted">Личный кабинет недоступен без интернета. Проверьте соединение и откройте страницу снова.</p>
+    <a class="btn" href="{{ url_for('portal.home') }}">Повторить</a>
+  </div>
+</div>
+{% endblock %}

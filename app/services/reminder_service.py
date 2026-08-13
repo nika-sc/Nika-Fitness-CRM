@@ -37,3 +37,35 @@ class ReminderService:
                 )
                 sent += 1
         return sent
+
+    @staticmethod
+    def send_class_push(hours: int | None = None) -> int:
+        from app.services.growth_service import PushService
+        from app.services.settings_service import SettingsService
+
+        window = hours if hours is not None else (SettingsService.get_int('class_reminder_hours', 3) or 3)
+        rows = fetch_all(
+            """
+            SELECT DISTINCT ON (b.member_id, b.session_id)
+                   b.member_id, s.starts_at, ct.name AS class_name
+            FROM class_bookings b
+            JOIN class_sessions s ON s.id = b.session_id
+            JOIN class_types ct ON ct.id = s.class_type_id
+            WHERE b.status = 'booked'
+              AND s.starts_at BETWEEN NOW() AND NOW() + (%s * INTERVAL '1 hour')
+            ORDER BY b.member_id, b.session_id, s.starts_at
+            """,
+            (window,),
+        )
+        sent = 0
+        for row in rows:
+            PushService.notify_member(
+                row['member_id'],
+                'class_reminder',
+                {
+                    'class_name': row.get('class_name'),
+                    'starts_at': str(row.get('starts_at') or ''),
+                },
+            )
+            sent += 1
+        return sent

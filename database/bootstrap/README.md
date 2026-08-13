@@ -2,9 +2,9 @@
 
 Для новых установок без пошаговых миграций здесь хранится sanitised SQL-дамп.
 
-Текущий tip схемы: **012_booking_tracking** (`schema_migrations_pg` → `001`…`012`).
+Текущий tip схемы: **013_starter_pack** (`schema_migrations_pg` → `001`…`013`).
 
-Файл: [`nikafit_public_sanitized.sql`](nikafit_public_sanitized.sql) — DDL + seed + отметки миграций `001`–`012`.
+Файл: [`nikafit_public_sanitized.sql`](nikafit_public_sanitized.sql) — DDL + seed + отметки миграций `001`–`013`.
 
 Пересборка с живой БД после `docker compose up`:
 

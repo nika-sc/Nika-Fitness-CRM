@@ -1,19 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Касса{% endblock %}
 {% block content %}
-<div class="topbar"><h1>Касса и долги</h1></div>
-<div class="grid grid-2">
+<div class="topbar"><h1>Касса</h1></div>
+<div class="grid grid-4">
+  <div class="panel stat"><span class="muted">Выручка сегодня</span><strong>{{ '%.0f'|format((today.total or 0)/100) }} ₽</strong></div>
+  <div class="panel stat"><span class="muted">Нал сегодня</span><strong>{{ '%.0f'|format((today.cash or 0)/100) }} ₽</strong></div>
+  <div class="panel stat"><span class="muted">Карта сегодня</span><strong>{{ '%.0f'|format((today.card or 0)/100) }} ₽</strong></div>
+  <div class="panel stat"><span class="muted">Смена</span><strong>{% if shift %}открыта #{{ shift.id }}{% else %}закрыта{% endif %}</strong></div>
+</div>
+<div class="grid grid-2" style="margin-top:1rem;">
   <div class="panel">
-    <p>Смена: {% if shift %}<span class="pill ok">открыта #{{ shift.id }}</span>{% else %}<span class="pill warn">закрыта</span>{% endif %}</p>
     {% if not shift %}
-    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="open">
-      <label>Наличка на открытие, ₽</label><input name="opening" type="number" value="0"><button type="submit">Открыть смену</button></form>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="open">
+      <label>Наличка на открытие, ₽</label>
+      <input name="opening" type="number" value="0">
+      <button type="submit">Открыть смену</button>
+    </form>
     {% else %}
-    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="close">
-      <label>Наличка на закрытие, ₽</label><input name="closing" type="number" value="0"><button type="submit">Закрыть смену</button></form>
+    <p>Итог смены: нал {{ '%.0f'|format((shift_totals.cash or 0)/100) }} ₽ · карта {{ '%.0f'|format((shift_totals.card or 0)/100) }} ₽ · всего {{ '%.0f'|format((shift_totals.total or 0)/100) }} ₽</p>
+    <p class="muted">Ожидаемый остаток наличных: {{ '%.0f'|format(((shift.opening_cents or 0) + (shift_totals.cash or 0))/100) }} ₽</p>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="close">
+      <label>Наличка на закрытие, ₽</label>
+      <input name="closing" type="number" value="{{ '%.0f'|format(((shift.opening_cents or 0) + (shift_totals.cash or 0))/100) }}">
+      <button type="submit">Закрыть смену</button>
+    </form>
     {% endif %}
-    <h3>Новый долг</h3>
-    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="debt">
+    <h3 class="mt-3">Новый долг</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="debt">
       <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
       <input name="amount" type="number" placeholder="Сумма ₽" required>
       <input name="note" placeholder="Комментарий">
@@ -27,8 +46,28 @@
     <tr><td>{{ d.full_name }}</td><td>{{ '%.0f'|format(d.amount_cents/100) }}</td><td>{{ '%.0f'|format(d.paid_cents/100) }}</td>
       <td><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="pay_debt"><input type="hidden" name="debt_id" value="{{ d.id }}">
       <input name="amount" type="number" placeholder="₽" style="width:5rem;"><button type="submit">Оплатить</button></form></td></tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">Нет открытых долгов</td></tr>
     {% endfor %}
     </table>
   </div>
+</div>
+<div class="panel mt-3">
+  <h3>История смен</h3>
+  <table class="table">
+    <tr><th>#</th><th>Статус</th><th>Открыта</th><th>Закрыта</th><th>Продажи</th><th>Заметка</th></tr>
+    {% for s in shifts %}
+    <tr>
+      <td>{{ s.id }}</td>
+      <td>{{ s.status }}</td>
+      <td>{{ s.opened_at.strftime('%d.%m %H:%M') if s.opened_at else '' }}</td>
+      <td>{{ s.closed_at.strftime('%d.%m %H:%M') if s.closed_at else '—' }}</td>
+      <td>{{ '%.0f'|format((s.sales_cents or 0)/100) }} ₽</td>
+      <td class="muted small">{{ s.note }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">Смен ещё не было</td></tr>
+    {% endfor %}
+  </table>
 </div>
 {% endblock %}

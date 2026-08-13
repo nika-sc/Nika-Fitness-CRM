@@ -6,6 +6,14 @@
     <h1>Ресепшен</h1>
     <p class="muted">Чекин по карте / QR, гости и срочные абонементы</p>
   </div>
+  <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#newClientModal">Новый клиент</button>
+</div>
+
+<div class="grid grid-4 mb-3">
+  <div class="panel stat"><span class="muted">Чекинов сегодня</span><strong>{{ attendance.checkins }}</strong></div>
+  <div class="panel stat"><span class="muted">Уникальных сегодня</span><strong>{{ attendance.unique_members }}</strong></div>
+  <div class="panel stat"><span class="muted">Сейчас в зале</span><strong>{{ present|length }}</strong></div>
+  <div class="panel stat"><span class="muted">Истекают скоро</span><strong>{{ expiring|length }}</strong></div>
 </div>
 
 <div class="row g-3 reception-desk">
@@ -200,4 +208,106 @@
     </div>
   </div>
 </div>
+
+{% if present %}
+<div class="panel mt-3">
+  <h3>Сейчас в зале</h3>
+  <table class="table">
+    <tr><th>Клиент</th><th>Вход</th><th></th></tr>
+    {% for p in present %}
+    <tr>
+      <td>{{ p.full_name }} <span class="card-number">{{ p.card_number }}</span></td>
+      <td>{{ p.checked_at.strftime('%H:%M') if p.checked_at else '' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('reception.checkout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="checkin_id" value="{{ p.id }}">
+          <button class="btn secondary btn-sm" type="submit">Выход</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<div class="modal fade" id="newClientModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{{ url_for('reception.register') }}" id="newClientForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Новый клиент</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <div data-step="1">
+          <p class="muted">Шаг 1 из 3 — контакты</p>
+          <label class="form-label">ФИО</label>
+          <input class="form-control" name="full_name" required>
+          <label class="form-label mt-2">Телефон</label>
+          <input class="form-control" name="phone" required>
+          <label class="form-label mt-2">Email (необязательно)</label>
+          <input class="form-control" name="email" type="email">
+        </div>
+        <div data-step="2" hidden>
+          <p class="muted">Шаг 2 из 3 — абонемент</p>
+          <label class="form-label">План</label>
+          <select class="form-select" name="plan_id">
+            <option value="">— без продажи —</option>
+            {% for p in plans %}
+            <option value="{{ p.id }}">{{ p.name }} · {{ '%.0f'|format(p.price_cents/100) }} ₽</option>
+            {% endfor %}
+          </select>
+          <label class="form-label mt-2">Оплата</label>
+          <select class="form-select" name="method">
+            <option value="cash">Наличные</option>
+            <option value="card">Карта</option>
+            <option value="transfer">Перевод</option>
+          </select>
+        </div>
+        <div data-step="3" hidden>
+          <p class="muted">Шаг 3 из 3 — пароль ЛК (необязательно)</p>
+          <label class="form-check">
+            <input class="form-check-input" type="checkbox" name="issue_portal" value="1">
+            Выдать доступ в личный кабинет
+          </label>
+          <label class="form-label mt-2">Пароль (пусто — сгенерировать)</label>
+          <input class="form-control" name="portal_password" minlength="6" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" id="newClientBack" hidden>Назад</button>
+        <button type="button" class="btn" id="newClientNext">Далее</button>
+        <button type="submit" class="btn" id="newClientSubmit" hidden>Создать</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  var step = 1;
+  var form = document.getElementById('newClientForm');
+  if (!form) return;
+  function show() {
+    form.querySelectorAll('[data-step]').forEach(function (el) {
+      el.hidden = Number(el.getAttribute('data-step')) !== step;
+    });
+    document.getElementById('newClientBack').hidden = step === 1;
+    document.getElementById('newClientNext').hidden = step === 3;
+    document.getElementById('newClientSubmit').hidden = step !== 3;
+  }
+  document.getElementById('newClientNext').addEventListener('click', function () {
+    if (step === 1 && (!form.full_name.value.trim() || !form.phone.value.trim())) {
+      form.reportValidity();
+      return;
+    }
+    step = Math.min(3, step + 1);
+    show();
+  });
+  document.getElementById('newClientBack').addEventListener('click', function () {
+    step = Math.max(1, step - 1);
+    show();
+  });
+})();
+</script>
 {% endblock %}

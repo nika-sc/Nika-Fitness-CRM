@@ -100,7 +100,7 @@
           </li>
       {% endif %}
 
-      {% if has_permission('view_memberships') or has_permission('manage_leads') or has_permission('manage_loyalty') %}
+      {% if has_permission('view_memberships') or (has_permission('manage_leads') and feature_enabled('module_leads')) or (has_permission('manage_loyalty') and feature_enabled('module_loyalty')) %}
           <li class="nav-header">Продажи</li>
       {% endif %}
       {% if has_permission('view_memberships') %}
@@ -115,14 +115,14 @@
             </a>
           </li>
       {% endif %}
-      {% if has_permission('manage_leads') %}
+      {% if has_permission('manage_leads') and feature_enabled('module_leads') %}
           <li class="nav-item"><a href="{{ url_for('leads.index') }}" class="nav-link {% if ep.startswith('leads.') %}active{% endif %}"><i class="nav-icon bi bi-funnel"></i><p>Лиды</p></a></li>
       {% endif %}
-      {% if has_permission('manage_loyalty') %}
+      {% if has_permission('manage_loyalty') and feature_enabled('module_loyalty') %}
           <li class="nav-item"><a href="{{ url_for('loyalty.index') }}" class="nav-link {% if ep.startswith('loyalty.') %}active{% endif %}"><i class="nav-icon bi bi-stars"></i><p>Лояльность</p></a></li>
       {% endif %}
 
-      {% if has_permission('view_schedule') or has_permission('view_trainers') or has_permission('manage_pt') %}
+      {% if has_permission('view_schedule') or has_permission('view_trainers') or (has_permission('manage_pt') and feature_enabled('module_pt')) %}
           <li class="nav-header">Тренировки</li>
       {% endif %}
       {% if has_permission('view_schedule') %}
@@ -131,11 +131,11 @@
       {% if has_permission('view_trainers') %}
           <li class="nav-item"><a href="{{ url_for('trainers.list_trainers') }}" class="nav-link {% if ep.startswith('trainers.') %}active{% endif %}"><i class="nav-icon bi bi-person-arms-up"></i><p>Тренеры</p></a></li>
       {% endif %}
-      {% if has_permission('manage_pt') %}
+      {% if has_permission('manage_pt') and feature_enabled('module_pt') %}
           <li class="nav-item"><a href="{{ url_for('pt.index') }}" class="nav-link {% if ep.startswith('pt.') %}active{% endif %}"><i class="nav-icon bi bi-activity"></i><p>PT</p></a></li>
       {% endif %}
 
-      {% if has_permission('view_alerts') or has_permission('manage_cash') or has_permission('manage_zones') or has_permission('manage_lockers') or has_permission('manage_spa') %}
+      {% if has_permission('view_alerts') or has_permission('manage_cash') or (has_permission('manage_zones') and feature_enabled('module_zones')) or (has_permission('manage_lockers') and feature_enabled('module_lockers')) or (has_permission('manage_spa') and feature_enabled('module_spa')) %}
           <li class="nav-header">Операции</li>
       {% endif %}
       {% if has_permission('view_alerts') %}
@@ -144,32 +144,32 @@
       {% if has_permission('manage_cash') %}
           <li class="nav-item"><a href="{{ url_for('cash.index') }}" class="nav-link {% if ep.startswith('cash.') %}active{% endif %}"><i class="nav-icon bi bi-cash-stack"></i><p>Касса</p></a></li>
       {% endif %}
-      {% if has_permission('manage_zones') %}
+      {% if has_permission('manage_zones') and feature_enabled('module_zones') %}
           <li class="nav-item"><a href="{{ url_for('zones.index') }}" class="nav-link {% if ep.startswith('zones.') %}active{% endif %}"><i class="nav-icon bi bi-door-open"></i><p>Зоны</p></a></li>
       {% endif %}
-      {% if has_permission('manage_lockers') %}
+      {% if has_permission('manage_lockers') and feature_enabled('module_lockers') %}
           <li class="nav-item"><a href="{{ url_for('lockers.index') }}" class="nav-link {% if ep.startswith('lockers.') %}active{% endif %}"><i class="nav-icon bi bi-grid-3x3-gap"></i><p>Шкафчики</p></a></li>
       {% endif %}
-      {% if has_permission('manage_spa') %}
+      {% if has_permission('manage_spa') and feature_enabled('module_spa') %}
           <li class="nav-item"><a href="{{ url_for('spa.index') }}" class="nav-link {% if ep.startswith('spa.') %}active{% endif %}"><i class="nav-icon bi bi-cup-hot"></i><p>SPA/бар</p></a></li>
       {% endif %}
 
-      {% if has_permission('view_reports') or has_permission('manage_messaging') or has_permission('manage_corporate') or has_permission('manage_branches') or has_permission('manage_payments_online') %}
+      {% if has_permission('view_reports') or (has_permission('manage_messaging') and feature_enabled('module_messaging')) or (has_permission('manage_corporate') and feature_enabled('module_corporate')) or (has_permission('manage_branches') and feature_enabled('module_branches')) or (has_permission('manage_payments_online') and feature_enabled('module_payments_online')) %}
           <li class="nav-header">Управление</li>
       {% endif %}
       {% if has_permission('view_reports') %}
           <li class="nav-item"><a href="{{ url_for('reports.index') }}" class="nav-link {% if ep.startswith('reports.') %}active{% endif %}"><i class="nav-icon bi bi-bar-chart"></i><p>Отчёты</p></a></li>
       {% endif %}
-      {% if has_permission('manage_messaging') %}
+      {% if has_permission('manage_messaging') and feature_enabled('module_messaging') %}
           <li class="nav-item"><a href="{{ url_for('messaging.index') }}" class="nav-link {% if ep.startswith('messaging.') %}active{% endif %}"><i class="nav-icon bi bi-chat-left-text"></i><p>Сообщения</p></a></li>
       {% endif %}
-      {% if has_permission('manage_corporate') %}
+      {% if has_permission('manage_corporate') and feature_enabled('module_corporate') %}
           <li class="nav-item"><a href="{{ url_for('corporate.index') }}" class="nav-link {% if ep.startswith('corporate.') %}active{% endif %}"><i class="nav-icon bi bi-buildings"></i><p>Корпоративные</p></a></li>
       {% endif %}
-      {% if has_permission('manage_branches') %}
+      {% if has_permission('manage_branches') and feature_enabled('module_branches') %}
           <li class="nav-item"><a href="{{ url_for('branches.index') }}" class="nav-link {% if ep.startswith('branches.') %}active{% endif %}"><i class="nav-icon bi bi-diagram-3"></i><p>Филиалы</p></a></li>
       {% endif %}
-      {% if has_permission('manage_payments_online') %}
+      {% if has_permission('manage_payments_online') and feature_enabled('module_payments_online') %}
           <li class="nav-item"><a href="{{ url_for('payments_online.index') }}" class="nav-link {% if ep.startswith('payments_online.') %}active{% endif %}"><i class="nav-icon bi bi-credit-card"></i><p>Онлайн-оплаты</p></a></li>
       {% endif %}
 

@@ -70,6 +70,13 @@ def create_app(config_class=Config):
                 return False
             return UserService.check_permission(current_user.id, name)
 
+        def feature_enabled(name: str) -> bool:
+            from app.services.feature_flags_service import FeatureFlagsService
+            try:
+                return FeatureFlagsService.is_enabled(name)
+            except Exception:
+                return False
+
         unread = 0
         club_name = 'Nika Fitness'
         tenant_slug = getattr(g, 'tenant_slug', None)
@@ -88,6 +95,7 @@ def create_app(config_class=Config):
                 pass
         return {
             'has_permission': has_permission,
+            'feature_enabled': feature_enabled,
             'unread_alerts': unread,
             'club_name': club_name,
             'tenant_slug': tenant_slug,

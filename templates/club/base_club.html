@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ club_name }}{% endblock %}</title>
-  {% block meta %}{% endblock %}
+  <meta name="theme-color" content="#ff5a3c">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/nf-pwa.svg') }}">
+  {% if request.endpoint and request.endpoint.startswith('portal.') %}
+  <link rel="manifest" href="{{ url_for('portal.manifest') }}">
+  {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">

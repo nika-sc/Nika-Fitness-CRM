@@ -130,6 +130,8 @@
           <img src="{{ url_for('portal.qr_png') }}" alt="QR {{ member.card_number }}">
           <strong class="mt-2">{{ member.card_number }}</strong>
           <p class="muted mb-0">Покажите QR на стойке — вводить номер не нужно.</p>
+          <button type="button" class="btn secondary mt-3" id="enablePushBtn">Включить напоминания о занятии</button>
+          <p class="muted small mb-0 mt-2" id="pushStatus"></p>
         </section>
       </div>
 
@@ -341,4 +343,40 @@
     </div>
   </footer>
 </div>
+{% endblock %}
+{% block extra_js %}
+{% if member %}
+<script>
+(function () {
+  var statusEl = document.getElementById('pushStatus');
+  var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{{ url_for("portal.service_worker") }}', { scope: '{{ url_for("portal.home") }}' }).catch(function () {});
+  }
+  var btn = document.getElementById('enablePushBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    if (!('Notification' in window)) {
+      if (statusEl) statusEl.textContent = 'Браузер не поддерживает уведомления';
+      return;
+    }
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== 'granted') {
+        if (statusEl) statusEl.textContent = 'Разрешение не выдано';
+        return;
+      }
+      return fetch('{{ url_for("portal.push_subscribe") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+        body: JSON.stringify({ endpoint: 'browser-local', keys: { permission: perm } })
+      }).then(function (r) {
+        if (statusEl) statusEl.textContent = r.ok ? 'Напоминания включены. Staff может отправить их из настроек.' : 'Не удалось сохранить подписку';
+      });
+    }).catch(function () {
+      if (statusEl) statusEl.textContent = 'Ошибка подписки';
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

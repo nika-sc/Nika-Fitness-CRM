@@ -1,10 +1,22 @@
 """Auth decorators."""
 from functools import wraps
 
-from flask import flash, jsonify, redirect, request, url_for
+from flask import abort, flash, jsonify, redirect, request, url_for
 from flask_login import current_user, login_required
 
 from app.services.user_service import UserService
+
+
+def feature_required(flag: str):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            from app.services.feature_flags_service import FeatureFlagsService
+            if not FeatureFlagsService.is_enabled(flag):
+                abort(404)
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 def permission_required(permission: str):
