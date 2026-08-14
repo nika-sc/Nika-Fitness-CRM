@@ -95,7 +95,7 @@ def home():
     )
 
 
-@portal_bp.route('/login', methods=['POST'])
+@portal_bp.route('/login', methods=['POST'], endpoint='login')
 @limiter.limit('10 per minute')
 def portal_login():
     tenant_slug = session.get('tenant_slug') or ''
