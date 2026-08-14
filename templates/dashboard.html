@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Дашборд — Nika Fitness{% endblock %}
+{% block title %}Обзор — Nika Fitness{% endblock %}
 {% block content %}
 <div class="topbar">
   <div>
     <h1>Обзор клуба</h1>
     <p class="muted">Записи из ЛК, группы сегодня и оперативные сигналы</p>
   </div>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+  <div class="d-flex gap-2 flex-wrap">
     <a class="btn secondary" href="{{ url_for('schedule.week') }}">Расписание</a>
     <a class="btn secondary" href="{{ url_for('reception.desk') }}">Стойка</a>
   </div>
@@ -29,6 +29,8 @@
 <div class="grid grid-2" style="margin-top:1rem;">
   <div class="panel">
     <h3>Новые записи из ЛК</h3>
+    {% if summary.portal_bookings %}
+    <div class="table-responsive">
     <table class="table">
       <tr><th>Клиент</th><th>Занятие</th><th>Старт</th><th></th></tr>
       {% for b in summary.portal_bookings %}
@@ -40,16 +42,23 @@
         </td>
         <td>{{ b.class_name }}</td>
         <td>{{ b.starts_at.strftime('%d.%m %H:%M') if b.starts_at else '' }}</td>
-        <td><a class="btn secondary" href="{{ url_for('schedule.session_detail', session_id=b.session_id) }}">Карточка</a></td>
+        <td><a class="btn secondary btn-sm" href="{{ url_for('schedule.session_detail', session_id=b.session_id) }}">Карточка</a></td>
       </tr>
-      {% else %}
-      <tr><td colspan="4" class="muted">За последние 24 часа записей из ЛК нет</td></tr>
       {% endfor %}
     </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p class="muted mb-2">За последние 24 часа записей из ЛК нет</p>
+      <a class="btn secondary btn-sm" href="{{ url_for('schedule.week') }}">Открыть расписание</a>
+    </div>
+    {% endif %}
   </div>
 
   <div class="panel">
     <h3>Группы сегодня</h3>
+    {% if summary.today_sessions %}
+    <div class="table-responsive">
     <table class="table">
       <tr><th>Время</th><th>Занятие</th><th>Записано</th><th></th></tr>
       {% for s in summary.today_sessions %}
@@ -64,18 +73,25 @@
             {{ s.booked_count or 0 }}/{{ s.capacity }}
           </span>
         </td>
-        <td><a href="{{ url_for('schedule.session_detail', session_id=s.id) }}">Открыть</a></td>
+        <td><a class="btn secondary btn-sm" href="{{ url_for('schedule.session_detail', session_id=s.id) }}">Открыть</a></td>
       </tr>
-      {% else %}
-      <tr><td colspan="4" class="muted">На сегодня групповых занятий нет</td></tr>
       {% endfor %}
     </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p class="muted mb-2">На сегодня групповых занятий нет</p>
+      <a class="btn secondary btn-sm" href="{{ url_for('schedule.week') }}">Добавить занятие</a>
+    </div>
+    {% endif %}
   </div>
 </div>
 
 <div class="grid grid-2" style="margin-top:1rem;">
   <div class="panel">
     <h3>Ближайшие записи клиентов</h3>
+    {% if summary.upcoming_member_bookings %}
+    <div class="table-responsive">
     <table class="table">
       <tr><th>Клиент</th><th>Занятие</th><th>Когда</th><th>Источник</th></tr>
       {% for b in summary.upcoming_member_bookings %}
@@ -83,16 +99,23 @@
         <td><a href="{{ url_for('members.detail', member_id=b.member_id) }}">{{ b.full_name }}</a></td>
         <td><a href="{{ url_for('schedule.session_detail', session_id=b.session_id) }}">{{ b.class_name }}</a></td>
         <td>{{ b.starts_at.strftime('%d.%m %H:%M') if b.starts_at else '' }}</td>
-        <td><span class="pill">{{ b.source or 'staff' }}</span></td>
+        <td><span class="pill">{{ source_label(b.source or 'staff') }}</span></td>
       </tr>
-      {% else %}
-      <tr><td colspan="4" class="muted">Нет предстоящих записей</td></tr>
       {% endfor %}
     </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p class="muted mb-2">Нет предстоящих записей</p>
+      <a class="btn secondary btn-sm" href="{{ url_for('schedule.week') }}">Открыть расписание</a>
+    </div>
+    {% endif %}
   </div>
 
   <div class="panel">
     <h3>Последние чекины</h3>
+    {% if recent %}
+    <div class="table-responsive">
     <table class="table">
       <tr><th>Клиент</th><th>Статус</th><th>Время</th></tr>
       {% for c in recent %}
@@ -101,10 +124,15 @@
         <td><span class="pill {{ 'danger' if c.alert_level=='expired' else ('warn' if c.alert_level=='expiring' else 'ok') }}">{{ c.message }}</span></td>
         <td>{{ c.checked_at.strftime('%d.%m %H:%M') if c.checked_at else '' }}</td>
       </tr>
-      {% else %}
-      <tr><td colspan="3" class="muted">Пока пусто</td></tr>
       {% endfor %}
     </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p class="muted mb-2">Пока нет чекинов</p>
+      <a class="btn secondary btn-sm" href="{{ url_for('reception.desk') }}">Открыть стойку</a>
+    </div>
+    {% endif %}
     <h3 style="margin-top:1.25rem;">Алерты</h3>
     {% for a in alerts %}
       <p style="margin:.45rem 0;">

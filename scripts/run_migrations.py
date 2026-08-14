@@ -15,7 +15,7 @@ try:
 except ImportError:
     pass
 
-from werkzeug.security import generate_password_hash
+from app.utils.security import hash_password
 
 from app.database.connection import (
     build_tenant_dsn,
@@ -38,7 +38,7 @@ def seed_admin() -> None:
         INSERT INTO users (username, password_hash, full_name, role, is_active)
         VALUES (%s, %s, %s, %s, TRUE)
         """,
-        ('admin', generate_password_hash(password), 'Администратор', 'admin'),
+        ('admin', hash_password(password), 'Администратор', 'admin'),
     )
     print(f'Created admin / {password} (change immediately)')
 

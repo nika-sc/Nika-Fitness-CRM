@@ -19,7 +19,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app import csrf
+from app import csrf, limiter
 from app.services.crm_extra_service import LeadService, LoyaltyService, NpsService, SegmentService
 from app.services.club_site_service import ClubSiteService
 from app.services.growth_service import (
@@ -42,6 +42,7 @@ from app.services.trainer_service import TrainerService
 from app.services.user_service import UserService
 from app.services.waitlist_service import WaitlistService
 from app.utils.decorators import feature_required, permission_required
+from app.utils.security import verify_hmac_sha256, verify_signed_member_token
 
 portal_bp = Blueprint('portal', __name__)
 pt_bp = Blueprint('pt', __name__)
@@ -67,12 +68,7 @@ def home():
         action = request.form.get('action')
         try:
             if action == 'login':
-                PortalService.login(
-                    request.form.get('login') or '',
-                    request.form.get('password') or '',
-                )
-                flash('Вход выполнен', 'success')
-                return redirect(url_for('portal.home'))
+                return portal_login()
             elif action == 'logout':
                 PortalService.logout()
                 return redirect(url_for('portal.home'))
@@ -97,6 +93,26 @@ def home():
         site=site,
         theme=ClubSiteService.theme(site),
     )
+
+
+@portal_bp.route('/login', methods=['POST'])
+@limiter.limit('10 per minute')
+def portal_login():
+    tenant_slug = session.get('tenant_slug') or ''
+    login_id = request.form.get('login') or ''
+    client_key = f"portal:{request.remote_addr}:{tenant_slug}:{login_id.strip().lower()}"
+    try:
+        PortalService.login(
+            login_id,
+            request.form.get('password') or '',
+            client_key=client_key,
+            cfg=current_app.config,
+            ip=request.remote_addr or '',
+        )
+        flash('Вход выполнен', 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('portal.home'))
 
 
 @portal_bp.route('/qr.png')
@@ -297,17 +313,61 @@ def index():
                     current_user.id,
                 )
                 flash('Долг создан', 'success')
+            elif action == 'income':
+                CashService.record_tx(
+                    amount_cents=int(round(float(request.form.get('amount') or 0) * 100)),
+                    kind='income',
+                    method=request.form.get('method') or 'cash',
+                    category_id=int(request.form.get('category_id')) if request.form.get('category_id') else None,
+                    member_id=int(request.form.get('member_id')) if request.form.get('member_id') else None,
+                    note=request.form.get('note') or '',
+                    created_by=current_user.id,
+                )
+                flash('Приход записан', 'success')
+            elif action == 'expense':
+                CashService.record_tx(
+                    amount_cents=int(round(float(request.form.get('amount') or 0) * 100)),
+                    kind='expense',
+                    method=request.form.get('method') or 'cash',
+                    category_id=int(request.form.get('category_id')) if request.form.get('category_id') else None,
+                    note=request.form.get('note') or '',
+                    created_by=current_user.id,
+                )
+                flash('Расход записан', 'success')
             elif action == 'pay_debt':
-                CashService.pay_debt(int(request.form.get('debt_id')), request.form.get('amount') or 0, current_user.id)
+                CashService.pay_debt(
+                    int(request.form.get('debt_id')),
+                    request.form.get('amount') or 0,
+                    current_user.id,
+                    request.form.get('method') or 'cash',
+                )
                 flash('Оплата долга принята', 'success')
         except Exception as exc:
             flash(str(exc), 'error')
         return redirect(url_for('cash.index'))
+    from datetime import date, timedelta
+    today_d = date.today()
+    day = CashService.day_summary(today_d)
+    yest = CashService.day_summary(today_d - timedelta(days=1))
+
+    def _d(cur, prev):
+        diff = int(cur) - int(prev)
+        return {'value': diff, 'sign': 'up' if diff > 0 else ('down' if diff < 0 else 'flat')}
+
     return render_template(
         'features/cash.html',
         shift=CashService.current_shift(),
         shift_totals=CashService.payment_totals(shift_id=CashService.open_shift_id()) if CashService.current_shift() else None,
         today=CashService.payment_totals(today=True),
+        day=day,
+        yest=yest,
+        cash_deltas={
+            'income': _d(day['income'], yest['income']),
+            'net': _d(day['net'], yest['net']),
+        },
+        transactions=CashService.list_transactions(today_d),
+        income_cats=CashService.list_categories('income'),
+        expense_cats=CashService.list_categories('expense'),
         shifts=CashService.list_shifts(),
         debts=CashService.list_debts(),
         members=MemberService.list_members(limit=200),
@@ -460,7 +520,12 @@ def index():
 @csrf.exempt
 @feature_required('module_payments_online')
 def webhook():
-    # Stub webhook: mark by external_id
+    secret = (current_app.config.get('PAYMENTS_WEBHOOK_SECRET') or '').strip()
+    if not secret:
+        abort(404)
+    signature = request.headers.get('X-Webhook-Signature') or request.headers.get('X-Signature')
+    if not verify_hmac_sha256(secret, request.get_data() or b'', signature):
+        abort(401)
     data = request.get_json(silent=True) or {}
     ext = data.get('external_id') or request.form.get('external_id')
     if not ext:
@@ -517,41 +582,56 @@ def index():
 
 # ----- Kiosk -----
 @kiosk_bp.route('/', methods=['GET', 'POST'])
+@limiter.limit('20 per minute', methods=['POST'])
 def desk():
     from app.services.checkin_service import CheckinService
 
-    device = KioskService.ensure_device()
+    token = (request.args.get('token') or request.headers.get('X-Kiosk-Token') or request.form.get('token') or '').strip()
+    device = KioskService.get_by_token(token)
+    if not device:
+        abort(404)
     msg = None
     level = 'ok'
     if request.method == 'POST':
         try:
             card = (request.form.get('card_number') or '').strip()
             result = CheckinService.check_in_by_card(card, created_by=None)
-            # override source conceptually — already card
             msg = f"{result['member']['full_name']}: {result['message']}"
             level = result['alert_level']
         except Exception as exc:
             msg = str(exc)
             level = 'expired'
-    return render_template('features/kiosk.html', device=device, msg=msg, level=level)
+    return render_template('features/kiosk.html', device=device, msg=msg, level=level, token=token)
 
 
 # ----- NPS public -----
 @nps_bp.route('/', methods=['GET', 'POST'])
+@limiter.limit('10 per hour', methods=['POST'])
 def form():
     member_id = request.args.get('member') or request.form.get('member_id')
+    token = request.args.get('token') or request.form.get('token') or ''
+    mid = int(member_id) if member_id else None
     if request.method == 'POST':
         try:
+            if mid is not None:
+                portal = PortalService.current_member()
+                allowed = bool(portal and int(portal['id']) == mid)
+                if not allowed:
+                    allowed = verify_signed_member_token(
+                        'nps', mid, current_app.config['SECRET_KEY'], token,
+                    )
+                if not allowed:
+                    abort(403)
             NpsService.submit(
-                int(member_id) if member_id else None,
+                mid,
                 int(request.form.get('score') or 0),
                 request.form.get('comment') or '',
             )
             flash('Спасибо за оценку!', 'success')
-            return redirect(url_for('nps.form'))
+            return redirect(url_for('nps.form', member=member_id or None, token=token or None))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('features/nps.html', member_id=member_id)
+    return render_template('features/nps.html', member_id=member_id, token=token)
 
 
 # ----- Member QR helper used from members routes -----

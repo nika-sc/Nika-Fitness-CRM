@@ -9,6 +9,7 @@
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% if member_id %}<input type="hidden" name="member_id" value="{{ member_id }}">{% endif %}
+    {% if token %}<input type="hidden" name="token" value="{{ token }}">{% endif %}
     <label>Оценка 0–10</label>
     <input type="number" name="score" min="0" max="10" required>
     <label>Комментарий</label>

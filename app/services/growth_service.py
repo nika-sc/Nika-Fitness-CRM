@@ -190,6 +190,16 @@ class KioskService:
             (name, secrets.token_hex(16)),
         )
 
+    @staticmethod
+    def get_by_token(token: str | None) -> dict | None:
+        value = (token or '').strip()
+        if len(value) < 16:
+            return None
+        return fetch_one(
+            'SELECT * FROM kiosk_devices WHERE token = %s AND is_active',
+            (value,),
+        )
+
 
 class PushService:
     @staticmethod

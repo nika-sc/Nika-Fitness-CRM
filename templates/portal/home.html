@@ -52,7 +52,7 @@
         <div class="flash {{ category }}">{{ message }}</div>
         {% endfor %}
       {% endwith %}
-      <form method="post" class="mt-3">
+      <form method="post" action="{{ url_for('portal.login') }}" class="mt-3">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="login">
         <label class="form-label">Телефон, email или карта</label>

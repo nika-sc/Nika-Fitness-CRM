@@ -31,10 +31,26 @@ def _week_start_from_args():
 def week():
     week_start = _week_start_from_args()
     sessions = ScheduleService.list_sessions(week_start)
+    today = datetime.now().date()
+    day_names = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+    by_day: dict = {}
+    for session in sessions:
+        by_day.setdefault(session['starts_at'].date(), []).append(session)
+    week_days = []
+    for i in range(7):
+        day = (week_start + timedelta(days=i)).date()
+        week_days.append({
+            'date': day,
+            'name': day_names[i],
+            'is_today': day == today,
+            'sessions': by_day.get(day, []),
+        })
     return render_template(
         'schedule/week.html',
         sessions=sessions,
+        week_days=week_days,
         week_start=week_start,
+        today_iso=today.isoformat(),
         prev_week=(week_start - timedelta(days=7)).date().isoformat(),
         next_week=(week_start + timedelta(days=7)).date().isoformat(),
         class_types=ScheduleService.list_types(),

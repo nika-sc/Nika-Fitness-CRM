@@ -46,5 +46,16 @@
     link.closest(".nav-treeview")?.closest(".nav-item")?.classList.add("menu-open");
   });
 
+  document.querySelectorAll(".js-row-link[data-href]").forEach((row) => {
+    row.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, input, select, label")) return;
+      window.location.href = row.getAttribute("data-href");
+    });
+  });
+
+  document.querySelectorAll("details[data-open-xl]").forEach((el) => {
+    if (window.matchMedia("(min-width: 1200px)").matches) el.open = true;
+  });
+
   desktop.addEventListener?.("change", applyStoredSidebarState);
 })();

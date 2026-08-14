@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Статистика стойки{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Статистика</h1>
+    <p class="muted">{{ date_from }} — {{ date_to }} · сравнение с {{ prev_from }} — {{ prev_to }}</p>
+  </div>
+  <a class="btn secondary" href="{{ url_for('reception.desk') }}">На стойку</a>
+</div>
+
+<form method="get" class="panel mb-3">
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    {% for key, label in periods %}
+    <a class="btn btn-sm {% if period == key %}{% else %}secondary{% endif %}" href="{{ url_for('reception.stats', period=key, focus=focus) }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+  <div class="d-flex flex-wrap gap-2 align-items-end">
+    <div>
+      <label class="form-label">С</label>
+      <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+      <label class="form-label">По</label>
+      <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <input type="hidden" name="period" value="custom">
+    <button class="btn" type="submit">Показать</button>
+  </div>
+</form>
+
+<div class="grid grid-4">
+  <div class="panel stat {% if focus == 'checkins' %}is-focus{% endif %}">
+    <span class="muted">Чекины</span>
+    <strong>{{ current.checkins }}</strong>
+    <span class="stat-delta {{ deltas.checkins.sign }}">{% if deltas.checkins.value > 0 %}+{% endif %}{{ deltas.checkins.value }} к прошлому периоду</span>
+  </div>
+  <div class="panel stat {% if focus == 'unique' %}is-focus{% endif %}">
+    <span class="muted">Уникальные</span>
+    <strong>{{ current.unique_members }}</strong>
+    <span class="stat-delta {{ deltas.unique.sign }}">{% if deltas.unique.value > 0 %}+{% endif %}{{ deltas.unique.value }} к прошлому периоду</span>
+  </div>
+  <div class="panel stat {% if focus == 'present' %}is-focus{% endif %}">
+    <span class="muted">Сейчас в зале</span>
+    <strong>{% if present_n is not none %}{{ present_n }}{% else %}—{% endif %}</strong>
+    <span class="muted small">только для периода с сегодня</span>
+  </div>
+  <div class="panel stat {% if focus == 'expiring' %}is-focus{% endif %}">
+    <span class="muted">Истекают</span>
+    <strong>{{ expiring_n }}</strong>
+    <span class="stat-delta {{ deltas.expiring.sign }}">{% if deltas.expiring.value > 0 %}+{% endif %}{{ deltas.expiring.value }} к прошлому периоду</span>
+  </div>
+</div>
+<p class="muted mt-3 mb-0">Прошлый период той же длины: чекины {{ previous.checkins }}, уникальные {{ previous.unique_members }}.</p>
+{% endblock %}

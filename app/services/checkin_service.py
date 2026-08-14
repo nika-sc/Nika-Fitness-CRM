@@ -218,3 +218,25 @@ class CheckinService:
             ORDER BY 1
             """
         )
+
+    @staticmethod
+    def stats_for_range(start, end) -> dict:
+        row = fetch_one(
+            """
+            SELECT COUNT(*)::int AS checkins,
+                   COUNT(DISTINCT member_id)::int AS unique_members
+            FROM checkins
+            WHERE checked_at::date BETWEEN %s AND %s
+            """,
+            (start, end),
+        )
+        return {
+            'checkins': int(row['checkins']) if row else 0,
+            'unique_members': int(row['unique_members']) if row else 0,
+        }
+
+    @staticmethod
+    def delta_pair(current: int, previous: int) -> dict:
+        diff = int(current) - int(previous)
+        return {'value': diff, 'sign': 'up' if diff > 0 else ('down' if diff < 0 else 'flat')}
+

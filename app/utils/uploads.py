@@ -6,9 +6,9 @@ import uuid
 
 from flask import current_app, g
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
 
 from app.database.connection import saas_enabled
+from app.utils.security import detect_image_ext
 
 
 def allowed_image(filename: str) -> bool:
@@ -32,8 +32,12 @@ def save_image(file: FileStorage, subdir: str) -> str | None:
         return None
     if not allowed_image(file.filename):
         raise ValueError('Допустимы только JPG, PNG, WEBP')
-    ext = secure_filename(file.filename).rsplit('.', 1)[1].lower()
-    name = f'{uuid.uuid4().hex}.{ext}'
+    header = file.stream.read(16)
+    file.stream.seek(0)
+    detected = detect_image_ext(header)
+    if not detected:
+        raise ValueError('Файл не является изображением JPG, PNG или WEBP')
+    name = f'{uuid.uuid4().hex}.{detected}'
     tenant = _tenant_subdir()
     parts = [current_app.config['UPLOAD_FOLDER']]
     url_parts = ['uploads']

@@ -1,6 +1,6 @@
 """Settings: users + email reminders trigger."""
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from app.services.feature_flags_service import FeatureFlagsService
 from app.services.reminder_service import ReminderService
@@ -14,10 +14,18 @@ bp = Blueprint('settings', __name__)
 @login_required
 @permission_required('manage_settings')
 def index():
+    kiosk_url = None
+    try:
+        from app.services.growth_service import KioskService
+        device = KioskService.ensure_device()
+        kiosk_url = url_for('kiosk.desk', token=device['token'])
+    except Exception:
+        kiosk_url = None
     return render_template(
         'settings/index.html',
         users=UserService.list_users(),
         modules=FeatureFlagsService.list_for_settings(),
+        kiosk_url=kiosk_url,
     )
 
 
@@ -31,6 +39,7 @@ def create_user():
             password=request.form.get('password', ''),
             full_name=request.form.get('full_name', '').strip(),
             role=request.form.get('role', 'reception'),
+            actor_role=getattr(current_user, 'role', None),
         )
         flash('Пользователь создан', 'success')
     except Exception as exc:

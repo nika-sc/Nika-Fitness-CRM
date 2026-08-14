@@ -58,13 +58,14 @@
 </div>
 <div class="panel" style="margin-top:1rem;">
   <h3>Чекины сегодня по часам</h3>
+  <p class="muted small mb-2">Ось X — час дня, высота столбца — число чекинов</p>
   {% set max_c = (summary.hourly_checkins | map(attribute='cnt') | max) if summary.hourly_checkins else 1 %}
   {% if max_c < 1 %}{% set max_c = 1 %}{% endif %}
   <div style="align-items:flex-end;height:140px;gap:4px;display:flex;">
     {% for h in summary.hourly_checkins %}
     <div title="{{ h.hour }}:00 — {{ h.cnt }}" style="flex:1;text-align:center;">
       <div style="height: {{ (h.cnt / max_c * 100)|round }}%;background:#ff5a3c;min-height:{% if h.cnt %}8px{% else %}2px{% endif %};border-radius:4px 4px 0 0;"></div>
-      <small class="muted">{{ h.hour }}</small>
+      <small class="muted">{{ '%02d'|format(h.hour) }}:00</small>
     </div>
     {% else %}
     <p class="muted mb-0">Сегодня чекинов ещё не было</p>
@@ -79,7 +80,7 @@
     <tr>
       <td>{{ p.full_name }}</td>
       <td>{{ '%.0f'|format(p.amount_cents/100) }} ₽</td>
-      <td>{{ p.method }}</td>
+      <td>{{ method_label(p.method) }}</td>
       <td>{{ p.paid_at.strftime('%d.%m.%Y') if p.paid_at else '' }}</td>
     </tr>
     {% else %}

@@ -11,15 +11,54 @@
     <form method="post" action="{{ url_for('reception.checkin') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="member_id" value="{{ member.id }}">
-      <button type="submit"><i class="bi bi-upc-scan me-1" aria-hidden="true"></i>Чекин</button>
+      <button class="btn" type="submit"><i class="bi bi-upc-scan me-1" aria-hidden="true"></i>Чекин</button>
     </form>
     {% endif %}
     {% if has_permission('manage_members') %}
     <a class="btn secondary" href="{{ url_for('members.edit', member_id=member.id) }}">Редактировать</a>
     {% endif %}
+    {% if just_checkin %}
+    <a class="btn secondary" href="{{ url_for('reception.desk') }}">На стойку</a>
+    {% endif %}
   </div>
 </div>
 
+{% if just_checkin %}
+<div class="checkin-verify {{ (checkin_info.level if checkin_info else 'ok') }} mb-3">
+  <div class="checkin-verify-photo">
+    {% if member.photo_path %}
+    <img src="{{ url_for('static', filename=member.photo_path) }}" alt="{{ member.full_name }}">
+    {% else %}
+    <span class="avatar-xl placeholder">{{ member.full_name[:1] }}</span>
+    {% endif %}
+  </div>
+  <div>
+    <p class="muted mb-1">Сверьте, это клиент?</p>
+    <h2 class="h3 mb-1">{{ member.full_name }}</h2>
+    <p class="card-number mb-2">{{ member.card_number }}</p>
+    {% if checkin_info %}
+    <p class="mb-1">{{ checkin_info.message }}</p>
+    <p class="muted small mb-0">
+      {% if checkin_info.plan %}{{ checkin_info.plan }}{% endif %}
+      {% if checkin_info.ends_on %} · до {{ checkin_info.ends_on }}{% endif %}
+      {% if checkin_info.visits is not none %} · осталось визитов: {{ checkin_info.visits }}{% endif %}
+    </p>
+    {% elif current %}
+    <span class="pill {{ status_pill_class(current.computed_status) }}">{{ status_label(current.computed_status) }} · до {{ current.ends_on }}</span>
+    {% endif %}
+  </div>
+  <a class="btn secondary" href="{{ url_for('reception.desk') }}">На стойку</a>
+</div>
+{% endif %}
+  <li class="nav-item"><a class="nav-link active" href="#tab-profile">Профиль</a></li>
+  <li class="nav-item"><a class="nav-link" href="#tab-memberships">Абонементы и оплаты</a></li>
+  <li class="nav-item"><a class="nav-link" href="#tab-visits">Визиты</a></li>
+  {% if has_permission('manage_members') %}
+  <li class="nav-item"><a class="nav-link" href="#tab-portal">ЛК</a></li>
+  {% endif %}
+</ul>
+
+<section id="tab-profile">
 <div class="row g-3">
   <div class="col-lg-7">
     <div class="panel member-hero">
@@ -34,15 +73,23 @@
           <p class="mb-2"><i class="bi bi-envelope me-1" aria-hidden="true"></i>{{ member.email or '—' }}</p>
           {% if member.notes %}<p class="muted">{{ member.notes }}</p>{% endif %}
           {% if current %}
-          <span class="pill {{ 'danger' if current.computed_status=='expired' else ('warn' if current.computed_status in ('expiring','frozen') else 'ok') }}">
-            {{ current.plan_name or 'Абонемент' }} · до {{ current.ends_on }} · {{ current.computed_status }}
+          <span class="pill {{ status_pill_class(current.computed_status) }}">
+            {{ current.plan_name or 'Абонемент' }} · до {{ current.ends_on }} · {{ status_label(current.computed_status) }}
           </span>
           {% else %}
           <span class="pill danger">Нет активного абонемента</span>
           {% endif %}
           <div class="member-meta mt-3">
+            {% if feature_enabled('module_loyalty') %}
             <span><strong>{{ loyalty.points if loyalty else 0 }}</strong><small>баллы</small></span>
-            <span><strong>{% if medical %}до {{ medical.expires_on }}{% else %}нет{% endif %}</strong><small>медсправка</small></span>
+            {% endif %}
+            {% if feature_enabled('module_pt') %}
+            <span><strong>{{ pt_packages|length }}</strong><small>PT-пакеты</small></span>
+            {% endif %}
+            <span><strong>{{ status_label(member.status) }}</strong><small>карточка</small></span>
+            {% if medical %}
+            <span><strong>до {{ medical.expires_on }}</strong><small>медсправка</small></span>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -51,10 +98,14 @@
         <span class="muted small">QR для чекина</span>
       </div>
     </div>
-
     {% if has_permission('manage_members') %}
     <div class="panel mt-3">
       <div class="panel-head"><h3 class="mb-0"><i class="bi bi-heart-pulse me-2" aria-hidden="true"></i>Медсправка</h3></div>
+      {% if medical %}
+      <p class="mt-2 mb-0">Действует до <strong>{{ medical.expires_on }}</strong></p>
+      {% else %}
+      <p class="muted mt-2 mb-0">Медсправка не указана</p>
+      {% endif %}
       <form method="post" action="{{ url_for('members.add_medical', member_id=member.id) }}" class="row g-2 align-items-end mt-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="col-sm-8">
@@ -62,40 +113,13 @@
           <input class="form-control" type="date" name="expires_on" required>
         </div>
         <div class="col-sm-4">
-          <button type="submit" class="w-100">Сохранить</button>
+          <button type="submit" class="btn w-100">Сохранить</button>
         </div>
       </form>
     </div>
     {% endif %}
   </div>
-
   <div class="col-lg-5">
-    {% if has_permission('manage_members') %}
-    <div class="panel mb-3">
-      <div class="panel-head">
-        <h3 class="mb-0"><i class="bi bi-phone me-2" aria-hidden="true"></i>Доступ в ЛК</h3>
-      </div>
-      <p class="muted mt-2">Вход: телефон, email или карта · <a href="{{ url_for('portal.home') }}" target="_blank" rel="noopener">открыть ЛК</a></p>
-      {% if member.portal_password_plain %}
-      <p>Текущий пароль: <strong class="card-number">{{ member.portal_password_plain }}</strong></p>
-      {% else %}
-      <p class="muted">Пароль ещё не выдан</p>
-      {% endif %}
-      <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}" class="mt-2">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="action" value="generate">
-        <button type="submit">Сгенерировать и отправить</button>
-      </form>
-      <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}" class="mt-3">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="action" value="set">
-        <label class="form-label">Свой пароль</label>
-        <input class="form-control" name="password" minlength="6" placeholder="минимум 6 символов" required>
-        <button class="mt-2" type="submit">Сохранить пароль</button>
-      </form>
-    </div>
-    {% endif %}
-
     {% if has_permission('manage_memberships') and current and current.computed_status != 'expired' %}
     <div class="panel mb-3">
       <div class="panel-head"><h3 class="mb-0"><i class="bi bi-snow me-2" aria-hidden="true"></i>Заморозка</h3></div>
@@ -106,19 +130,66 @@
         {% endif %}
         <form method="post" action="{{ url_for('memberships.unfreeze', membership_id=current.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit">Разморозить</button>
+          <button class="btn" type="submit">Разморозить</button>
         </form>
       {% else %}
         <form method="post" action="{{ url_for('memberships.freeze', membership_id=current.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <label class="form-label">Причина</label>
           <input class="form-control" name="reason" placeholder="Отпуск, травма…" required>
-          <button class="mt-2" type="submit">Заморозить</button>
+          <button class="btn mt-2" type="submit">Заморозить</button>
         </form>
       {% endif %}
     </div>
     {% endif %}
+  </div>
+</div>
+</section>
 
+<section id="tab-memberships" class="mt-3">
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="panel">
+      <div class="panel-head"><h3 class="mb-0">Абонементы</h3></div>
+      <div class="table-responsive mt-2">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>План</th><th>Период</th><th>Визиты</th><th>Статус</th></tr></thead>
+          <tbody>
+            {% for m in memberships %}
+            <tr>
+              <td>{{ m.plan_name or '—' }}</td>
+              <td>{{ m.starts_on }} — {{ m.ends_on }}</td>
+              <td>{{ m.visits_remaining if m.visits_remaining is not none else '∞' }}</td>
+              <td><span class="pill {{ status_pill_class(m.computed_status) }}">{{ status_label(m.computed_status) }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="muted">Нет абонементов</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel mt-3">
+      <div class="panel-head"><h3 class="mb-0">Оплаты</h3></div>
+      <div class="table-responsive mt-2">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>Сумма</th><th>Метод</th><th>Дата</th></tr></thead>
+          <tbody>
+            {% for p in payments %}
+            <tr>
+              <td>{{ '%.0f'|format(p.amount_cents/100) }} ₽</td>
+              <td>{{ method_label(p.method) }}</td>
+              <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="muted">Нет оплат</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
     {% if has_permission('manage_memberships') %}
     <div class="panel">
       <div class="panel-head"><h3 class="mb-0"><i class="bi bi-card-checklist me-2" aria-hidden="true"></i>Оформить абонемент</h3></div>
@@ -134,64 +205,36 @@
         <select class="form-select" name="method">
           <option value="cash">Наличные</option>
           <option value="card">Карта</option>
-          <option value="transfer">Перевод</option>
+          <option value="qr">QR</option>
         </select>
         <label class="form-label mt-2">Комментарий</label>
         <input class="form-control" name="note">
-        <button class="mt-3" type="submit">Оформить и принять оплату</button>
+        <button class="btn mt-3" type="submit">Оформить и принять оплату</button>
       </form>
+    </div>
+    {% endif %}
+    {% if feature_enabled('module_pt') and pt_packages %}
+    <div class="panel mt-3">
+      <div class="panel-head"><h3 class="mb-0">PT</h3></div>
+      <ul class="soft-list mt-2 mb-0">
+        {% for pkg in pt_packages %}
+        <li>
+          <div>
+            <strong>{{ pkg.title }}</strong>
+            <div class="muted small">{{ pkg.trainer_name or 'Без тренера' }}</div>
+          </div>
+          <span class="pill">{{ pkg.sessions_left }}/{{ pkg.sessions_total }}</span>
+        </li>
+        {% endfor %}
+      </ul>
     </div>
     {% endif %}
   </div>
 </div>
+</section>
 
-<div class="row g-3 mt-1">
-  <div class="col-lg-6">
-    <div class="panel">
-      <div class="panel-head"><h3 class="mb-0">Абонементы</h3></div>
-      <div class="table-responsive mt-2">
-        <table class="table align-middle mb-0">
-          <thead><tr><th>План</th><th>Период</th><th>Визиты</th><th>Статус</th></tr></thead>
-          <tbody>
-            {% for m in memberships %}
-            <tr>
-              <td>{{ m.plan_name or '—' }}</td>
-              <td>{{ m.starts_on }} — {{ m.ends_on }}</td>
-              <td>{{ m.visits_remaining if m.visits_remaining is not none else '∞' }}</td>
-              <td><span class="pill {{ 'ok' if m.computed_status=='active' else ('warn' if m.computed_status in ('expiring','frozen') else 'danger') }}">{{ m.computed_status }}</span></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="4" class="muted">Нет абонементов</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6">
-    <div class="panel">
-      <div class="panel-head"><h3 class="mb-0">Оплаты</h3></div>
-      <div class="table-responsive mt-2">
-        <table class="table align-middle mb-0">
-          <thead><tr><th>Сумма</th><th>Метод</th><th>Дата</th></tr></thead>
-          <tbody>
-            {% for p in payments %}
-            <tr>
-              <td>{{ '%.0f'|format(p.amount_cents/100) }} ₽</td>
-              <td>{{ p.method }}</td>
-              <td>{{ p.paid_at.strftime('%d.%m.%Y %H:%M') if p.paid_at else '' }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="3" class="muted">Нет оплат</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="panel mt-3">
+<section id="tab-visits" class="mt-3">
+<div class="panel">
   <div class="panel-head"><h3 class="mb-0">История визитов</h3></div>
   <div class="table-responsive mt-2">
     <table class="table align-middle mb-0">
@@ -200,7 +243,7 @@
         {% for c in checkins %}
         <tr>
           <td>{{ c.checked_at.strftime('%d.%m.%Y %H:%M') if c.checked_at else '' }}</td>
-          <td>{{ c.source }}</td>
+          <td>{{ source_label(c.source) }}</td>
           <td>{{ c.message }}</td>
         </tr>
         {% else %}
@@ -210,4 +253,35 @@
     </table>
   </div>
 </div>
+</section>
+
+{% if has_permission('manage_members') %}
+<section id="tab-portal" class="mt-3">
+<div class="panel" style="max-width:36rem;">
+  <div class="panel-head">
+    <h3 class="mb-0"><i class="bi bi-phone me-2" aria-hidden="true"></i>Доступ в ЛК</h3>
+  </div>
+  <p class="muted mt-2">Вход: телефон, email или карта · <a href="{{ url_for('portal.home') }}" target="_blank" rel="noopener">открыть ЛК</a>
+    {% if nps_url %} · <a href="{{ nps_url }}" target="_blank" rel="noopener">ссылка NPS</a>{% endif %}
+  </p>
+  {% if member.portal_password_hash %}
+  <p class="muted">Пароль выдан. Показан только при сбросе (один раз).</p>
+  {% else %}
+  <p class="muted">Пароль ещё не выдан</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}" class="mt-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="generate">
+    <button class="btn" type="submit">Сгенерировать и отправить</button>
+  </form>
+  <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}" class="mt-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="set">
+    <label class="form-label">Свой пароль</label>
+    <input class="form-control" name="password" minlength="6" placeholder="минимум 6 символов" required>
+    <button class="btn mt-2" type="submit">Сохранить пароль</button>
+  </form>
+</div>
+</section>
+{% endif %}
 {% endblock %}

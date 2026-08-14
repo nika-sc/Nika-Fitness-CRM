@@ -120,14 +120,143 @@ class CashService:
         row = CashService.current_shift()
         return int(row['id']) if row else None
 
+    PAY_METHODS = ('cash', 'card', 'qr')
+
+    @staticmethod
+    def normalize_method(method: str | None) -> str:
+        m = (method or 'cash').strip().lower()
+        if m == 'transfer':
+            return 'card'
+        if m not in CashService.PAY_METHODS:
+            return 'cash'
+        return m
+
+    @staticmethod
+    def list_categories(kind: str | None = None) -> list[dict]:
+        if kind:
+            return fetch_all(
+                'SELECT * FROM cash_categories WHERE is_active = TRUE AND kind = %s ORDER BY id',
+                (kind,),
+            )
+        return fetch_all('SELECT * FROM cash_categories WHERE is_active = TRUE ORDER BY kind, id')
+
+    @staticmethod
+    def category_id(name: str, kind: str = 'income') -> int | None:
+        row = fetch_one(
+            'SELECT id FROM cash_categories WHERE name = %s AND kind = %s LIMIT 1',
+            (name, kind),
+        )
+        return int(row['id']) if row else None
+
+    @staticmethod
+    def record_tx(
+        *,
+        amount_cents: int,
+        kind: str,
+        method: str,
+        category_id: int | None,
+        member_id: int | None = None,
+        payment_id: int | None = None,
+        note: str = '',
+        created_by: int | None = None,
+    ) -> dict | None:
+        cents = int(amount_cents or 0)
+        if cents <= 0:
+            return None
+        if kind not in ('income', 'expense'):
+            raise ValueError('Некорректный тип операции')
+        return execute_returning(
+            """
+            INSERT INTO cash_transactions
+                (amount_cents, kind, method, category_id, member_id, payment_id,
+                 cash_shift_id, note, created_by)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING *
+            """,
+            (
+                cents,
+                kind,
+                CashService.normalize_method(method),
+                category_id,
+                member_id,
+                payment_id,
+                CashService.open_shift_id(),
+                (note or '').strip(),
+                created_by,
+            ),
+        )
+
+    @staticmethod
+    def record_from_payment(payment: dict, category_name: str, created_by: int | None = None) -> dict | None:
+        if not payment or int(payment.get('amount_cents') or 0) <= 0:
+            return None
+        return CashService.record_tx(
+            amount_cents=payment['amount_cents'],
+            kind='income',
+            method=payment.get('method') or 'cash',
+            category_id=CashService.category_id(category_name, 'income'),
+            member_id=payment.get('member_id'),
+            payment_id=payment.get('id'),
+            note=payment.get('note') or '',
+            created_by=created_by or payment.get('created_by'),
+        )
+
+    @staticmethod
+    def day_summary(day=None) -> dict:
+        from datetime import date as date_cls
+
+        d = day or date_cls.today()
+        row = fetch_one(
+            """
+            SELECT
+              COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income'), 0)::bigint AS income,
+              COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'expense'), 0)::bigint AS expense,
+              COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income' AND method = 'cash'), 0)::bigint AS cash,
+              COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income' AND method = 'card'), 0)::bigint AS card,
+              COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income' AND method = 'qr'), 0)::bigint AS qr
+            FROM cash_transactions
+            WHERE paid_at::date = %s
+            """,
+            (d,),
+        )
+        income = int(row['income']) if row else 0
+        expense = int(row['expense']) if row else 0
+        return {
+            'income': income,
+            'expense': expense,
+            'net': income - expense,
+            'cash': int(row['cash']) if row else 0,
+            'card': int(row['card']) if row else 0,
+            'qr': int(row['qr']) if row else 0,
+        }
+
+    @staticmethod
+    def list_transactions(day=None, limit: int = 200) -> list[dict]:
+        from datetime import date as date_cls
+
+        d = day or date_cls.today()
+        return fetch_all(
+            """
+            SELECT t.*, c.name AS category_name, m.full_name
+            FROM cash_transactions t
+            LEFT JOIN cash_categories c ON c.id = t.category_id
+            LEFT JOIN members m ON m.id = t.member_id
+            WHERE t.paid_at::date = %s
+            ORDER BY t.id DESC
+            LIMIT %s
+            """,
+            (d, limit),
+        )
+
     @staticmethod
     def payment_totals(shift_id: int | None = None, today: bool = False) -> dict:
         sql = """
             SELECT
               COALESCE(SUM(amount_cents), 0)::bigint AS total,
               COALESCE(SUM(amount_cents) FILTER (WHERE method = 'cash'), 0)::bigint AS cash,
-              COALESCE(SUM(amount_cents) FILTER (WHERE method = 'card'), 0)::bigint AS card,
-              COALESCE(SUM(amount_cents) FILTER (WHERE method NOT IN ('cash', 'card')), 0)::bigint AS other,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method IN ('card', 'transfer')), 0)::bigint AS card,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method = 'qr'), 0)::bigint AS qr,
+              COALESCE(SUM(amount_cents) FILTER (WHERE method NOT IN ('cash', 'card', 'transfer', 'qr')), 0)::bigint AS other,
               COUNT(*)::int AS cnt
             FROM payments
             WHERE 1=1
@@ -143,6 +272,7 @@ class CashService:
             'total': int(row['total']) if row else 0,
             'cash': int(row['cash']) if row else 0,
             'card': int(row['card']) if row else 0,
+            'qr': int(row['qr']) if row else 0,
             'other': int(row['other']) if row else 0,
             'cnt': int(row['cnt']) if row else 0,
         }
@@ -208,7 +338,7 @@ class CashService:
         )
 
     @staticmethod
-    def pay_debt(debt_id: int, amount: float, user_id: int | None) -> dict:
+    def pay_debt(debt_id: int, amount: float, user_id: int | None, method: str = 'cash') -> dict:
         debt = fetch_one('SELECT * FROM debts WHERE id = %s', (debt_id,))
         if not debt or debt['status'] != 'open':
             raise ValueError('Долг не найден')
@@ -219,13 +349,15 @@ class CashService:
             'UPDATE debts SET paid_cents = %s, status = %s, updated_at = NOW() WHERE id = %s',
             (paid, status, debt_id),
         )
-        execute_returning(
+        method = CashService.normalize_method(method)
+        payment = execute_returning(
             """
             INSERT INTO payments (member_id, amount_cents, method, note, created_by, cash_shift_id)
-            VALUES (%s, %s, 'cash', %s, %s, %s) RETURNING id
+            VALUES (%s, %s, %s, %s, %s, %s) RETURNING *
             """,
-            (debt['member_id'], pay, f'Погашение долга #{debt_id}', user_id, CashService.open_shift_id()),
+            (debt['member_id'], pay, method, f'Погашение долга #{debt_id}', user_id, CashService.open_shift_id()),
         )
+        CashService.record_from_payment(payment, 'Прочий приход', user_id)
         return fetch_one('SELECT * FROM debts WHERE id = %s', (debt_id,))
 
 

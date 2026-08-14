@@ -17,6 +17,7 @@ class Config:
     TENANT_BASE_DOMAIN = os.environ.get('TENANT_BASE_DOMAIN', '')
     PLATFORM_ADMIN_USER = os.environ.get('PLATFORM_ADMIN_USER', '')
     PLATFORM_ADMIN_PASSWORD = os.environ.get('PLATFORM_ADMIN_PASSWORD', '')
+    PAYMENTS_WEBHOOK_SECRET = os.environ.get('PAYMENTS_WEBHOOK_SECRET', '')
     DEMO_MODE = os.environ.get('DEMO_MODE', 'False').lower() == 'true'
     DEMO_STAFF_USER = os.environ.get('DEMO_STAFF_USER', 'admin')
     DEMO_STAFF_PASSWORD = os.environ.get('DEMO_STAFF_PASSWORD', 'admin123')

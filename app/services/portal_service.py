@@ -5,13 +5,23 @@ import secrets
 import string
 
 from flask import session
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database.connection import execute_returning, fetch_one
+from app.services.auth_event_service import AuthEventService
 from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
 from app.services.message_service import MessageService
 from app.services.schedule_service import ScheduleService
+from app.utils.security import GENERIC_LOGIN_ERROR, hash_password, rotate_session, verify_password
+
+_DUMMY_HASH = None
+
+
+def _dummy_hash() -> str:
+    global _DUMMY_HASH
+    if _DUMMY_HASH is None:
+        _DUMMY_HASH = hash_password('invalid-placeholder')
+    return _DUMMY_HASH
 
 
 class PortalService:
@@ -32,13 +42,14 @@ class PortalService:
             """
             UPDATE members SET
                 portal_password_hash = %s,
-                portal_password_plain = %s,
+                portal_password_plain = NULL,
                 updated_at = NOW()
             WHERE id = %s
             RETURNING *
             """,
-            (generate_password_hash(plain), plain, member_id),
+            (hash_password(plain), member_id),
         )
+        AuthEventService.record('portal_password_issued', member_id=member_id)
         if send_email:
             email = (row.get('email') or '').strip()
             recipient = email or (row.get('phone') or '')
@@ -62,7 +73,8 @@ class PortalService:
             return None
         return fetch_one(
             """
-            SELECT * FROM members
+            SELECT id, full_name, phone, email, card_number, status, portal_password_hash
+            FROM members
             WHERE status = 'active'
               AND (
                 phone = %s
@@ -76,16 +88,36 @@ class PortalService:
         )
 
     @staticmethod
-    def login(login: str, password: str) -> dict:
+    def login(login: str, password: str, client_key: str = '', cfg=None, ip: str = '') -> dict:
+        cfg = cfg or {}
+        locked = AuthEventService.is_locked(client_key, 'portal_login_fail', 'portal_login_ok', cfg)
+        if locked:
+            raise ValueError(locked)
         member = PortalService.find_by_login(login)
-        if not member:
-            raise ValueError('Клиент не найден. Проверьте телефон, email или номер карты')
-        if not member.get('portal_password_hash'):
-            raise ValueError('Пароль ЛК ещё не выдан — обратитесь на ресепшен')
-        if not check_password_hash(member['portal_password_hash'], (password or '').strip()):
-            raise ValueError('Неверный пароль')
+        hashed = (member or {}).get('portal_password_hash') or _dummy_hash()
+        ok = bool(member and member.get('portal_password_hash') and verify_password(hashed, (password or '').strip()))
+        if not ok:
+            AuthEventService.record(
+                'portal_login_fail',
+                client_key=client_key,
+                username=(login or '')[:128],
+                ip=ip,
+                member_id=(member or {}).get('id'),
+            )
+            raise ValueError(GENERIC_LOGIN_ERROR)
+        tenant_slug = session.get('tenant_slug')
+        rotate_session()
+        if tenant_slug:
+            session['tenant_slug'] = tenant_slug
         session['portal_member_id'] = member['id']
-        session['portal_login'] = login.strip()
+        session['portal_login'] = (login or '').strip()
+        AuthEventService.record(
+            'portal_login_ok',
+            client_key=client_key,
+            username=(login or '')[:128],
+            ip=ip,
+            member_id=member['id'],
+        )
         return member
 
     @staticmethod

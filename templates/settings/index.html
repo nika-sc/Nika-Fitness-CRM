@@ -2,49 +2,60 @@
 {% block title %}Настройки{% endblock %}
 {% block content %}
 <div class="topbar"><h1>Настройки</h1></div>
-<div class="grid grid-2">
-  <div class="panel">
-    <h3>Сотрудники</h3>
+<ul class="nav nav-pills member-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" href="#sec-staff">Сотрудники</a></li>
+  {% if has_permission('manage_settings') %}
+  <li class="nav-item"><a class="nav-link" href="#sec-modules">Модули</a></li>
+  {% if kiosk_url %}<li class="nav-item"><a class="nav-link" href="#sec-kiosk">Киоск</a></li>{% endif %}
+  {% endif %}
+  <li class="nav-item"><a class="nav-link" href="#sec-mail">Рассылки</a></li>
+</ul>
+
+<section id="sec-staff" class="panel">
+  <h3>Сотрудники</h3>
+  <div class="table-responsive">
     <table class="table">
       <tr><th>Логин</th><th>Имя</th><th>Роль</th></tr>
       {% for u in users %}
-      <tr><td>{{ u.username }}</td><td>{{ u.full_name }}</td><td>{{ u.role }}</td></tr>
+      <tr><td>{{ u.username }}</td><td>{{ u.full_name }}</td><td>{{ role_label(u.role) }}</td></tr>
       {% endfor %}
     </table>
-    {% if has_permission('manage_users') %}
-    <h3 style="margin-top:1rem;">Новый пользователь</h3>
-    <form method="post" action="{{ url_for('settings.create_user') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Логин</label><input name="username" required>
-      <label>Пароль</label><input type="password" name="password" required>
-      <label>ФИО</label><input name="full_name">
-      <label>Роль</label>
-      <select name="role">
-        <option value="reception">reception</option>
-        <option value="trainer">trainer</option>
-        <option value="admin">admin</option>
-        <option value="owner">owner</option>
-      </select>
-      <button style="margin-top:.8rem;" type="submit">Создать</button>
-    </form>
-    {% endif %}
   </div>
-  <div class="panel">
-    <h3>Email-напоминания</h3>
-    <p class="muted">Отправить клиентам письма о скором окончании абонемента (нужны SMTP-настройки в .env).</p>
-    <form method="post" action="{{ url_for('settings.run_reminders') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit">Запустить рассылку сейчас</button>
-    </form>
-    <form method="post" action="{{ url_for('settings.class_reminders') }}" class="mt-3">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <p class="muted mb-2">Напомнить клиентам с записью в ближайшие часы (push / журнал сообщений).</p>
-      <button type="submit" class="btn secondary">Напомнить о занятиях</button>
-    </form>
-  </div>
-</div>
+  {% if has_permission('manage_users') %}
+  <h3 style="margin-top:1rem;">Новый пользователь</h3>
+  <form method="post" action="{{ url_for('settings.create_user') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Логин</label><input name="username" required>
+    <label>Пароль</label><input type="password" name="password" required>
+    <label>ФИО</label><input name="full_name">
+    <label>Роль</label>
+    <select name="role">
+      <option value="reception">Ресепшен</option>
+      <option value="trainer">Тренер</option>
+      <option value="admin">Админ</option>
+      <option value="owner">Владелец</option>
+    </select>
+    <button class="btn" style="margin-top:.8rem;" type="submit">Создать</button>
+  </form>
+  {% endif %}
+</section>
+
+<section id="sec-mail" class="panel mt-3">
+  <h3>Рассылки</h3>
+  <p class="muted">Отправить клиентам письма о скором окончании абонемента (нужны SMTP-настройки в .env).</p>
+  <form method="post" action="{{ url_for('settings.run_reminders') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn" type="submit">Запустить рассылку сейчас</button>
+  </form>
+  <form method="post" action="{{ url_for('settings.class_reminders') }}" class="mt-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="muted mb-2">Напомнить клиентам с записью в ближайшие часы (push / журнал сообщений).</p>
+    <button type="submit" class="btn secondary">Напомнить о занятиях</button>
+  </form>
+</section>
+
 {% if has_permission('manage_settings') %}
-<div class="panel mt-3">
+<section id="sec-modules" class="panel mt-3">
   <h3>Модули клуба</h3>
   <p class="muted">По умолчанию выключены. Включите только то, чем пользуетесь — пункты появятся в меню.</p>
   <form method="post" action="{{ url_for('settings.save_modules') }}">
@@ -62,8 +73,15 @@
       </div>
       {% endfor %}
     </div>
-    <button class="mt-2" type="submit">Сохранить модули</button>
+    <button class="btn mt-2" type="submit">Сохранить модули</button>
   </form>
-</div>
+</section>
+{% if kiosk_url %}
+<section id="sec-kiosk" class="panel mt-3">
+  <h3>Киоск чекина</h3>
+  <p class="muted">Открывайте только на стойке. Без токена в ссылке киоск недоступен.</p>
+  <p class="small"><a href="{{ kiosk_url }}" target="_blank" rel="noopener">{{ kiosk_url }}</a></p>
+</section>
+{% endif %}
 {% endif %}
 {% endblock %}

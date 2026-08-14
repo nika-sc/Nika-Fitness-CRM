@@ -4,7 +4,7 @@
 <div class="topbar">
   <div>
     <h1>Клиенты</h1>
-    <p class="muted">Карточки с уникальным номером и быстрым поиском</p>
+    <p class="muted">Карточки с уникальным номером и быстрым поиском{% if total %} · {{ total }}{% endif %}</p>
   </div>
   {% if has_permission('manage_members') %}
   <a class="btn" href="{{ url_for('members.create') }}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Новый клиент</a>
@@ -28,13 +28,12 @@
           <th>ФИО</th>
           <th>Карта</th>
           <th>Телефон</th>
-          <th>Статус</th>
-          <th></th>
+          <th>Абонемент</th>
         </tr>
       </thead>
       <tbody>
         {% for m in members %}
-        <tr>
+        <tr class="js-row-link" data-href="{{ url_for('members.detail', member_id=m.id) }}">
           <td>
             {% if m.photo_path %}
             <img class="avatar" src="{{ url_for('static', filename=m.photo_path) }}" alt="">
@@ -48,17 +47,37 @@
           <td><span class="card-number">{{ m.card_number }}</span></td>
           <td>{{ m.phone or '—' }}</td>
           <td>
-            <span class="pill {{ 'ok' if m.status == 'active' else 'warn' }}">{{ m.status }}</span>
-          </td>
-          <td class="text-end">
-            <a class="btn secondary btn-sm" href="{{ url_for('members.detail', member_id=m.id) }}">Карточка</a>
+            {% if m.membership_computed %}
+            <span class="pill {{ status_pill_class(m.membership_computed) }}">{{ status_label(m.membership_computed) }}</span>
+            {% if m.membership_ends_on %}<div class="muted small">до {{ m.membership_ends_on }}</div>{% endif %}
+            {% else %}
+            <span class="pill danger">Нет абонемента</span>
+            {% endif %}
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="muted p-4">Клиентов пока нет</td></tr>
+        <tr><td colspan="5" class="p-4">
+          <div class="empty-state">
+            <p class="muted mb-2">{% if q %}Никого не нашли{% else %}Клиентов пока нет{% endif %}</p>
+            {% if has_permission('manage_members') %}
+            <a class="btn btn-sm" href="{{ url_for('members.create') }}">Добавить клиента</a>
+            {% endif %}
+          </div>
+        </td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+{% if pages > 1 %}
+<nav class="pagination-bar mt-3" aria-label="Страницы списка">
+  {% if page > 1 %}
+  <a class="btn secondary btn-sm" href="{{ url_for('members.list_members', q=q, page=page-1) }}">Назад</a>
+  {% endif %}
+  <span class="muted">стр. {{ page }} из {{ pages }}</span>
+  {% if page < pages %}
+  <a class="btn secondary btn-sm" href="{{ url_for('members.list_members', q=q, page=page+1) }}">Ещё</a>
+  {% endif %}
+</nav>
+{% endif %}
 {% endblock %}

@@ -10,6 +10,7 @@
   {% if msg %}<div class="flash {{ 'error' if level in ('expired','danger') else ('warning' if level=='expiring' else 'success') }}">{{ msg }}</div>{% endif %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <label>Карта / QR</label>
     <input class="checkin-input card-number" name="card_number" autofocus required placeholder="NF…">
     <button type="submit">Войти</button>

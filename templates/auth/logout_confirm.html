@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Выход — Nika Fitness CRM{% endblock %}
+{% block body %}
+<div class="login-page">
+  <div class="login-card">
+    <h1>Выйти из CRM?</h1>
+    <form method="post" action="{{ url_for('auth.logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn" type="submit">Выйти</button>
+      <a class="btn secondary" href="{{ url_for('main.dashboard') }}">Отмена</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

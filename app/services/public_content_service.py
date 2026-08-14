@@ -160,7 +160,8 @@ class PublicContentService:
         if in_code:
             escaped_code = escape("\n".join(code_buf))
             html_chunks.append(f"<pre><code>{escaped_code}</code></pre>")
-        return "\n".join(html_chunks)
+        from app.utils.security import sanitize_html
+        return sanitize_html("\n".join(html_chunks))
 
     @staticmethod
     def _read_entries(folder: Path) -> list[PublicEntry]:

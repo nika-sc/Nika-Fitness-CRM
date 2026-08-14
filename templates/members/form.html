@@ -24,10 +24,27 @@
     </div>
   </div>
   {% if member %}
+  <label class="form-label mt-3">VIP-номер</label>
+  <select class="form-select" name="vip_number">
+    <option value="">Оставить {{ member.card_number }}</option>
+    {% for n in vip_numbers|default([]) %}
+    <option value="{{ n }}" {% if member.card_number == n %}selected{% endif %}>{{ n }}</option>
+    {% endfor %}
+  </select>
+  {% else %}
+  <label class="form-label mt-3">VIP-номер (необязательно)</label>
+  <select class="form-select" name="vip_number">
+    <option value="">По порядку (с 1000)</option>
+    {% for n in vip_numbers|default([]) %}
+    <option value="{{ n }}">{{ n }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+  {% if member %}
   <label class="form-label mt-3">Статус</label>
   <select class="form-select" name="status">
-    <option value="active" {% if member.status=='active' %}selected{% endif %}>active</option>
-    <option value="inactive" {% if member.status=='inactive' %}selected{% endif %}>inactive</option>
+    <option value="active" {% if member.status=='active' %}selected{% endif %}>Активен</option>
+    <option value="inactive" {% if member.status=='inactive' %}selected{% endif %}>Неактивен</option>
   </select>
   {% endif %}
   <label class="form-label mt-3">Заметки</label>
@@ -35,7 +52,7 @@
   <label class="form-label mt-3">Фото</label>
   <input class="form-control" type="file" name="photo" accept="image/jpeg,image/png,image/webp">
   <div class="mt-4 d-flex gap-2 flex-wrap">
-    <button type="submit"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Сохранить</button>
+    <button class="btn" type="submit"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Сохранить</button>
     <a class="btn secondary" href="{{ url_for('members.list_members') }}">Отмена</a>
   </div>
 </form>

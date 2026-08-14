@@ -50,25 +50,37 @@ class GuestService:
             raise ValueError('Сумма не может быть отрицательной')
 
         payment_id = None
-        if amount_cents > 0 and host_id:
-            from app.services.ops_service import CashService
+        from app.services.ops_service import CashService
 
+        method = CashService.normalize_method(method)
+        if amount_cents > 0 and host_id:
             payment = execute_returning(
                 """
                 INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by, cash_shift_id)
                 VALUES (%s, NULL, %s, %s, %s, %s, %s)
-                RETURNING id
+                RETURNING *
                 """,
                 (
                     host_id,
                     amount_cents,
-                    method or 'cash',
+                    method,
                     (note or f'Гостевой визит: {name}').strip(),
                     created_by,
                     CashService.open_shift_id(),
                 ),
             )
             payment_id = payment['id'] if payment else None
+            if payment:
+                CashService.record_from_payment(payment, 'Гостевой визит', created_by)
+        elif amount_cents > 0:
+            CashService.record_tx(
+                amount_cents=amount_cents,
+                kind='income',
+                method=method,
+                category_id=CashService.category_id('Гостевой визит', 'income'),
+                note=note or f'Гостевой визит: {name}',
+                created_by=created_by,
+            )
 
         return execute_returning(
             """

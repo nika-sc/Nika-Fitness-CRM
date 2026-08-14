@@ -13,8 +13,9 @@ from flask_mail import Mail
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app.config import Config
+from app.config import Config, ProductionConfig
 from app.database.connection import saas_enabled
+from app.utils.security import DEFAULT_SECRET_KEY, TALISMAN_CSP, security_headers
 
 csrf = CSRFProtect()
 login_manager = LoginManager()
@@ -34,13 +35,52 @@ def create_app(config_class=Config):
     app.config['APP_EDITION'] = (os.environ.get('APP_EDITION') or 'selfhosted').strip().lower()
     app.extensions.setdefault('saas_landing', None)
 
+    env_name = (os.environ.get('FLASK_ENV') or '').strip().lower()
+    is_prod = env_name == 'production' or config_class is ProductionConfig or (
+        isinstance(config_class, type) and issubclass(config_class, ProductionConfig)
+    )
+    secret = os.environ.get('SECRET_KEY') or app.config.get('SECRET_KEY') or ''
+    if is_prod and secret in ('', DEFAULT_SECRET_KEY):
+        raise RuntimeError('SECRET_KEY must be set to a non-default value in production')
+    if os.environ.get('SECRET_KEY'):
+        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    if os.environ.get('RATELIMIT_STORAGE_URI'):
+        app.config['RATELIMIT_STORAGE_URI'] = os.environ.get('RATELIMIT_STORAGE_URI')
+
     if not app.debug:
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     csrf.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+
+    storage_uri = (app.config.get('RATELIMIT_STORAGE_URI') or 'memory://').strip()
+    if storage_uri.startswith('redis'):
+        try:
+            import redis as redis_lib
+            redis_lib.Redis.from_url(storage_uri).ping()
+        except Exception:
+            logging.getLogger(__name__).warning(
+                'Rate-limit storage %s unavailable, falling back to memory://',
+                storage_uri,
+            )
+            storage_uri = 'memory://'
+            app.config['RATELIMIT_STORAGE_URI'] = storage_uri
     limiter.init_app(app)
+
+    from flask_talisman import Talisman
+
+    Talisman(
+        app,
+        force_https=False,
+        strict_transport_security=bool(is_prod and not app.debug),
+        strict_transport_security_max_age=31536000,
+        content_security_policy=TALISMAN_CSP,
+        referrer_policy='strict-origin-when-cross-origin',
+        frame_options='SAMEORIGIN',
+        session_cookie_secure=False,
+        session_cookie_http_only=True,
+    )
 
     from app.middleware.auth import setup_auth
     setup_auth(login_manager)
@@ -58,6 +98,19 @@ def create_app(config_class=Config):
         if host and host not in hosts:
             return ('Invalid Host header', 400)
         return None
+
+    @app.before_request
+    def _secure_session_cookie():
+        proto = (request.headers.get('X-Forwarded-Proto') or '').split(',')[0].strip().lower()
+        if proto == 'https' or request.is_secure:
+            app.config['SESSION_COOKIE_SECURE'] = True
+        return None
+
+    @app.after_request
+    def _security_headers(response):
+        for key, value in security_headers(request.path or '').items():
+            response.headers.setdefault(key, value)
+        return response
 
     @app.context_processor
     def inject_globals():
@@ -93,9 +146,16 @@ def create_app(config_class=Config):
                     club_name = row['value']
             except Exception:
                 pass
+        from app.utils.labels import method_label, role_label, source_label, status_label, status_pill_class
+
         return {
             'has_permission': has_permission,
             'feature_enabled': feature_enabled,
+            'role_label': role_label,
+            'status_label': status_label,
+            'method_label': method_label,
+            'source_label': source_label,
+            'status_pill_class': status_pill_class,
             'unread_alerts': unread,
             'club_name': club_name,
             'tenant_slug': tenant_slug,
@@ -107,7 +167,6 @@ def create_app(config_class=Config):
                 'portal_login': app.config.get('DEMO_PORTAL_LOGIN', ''),
                 'portal_password': app.config.get('DEMO_PORTAL_PASSWORD', ''),
                 'platform_user': app.config.get('PLATFORM_ADMIN_USER', ''),
-                'platform_password': app.config.get('PLATFORM_ADMIN_PASSWORD', ''),
             } if app.config.get('DEMO_MODE') else {},
             'now': datetime.now(),
         }

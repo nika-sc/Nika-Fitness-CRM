@@ -267,6 +267,7 @@ class MembershipService:
         )
         from app.services.ops_service import CashService
 
+        method = CashService.normalize_method(method)
         payment = execute_returning(
             """
             INSERT INTO payments (member_id, membership_id, amount_cents, method, note, created_by, cash_shift_id)
@@ -283,6 +284,7 @@ class MembershipService:
                 CashService.open_shift_id(),
             ),
         )
+        CashService.record_from_payment(payment, 'Абонемент', created_by)
         membership['payment'] = payment
         membership['computed_status'] = MembershipService.compute_status(
             membership['ends_on'], membership.get('visits_remaining'), membership.get('status')
@@ -327,3 +329,21 @@ class MembershipService:
             """,
             (today, until),
         )
+
+    @staticmethod
+    def expiring_count_on(as_of) -> int:
+        d = _expiring_days()
+        until = as_of + timedelta(days=d)
+        row = fetch_one(
+            """
+            SELECT COUNT(DISTINCT mb.id)::int AS n
+            FROM members mb
+            JOIN memberships ms ON ms.member_id = mb.id
+            WHERE ms.ends_on BETWEEN %s AND %s
+              AND ms.status <> 'frozen'
+              AND (ms.visits_remaining IS NULL OR ms.visits_remaining > 0)
+            """,
+            (as_of, until),
+        )
+        return int(row['n']) if row else 0
+

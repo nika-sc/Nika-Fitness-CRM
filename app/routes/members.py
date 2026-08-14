@@ -1,5 +1,5 @@
 """Members CRUD."""
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
 from flask_login import login_required
 
 from app.services.checkin_service import CheckinService
@@ -7,6 +7,7 @@ from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
 from app.services.settings_service import SettingsService
 from app.utils.decorators import permission_required
+from app.utils.security import signed_member_token
 from app.utils.uploads import save_image
 
 bp = Blueprint('members', __name__)
@@ -17,8 +18,23 @@ bp = Blueprint('members', __name__)
 @permission_required('view_members')
 def list_members():
     q = request.args.get('q')
-    members = MemberService.list_members(q=q)
-    return render_template('members/list.html', members=members, q=q or '')
+    page = max(1, request.args.get('page', 1, type=int) or 1)
+    per_page = current_app.config.get('ITEMS_PER_PAGE', 50)
+    total = MemberService.count_members(q)
+    pages = max(1, (total + per_page - 1) // per_page) if total else 1
+    if page > pages:
+        page = pages
+    members = MemberService.list_members(q=q, limit=per_page, offset=(page - 1) * per_page)
+    MemberService.attach_membership_summaries(members)
+    return render_template(
+        'members/list.html',
+        members=members,
+        q=q or '',
+        page=page,
+        pages=pages,
+        total=total,
+        per_page=per_page,
+    )
 
 
 @bp.route('/new', methods=['GET', 'POST'])
@@ -36,12 +52,13 @@ def create():
                 'email': request.form.get('email', ''),
                 'notes': request.form.get('notes', ''),
                 'photo_path': photo_path,
+                'card_number': MemberService.validate_vip_number(request.form.get('vip_number')) if (request.form.get('vip_number') or '').strip() else None,
             })
             flash(f"Клиент создан. Карта: {member['card_number']}", 'success')
             return redirect(url_for('members.detail', member_id=member['id']))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('members/form.html', member=None)
+    return render_template('members/form.html', member=None, vip_numbers=MemberService.available_vip_numbers())
 
 
 @bp.route('/<int:member_id>')
@@ -72,6 +89,11 @@ def detail(member_id):
     pt_packages = PtService.list_packages(member_id)
     if request.args.get('add_cert') == '1' and request.method == 'GET':
         pass
+    nps_url = url_for(
+        'nps.form',
+        member=member_id,
+        token=signed_member_token('nps', member_id, current_app.config['SECRET_KEY']),
+    )
     return render_template(
         'members/detail.html',
         member=member,
@@ -86,6 +108,9 @@ def detail(member_id):
         medical=medical,
         loyalty=loyalty,
         pt_packages=pt_packages,
+        nps_url=nps_url,
+        just_checkin=request.args.get('checkin') == '1',
+        checkin_info=session.get('desk_last') if request.args.get('checkin') == '1' else None,
     )
 
 
@@ -137,10 +162,10 @@ def portal_password(member_id):
                 password=request.form.get('password') or '',
                 send_email=True,
             )
-            flash(f'Пароль ЛК сохранён: {plain}', 'success')
+            flash('Пароль ЛК сохранён. Покажите его клиенту один раз — в CRM он больше не хранится.', 'success')
         else:
             plain = PortalService.set_password(member_id, password=None, send_email=True)
-            flash(f'Пароль ЛК сгенерирован: {plain} (также в outbox / на email)', 'success')
+            flash(f'Новый пароль ЛК (покажите клиенту один раз): {plain}', 'success')
     except Exception as exc:
         flash(str(exc), 'error')
     return redirect(url_for('members.detail', member_id=member_id))
@@ -159,16 +184,24 @@ def edit(member_id):
             photo_path = None
             if request.files.get('photo') and request.files['photo'].filename:
                 photo_path = save_image(request.files['photo'], 'members')
-            MemberService.update(member_id, {
+            data = {
                 'full_name': request.form.get('full_name', ''),
                 'phone': request.form.get('phone', ''),
                 'email': request.form.get('email', ''),
                 'notes': request.form.get('notes', ''),
                 'status': request.form.get('status', 'active'),
                 'photo_path': photo_path,
-            })
+            }
+            vip = (request.form.get('vip_number') or '').strip()
+            if vip:
+                data['card_number'] = MemberService.validate_vip_number(vip, member_id=member_id)
+            MemberService.update(member_id, data)
             flash('Сохранено', 'success')
             return redirect(url_for('members.detail', member_id=member_id))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('members/form.html', member=member)
+    return render_template(
+        'members/form.html',
+        member=member,
+        vip_numbers=MemberService.available_vip_numbers(member.get('card_number')),
+    )

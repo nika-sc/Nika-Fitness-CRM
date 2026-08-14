@@ -469,6 +469,119 @@ body.nika-admin {
   letter-spacing: .04em;
 }
 
+.nika-admin .tap-lg,
+.nika-admin .reception-checkin .btn,
+.nika-admin .reception-desk .btn.tap-lg {
+  min-height: 44px;
+}
+
+.nika-admin .checkin-result {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--nika-line);
+  border-left: 4px solid var(--nika-success);
+  border-radius: 12px;
+  background: rgba(47, 212, 163, .1);
+}
+
+.nika-admin .checkin-result.expiring {
+  border-left-color: var(--nika-warning);
+  background: rgba(240, 180, 41, .1);
+}
+
+.nika-admin .checkin-result.expired {
+  border-left-color: var(--nika-danger);
+  background: rgba(255, 90, 106, .1);
+}
+
+.nika-admin .empty-state {
+  padding: .5rem 0 .25rem;
+}
+
+.nika-admin .pagination-bar {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.nika-admin .member-tabs .nav-link {
+  color: var(--nika-muted);
+  border: 1px solid var(--nika-line);
+  margin-right: .35rem;
+}
+
+.nika-admin .member-tabs .nav-link.active,
+.nika-admin .member-tabs .nav-link:hover {
+  color: #fff;
+  background: rgba(255, 90, 60, .2);
+  border-color: #ff5a3c;
+}
+
+.nika-admin .js-row-link {
+  cursor: pointer;
+}
+
+.nika-admin .js-row-link:hover {
+  background: rgba(255, 90, 60, .06);
+}
+
+.nika-admin .week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.nika-admin .week-col {
+  min-width: 0;
+  border-right: 1px solid var(--nika-line);
+  padding-bottom: .75rem;
+}
+
+.nika-admin .week-col:last-child {
+  border-right: 0;
+}
+
+.nika-admin .week-col.is-today,
+.nika-admin .schedule-day.is-today {
+  background: rgba(255, 90, 60, .07);
+}
+
+.nika-admin .week-col-head {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: .75rem .65rem .4rem;
+  border-bottom: 1px solid var(--nika-line);
+}
+
+.nika-admin .week-card {
+  display: block;
+  margin: .45rem .4rem 0;
+  padding: .55rem .5rem;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--nika-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .03);
+}
+
+.nika-admin .week-card:hover {
+  color: inherit;
+  border-color: #ff5a3c;
+}
+
+.nika-admin details.panel > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.nika-admin details.panel > summary::-webkit-details-marker {
+  display: none;
+}
+
 .nika-admin .panel-head {
   display: flex;
   align-items: center;
@@ -648,12 +761,12 @@ body.nika-admin {
 }
 
 .nika-admin .mobile-club-name {
-  max-width: 44vw;
-  overflow: hidden;
+  max-width: min(52vw, 16rem);
+  overflow: visible;
   color: var(--nika-muted);
   font-size: .8rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 @media (max-width: 991.98px) {
@@ -704,7 +817,9 @@ body.nika-admin {
     margin-inline: -.2rem;
   }
   .nika-admin .mobile-club-name {
-    display: none;
+    display: inline;
+    max-width: 48vw;
+    font-size: .75rem;
   }
   .nika-admin .member-hero {
     flex-direction: column;
@@ -726,5 +841,94 @@ body.nika-admin {
   .nika-admin .btn-icon {
     min-width: 40px;
     min-height: 40px;
+  }
+}
+
+.nika-admin a.desk-kpi {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nika-admin a.desk-kpi:hover {
+  color: inherit;
+  border-color: #ff5a3c;
+}
+
+.nika-admin .stat-delta {
+  display: block;
+  margin-top: .25rem;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.nika-admin .stat-delta.up { color: #2fd4a3; }
+.nika-admin .stat-delta.down { color: #ff5a6a; }
+.nika-admin .stat-delta.flat { color: var(--nika-muted); }
+
+.nika-admin .panel.stat.is-focus {
+  border-color: #ff5a3c;
+}
+
+.nika-admin .live-search-results {
+  margin-top: .45rem;
+  border: 1px solid var(--nika-line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--nika-surface-2, #121a28);
+}
+
+.nika-admin .live-search-item {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  width: 100%;
+  padding: .7rem .85rem;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--nika-line);
+  min-height: 48px;
+}
+
+.nika-admin .live-search-item:last-child { border-bottom: 0; }
+.nika-admin .live-search-item:hover { background: rgba(255, 90, 60, .08); }
+.nika-admin .live-search-item small { display: block; }
+
+.nika-admin .checkin-verify {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--nika-line);
+  border-left: 4px solid var(--nika-success);
+  border-radius: 14px;
+  background: rgba(47, 212, 163, .1);
+}
+
+.nika-admin .checkin-verify.expiring { border-left-color: var(--nika-warning); background: rgba(240, 180, 41, .1); }
+.nika-admin .checkin-verify.expired { border-left-color: var(--nika-danger); background: rgba(255, 90, 106, .1); }
+
+.nika-admin .checkin-verify-photo img,
+.nika-admin .avatar-xl {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.nika-admin .avatar-xl.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  background: var(--nika-surface-2);
+}
+
+@media (max-width: 991.98px) {
+  .nika-admin .desk-kpis.grid-4 {
+    grid-template-columns: 1fr 1fr;
   }
 }

@@ -9,15 +9,47 @@
   <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#newClientModal">Новый клиент</button>
 </div>
 
-<div class="grid grid-4 mb-3">
-  <div class="panel stat"><span class="muted">Чекинов сегодня</span><strong>{{ attendance.checkins }}</strong></div>
-  <div class="panel stat"><span class="muted">Уникальных сегодня</span><strong>{{ attendance.unique_members }}</strong></div>
-  <div class="panel stat"><span class="muted">Сейчас в зале</span><strong>{{ present|length }}</strong></div>
-  <div class="panel stat"><span class="muted">Истекают скоро</span><strong>{{ expiring|length }}</strong></div>
+<div class="grid grid-4 mb-3 desk-kpis">
+  <a class="panel stat desk-kpi" href="{{ url_for('reception.stats', period='today', focus='checkins') }}">
+    <span class="muted">Чекинов сегодня</span>
+    <strong>{{ attendance.checkins }}</strong>
+    <span class="stat-delta {{ deltas.checkins.sign }}">{% if deltas.checkins.value > 0 %}+{% endif %}{{ deltas.checkins.value }} vs вчера</span>
+  </a>
+  <a class="panel stat desk-kpi" href="{{ url_for('reception.stats', period='today', focus='unique') }}">
+    <span class="muted">Уникальных сегодня</span>
+    <strong>{{ attendance.unique_members }}</strong>
+    <span class="stat-delta {{ deltas.unique.sign }}">{% if deltas.unique.value > 0 %}+{% endif %}{{ deltas.unique.value }} vs вчера</span>
+  </a>
+  <a class="panel stat desk-kpi" href="{{ url_for('reception.stats', period='today', focus='present') }}">
+    <span class="muted">Сейчас в зале</span>
+    <strong>{{ present|length }}</strong>
+  </a>
+  <a class="panel stat desk-kpi" href="{{ url_for('reception.stats', period='today', focus='expiring') }}">
+    <span class="muted">Истекают скоро</span>
+    <strong>{{ expiring_n }}</strong>
+    <span class="stat-delta {{ deltas.expiring.sign }}">{% if deltas.expiring.value > 0 %}+{% endif %}{{ deltas.expiring.value }} vs вчера</span>
+  </a>
 </div>
 
 <div class="row g-3 reception-desk">
   <div class="col-xl-7">
+    {% if last_checkin %}
+    <div class="checkin-result {{ last_checkin.level }} mb-3">
+      <div>
+        <strong>{{ last_checkin.name }}</strong>
+        <span class="card-number">{{ last_checkin.card }}</span>
+        <div class="mt-1">{{ last_checkin.message }}</div>
+        <div class="muted small mt-1">
+          {% if last_checkin.plan %}{{ last_checkin.plan }}{% endif %}
+          {% if last_checkin.ends_on %} · до {{ last_checkin.ends_on }}{% endif %}
+          {% if last_checkin.visits is not none %} · осталось визитов: {{ last_checkin.visits }}{% endif %}
+        </div>
+      </div>
+      {% if last_checkin.member_id %}
+      <a class="btn secondary btn-sm" href="{{ url_for('members.detail', member_id=last_checkin.member_id) }}">Карточка</a>
+      {% endif %}
+    </div>
+    {% endif %}
     <div class="panel reception-checkin">
       <div class="panel-head">
         <div>
@@ -25,10 +57,12 @@
           <p class="muted mb-0 mt-1">Сканер QR или номер карты клиента</p>
         </div>
       </div>
-      <form method="post" action="{{ url_for('reception.checkin') }}" class="mt-3">
+      <form method="post" action="{{ url_for('reception.checkin') }}" class="mt-3" id="deskCheckinForm">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label class="form-label">Номер карты или QR</label>
-        <input class="checkin-input card-number form-control" name="card_number" placeholder="Сканируйте QR из ЛК или введите NF…" autofocus autocomplete="off">
+        <input type="hidden" name="member_id" id="deskMemberId" value="">
+        <label class="form-label">Поиск / карта / QR</label>
+        <input class="checkin-input card-number form-control" id="deskLiveSearch" name="card_number" placeholder="ФИО, телефон, карта или QR…" autofocus autocomplete="off">
+        <div id="deskLiveResults" class="live-search-results" hidden></div>
         {% if zones %}
         <label class="form-label mt-3">Зона доступа</label>
         <select class="form-select" name="zone">
@@ -38,7 +72,7 @@
         </select>
         {% endif %}
         <div class="mt-3">
-          <button type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Отметить визит</button>
+          <button class="btn tap-lg" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Отметить визит</button>
         </div>
       </form>
 
@@ -49,7 +83,7 @@
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
           <input class="form-control" name="q" value="{{ q }}" placeholder="ФИО, телефон или карта…">
-          <button type="submit" class="btn secondary">Найти</button>
+          <button type="submit" class="btn secondary tap-lg">Найти</button>
         </div>
       </form>
 
@@ -78,7 +112,7 @@
                 <form method="post" action="{{ url_for('reception.checkin') }}">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <input type="hidden" name="member_id" value="{{ m.id }}">
-                  <button type="submit" class="btn secondary btn-sm">Чекин</button>
+                  <button type="submit" class="btn tap-lg">Чекин</button>
                 </form>
               </td>
             </tr>
@@ -93,8 +127,50 @@
   <div class="col-xl-5">
     <div class="panel mb-3">
       <div class="panel-head">
-        <h3 class="mb-0"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>Гостевой визит</h3>
+        <h3 class="mb-0"><i class="bi bi-people me-2" aria-hidden="true"></i>Сейчас в зале</h3>
       </div>
+      {% if present %}
+      <ul class="soft-list mt-3 mb-0">
+        {% for p in present %}
+        <li>
+          <div>
+            <strong>{{ p.full_name }}</strong>
+            <div class="card-number small">{{ p.card_number }} · {{ p.checked_at.strftime('%H:%M') if p.checked_at else '' }}</div>
+          </div>
+          <form method="post" action="{{ url_for('reception.checkout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="checkin_id" value="{{ p.id }}">
+            <button class="btn secondary btn-sm tap-lg" type="submit">Выход</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted mt-3 mb-0">Никого нет</p>
+      {% endif %}
+    </div>
+
+    <div class="panel mb-3">
+      <div class="panel-head">
+        <h3 class="mb-0"><i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>Скоро заканчивается</h3>
+      </div>
+      <ul class="soft-list mt-3 mb-0">
+        {% for e in expiring %}
+        <li>
+          <div>
+            <a href="{{ url_for('members.detail', member_id=e.id) }}"><strong>{{ e.full_name }}</strong></a>
+            <div class="card-number small">{{ e.card_number }}</div>
+          </div>
+          <span class="pill warn">до {{ e.ends_on }}</span>
+        </li>
+        {% else %}
+        <li class="muted">Нет истекающих в ближайшие дни</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <details class="panel">
+      <summary class="panel-head mb-0"><h3 class="mb-0"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>Гостевой визит</h3></summary>
       <form method="post" action="{{ url_for('reception.guest') }}" class="mt-3">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label class="form-label">ФИО гостя</label>
@@ -118,34 +194,15 @@
             <select class="form-select" name="method">
               <option value="cash">Наличные</option>
               <option value="card">Карта</option>
-              <option value="transfer">Перевод</option>
+              <option value="qr">QR</option>
             </select>
           </div>
         </div>
         <label class="form-label mt-2">Комментарий</label>
         <input class="form-control" name="note">
-        <button class="mt-3" type="submit">Записать гостя</button>
+        <button class="btn tap-lg mt-3" type="submit">Записать гостя</button>
       </form>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <h3 class="mb-0"><i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>Скоро заканчивается</h3>
-      </div>
-      <ul class="soft-list mt-3 mb-0">
-        {% for e in expiring %}
-        <li>
-          <div>
-            <a href="{{ url_for('members.detail', member_id=e.id) }}"><strong>{{ e.full_name }}</strong></a>
-            <div class="card-number small">{{ e.card_number }}</div>
-          </div>
-          <span class="pill warn">до {{ e.ends_on }}</span>
-        </li>
-        {% else %}
-        <li class="muted">Нет истекающих в ближайшие дни</li>
-        {% endfor %}
-      </ul>
-    </div>
+    </details>
   </div>
 </div>
 
@@ -209,28 +266,6 @@
   </div>
 </div>
 
-{% if present %}
-<div class="panel mt-3">
-  <h3>Сейчас в зале</h3>
-  <table class="table">
-    <tr><th>Клиент</th><th>Вход</th><th></th></tr>
-    {% for p in present %}
-    <tr>
-      <td>{{ p.full_name }} <span class="card-number">{{ p.card_number }}</span></td>
-      <td>{{ p.checked_at.strftime('%H:%M') if p.checked_at else '' }}</td>
-      <td>
-        <form method="post" action="{{ url_for('reception.checkout') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" name="checkin_id" value="{{ p.id }}">
-          <button class="btn secondary btn-sm" type="submit">Выход</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-{% endif %}
-
 <div class="modal fade" id="newClientModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="{{ url_for('reception.register') }}" id="newClientForm">
@@ -246,6 +281,13 @@
           <input class="form-control" name="full_name" required>
           <label class="form-label mt-2">Телефон</label>
           <input class="form-control" name="phone" required>
+          <label class="form-label mt-2">VIP-номер (необязательно)</label>
+          <select class="form-select" name="vip_number">
+            <option value="">По порядку</option>
+            {% for n in vip_numbers %}
+            <option value="{{ n }}">{{ n }}</option>
+            {% endfor %}
+          </select>
           <label class="form-label mt-2">Email (необязательно)</label>
           <input class="form-control" name="email" type="email">
         </div>
@@ -262,7 +304,7 @@
           <select class="form-select" name="method">
             <option value="cash">Наличные</option>
             <option value="card">Карта</option>
-            <option value="transfer">Перевод</option>
+            <option value="qr">QR</option>
           </select>
         </div>
         <div data-step="3" hidden>
@@ -307,6 +349,78 @@
   document.getElementById('newClientBack').addEventListener('click', function () {
     step = Math.max(1, step - 1);
     show();
+  });
+})();
+
+(function () {
+  var input = document.getElementById('deskLiveSearch');
+  var box = document.getElementById('deskLiveResults');
+  var memberId = document.getElementById('deskMemberId');
+  var form = document.getElementById('deskCheckinForm');
+  if (!input || !box) return;
+  var timer = null;
+  var url = {{ url_for('reception.api_search')|tojson }};
+  var photoBase = {{ url_for('static', filename='')|tojson }};
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+  function hide() { box.hidden = true; box.innerHTML = ''; }
+
+  function pick(m) {
+    memberId.value = m.id;
+    input.value = m.card_number;
+    hide();
+    form.submit();
+  }
+
+  function render(items) {
+    if (!items.length) { hide(); return; }
+    box.innerHTML = items.map(function (m) {
+      var photo = m.photo_path ? '<img class="avatar" src="' + photoBase + esc(m.photo_path) + '" alt="">' : '<span class="avatar placeholder">' + esc((m.full_name || '?').slice(0, 1)) + '</span>';
+      return '<button type="button" class="live-search-item" data-id="' + esc(m.id) + '" data-card="' + esc(m.card_number || '') + '">' +
+        photo + '<span><strong>' + esc(m.full_name) + '</strong><small class="card-number">' + esc(m.card_number) + ' · ' + esc(m.phone) + '</small></span></button>';
+    }).join('');
+    box.hidden = false;
+    box.querySelectorAll('.live-search-item').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        pick({ id: btn.getAttribute('data-id'), card_number: btn.getAttribute('data-card') });
+      });
+    });
+  }
+
+  input.addEventListener('input', function () {
+    memberId.value = '';
+    var q = input.value.trim();
+    clearTimeout(timer);
+    if (!q) { hide(); return; }
+    if (q.length < 3) {
+      timer = setTimeout(function () {
+        fetch(url + '?q=' + encodeURIComponent(q), { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(function (data) { render(data.members || []); })
+          .catch(function () { hide(); });
+      }, 250);
+      return;
+    }
+    timer = setTimeout(function () {
+      fetch(url + '?q=' + encodeURIComponent(q), { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { render(data.members || []); })
+        .catch(function () { hide(); });
+    }, 250);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !memberId.value) {
+      var first = box.querySelector('.live-search-item');
+      if (first && !box.hidden) {
+        e.preventDefault();
+        first.click();
+      }
+    }
   });
 })();
 </script>
