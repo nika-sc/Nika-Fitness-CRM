@@ -57,5 +57,24 @@
     if (window.matchMedia("(min-width: 1200px)").matches) el.open = true;
   });
 
+  document.querySelectorAll("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const sel = btn.getAttribute("data-copy");
+      const field = sel ? document.querySelector(sel) : null;
+      if (!field) return;
+      const value = field.value || field.textContent || "";
+      try {
+        await navigator.clipboard.writeText(value);
+        btn.textContent = "Скопировано";
+        window.setTimeout(() => {
+          btn.textContent = "Копировать";
+        }, 1600);
+      } catch (_err) {
+        field.focus();
+        field.select?.();
+      }
+    });
+  });
+
   desktop.addEventListener?.("change", applyStoredSidebarState);
 })();

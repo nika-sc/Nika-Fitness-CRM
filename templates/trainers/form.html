@@ -10,6 +10,17 @@
     <div><label>Email</label><input name="email" value="{{ trainer.email if trainer else '' }}"></div>
   </div>
   <label>О себе</label><textarea name="bio" rows="4">{{ trainer.bio if trainer else '' }}</textarea>
+  <label>Учётная запись</label>
+  <select name="user_id">
+    <option value="">— без входа в кабинет —</option>
+    {% for u in link_candidates %}
+    <option value="{{ u.id }}"
+      {% if trainer and trainer.user_id == u.id %}selected{% elif u.linked_trainer_id %}disabled{% endif %}>
+      {{ u.full_name or u.username }} · {{ u.username }}{% if u.linked_trainer_id and not (trainer and trainer.user_id == u.id) %} (занята){% endif %}
+    </option>
+    {% endfor %}
+  </select>
+  <p class="muted small">Сотрудник с ролью «Тренер» получит кабинет «Мои тренировки» со своими окнами и записями.</p>
   {% if trainer %}
   <label><input type="checkbox" name="is_active" {% if trainer.is_active %}checked{% endif %}> Активен</label>
   {% endif %}

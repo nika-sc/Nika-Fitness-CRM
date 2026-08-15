@@ -14,9 +14,16 @@ MODULES: tuple[dict[str, str], ...] = (
     {'key': 'module_zones', 'label': 'Зоны доступа', 'hint': 'Зоны при чекине (зал / cardio / pool)'},
     {'key': 'module_messaging', 'label': 'Сообщения', 'hint': 'SMS / Telegram outbox'},
     {'key': 'module_branches', 'label': 'Филиалы', 'hint': 'Несколько точек'},
+    {
+        'key': 'module_trainer_slots',
+        'label': 'Слоты тренера',
+        'hint': 'Кабинет тренера и запись на персоналку',
+        'default': True,
+    },
 )
 
 MODULE_KEYS = tuple(item['key'] for item in MODULES)
+MODULE_DEFAULTS = {item['key']: bool(item.get('default')) for item in MODULES}
 
 
 class FeatureFlagsService:
@@ -24,7 +31,7 @@ class FeatureFlagsService:
     def is_enabled(key: str) -> bool:
         if key not in MODULE_KEYS:
             return True
-        return SettingsService.get_bool(key, False)
+        return SettingsService.get_bool(key, MODULE_DEFAULTS.get(key, False))
 
     @staticmethod
     def list_for_settings() -> list[dict]:

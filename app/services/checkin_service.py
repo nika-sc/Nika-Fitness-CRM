@@ -44,6 +44,29 @@ class CheckinService:
                 f"Абонемент заморожен до разморозки (карта {member.get('card_number', '')})"
             )
 
+        hours = SettingsService.get_int('gym_presence_hours', 4) or 4
+        already = fetch_one(
+            """
+            SELECT * FROM checkins
+            WHERE member_id = %s
+              AND checked_out_at IS NULL
+              AND checked_at >= NOW() - (%s * INTERVAL '1 hour')
+            ORDER BY checked_at DESC
+            LIMIT 1
+            """,
+            (member_id, hours),
+        )
+        if already:
+            membership = MembershipService.current_for_checkin(member_id)
+            return {
+                'checkin': already,
+                'member': member,
+                'membership': membership,
+                'alert_level': already.get('alert_level') or 'ok',
+                'message': 'Уже в зале',
+                'already_present': True,
+            }
+
         membership = MembershipService.current_for_checkin(member_id)
         alert_level = 'ok'
         message = 'Абонемент активен'
@@ -150,6 +173,29 @@ class CheckinService:
         )
 
     @staticmethod
+    def today_visits(*, present_only: bool = False) -> list[dict]:
+        from app.services.settings_service import SettingsService
+
+        hours = SettingsService.get_int('gym_presence_hours', 4) or 4
+        if present_only:
+            rows = CheckinService.present_now()
+            for row in rows:
+                row['in_hall'] = True
+            return rows
+        return fetch_all(
+            """
+            SELECT c.*, m.full_name, m.card_number, m.photo_path,
+                   (c.checked_out_at IS NULL
+                    AND c.checked_at >= NOW() - (%s * INTERVAL '1 hour')) AS in_hall
+            FROM checkins c
+            JOIN members m ON m.id = c.member_id
+            WHERE c.checked_at::date = CURRENT_DATE
+            ORDER BY c.checked_at DESC
+            """,
+            (hours,),
+        )
+
+    @staticmethod
     def for_member(member_id: int, limit: int = 50) -> list[dict]:
         return fetch_all(
             """
@@ -183,29 +229,34 @@ class CheckinService:
         hours = SettingsService.get_int('gym_presence_hours', 4) or 4
         return fetch_all(
             """
-            SELECT c.*, m.full_name, m.card_number, m.photo_path
-            FROM checkins c
-            JOIN members m ON m.id = c.member_id
-            WHERE c.checked_out_at IS NULL
-              AND c.checked_at >= NOW() - (%s * INTERVAL '1 hour')
-            ORDER BY c.checked_at DESC
+            SELECT * FROM (
+              SELECT DISTINCT ON (c.member_id)
+                     c.*, m.full_name, m.card_number, m.photo_path
+              FROM checkins c
+              JOIN members m ON m.id = c.member_id
+              WHERE c.checked_out_at IS NULL
+                AND c.checked_at >= NOW() - (%s * INTERVAL '1 hour')
+              ORDER BY c.member_id, c.checked_at DESC
+            ) present
+            ORDER BY checked_at DESC
             """,
             (hours,),
         )
 
     @staticmethod
     def checkout(checkin_id: int) -> dict:
-        row = execute_returning(
+        current = fetch_one('SELECT * FROM checkins WHERE id = %s', (checkin_id,))
+        if not current:
+            raise ValueError('Чекин не найден')
+        execute(
             """
-            UPDATE checkins SET checked_out_at = NOW()
-            WHERE id = %s AND checked_out_at IS NULL
-            RETURNING *
+            UPDATE checkins
+            SET checked_out_at = COALESCE(checked_out_at, NOW())
+            WHERE member_id = %s AND checked_out_at IS NULL
             """,
-            (checkin_id,),
+            (current['member_id'],),
         )
-        if not row:
-            raise ValueError('Чекин не найден или уже закрыт')
-        return row
+        return current
 
     @staticmethod
     def hourly_today() -> list[dict]:

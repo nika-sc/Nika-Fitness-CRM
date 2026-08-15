@@ -162,3 +162,22 @@ class PortalService:
             member_id=int(member['id']),
             enforce_portal_window=True,
         )
+
+    @staticmethod
+    def book_slot(slot_id: int) -> dict:
+        """Personal training slot: payment stays outside, no membership required."""
+        from app.services.trainer_slot_service import TrainerSlotService
+
+        member = PortalService.require_member()
+        return TrainerSlotService.book(int(slot_id), int(member['id']), source='portal')
+
+    @staticmethod
+    def cancel_slot(slot_id: int) -> dict:
+        from app.services.trainer_slot_service import TrainerSlotService
+
+        member = PortalService.require_member()
+        return TrainerSlotService.cancel_booking(
+            int(slot_id),
+            member_id=int(member['id']),
+            enforce_portal_window=True,
+        )

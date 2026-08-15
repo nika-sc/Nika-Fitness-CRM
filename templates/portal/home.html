@@ -228,6 +228,62 @@
         </div>
       </section>
 
+      {% if dash.trainer_slots_enabled %}
+      <section class="club-section-new" id="personal-training">
+        <p class="club-kicker">Персональные тренировки</p>
+        <h2 class="club-heading mb-3">Занятия с тренером</h2>
+        <div class="club-card-grid">
+          {% for slot in dash.my_trainer_slots %}
+          <article class="club-card">
+            <time class="club-schedule-time">{{ slot.starts_at.strftime('%d.%m · %H:%M') }}–{{ slot.ends_at.strftime('%H:%M') }}</time>
+            <h3>{{ slot.trainer_name }}</h3>
+            <p class="muted">{{ slot.place or 'Клуб' }}</p>
+            {% if slot.status == 'pending' %}
+            <span class="pill warn">Ждём подтверждения тренера</span>
+            {% else %}
+            <span class="pill ok">Тренер подтвердил</span>
+            {% endif %}
+            {% if slot.can_cancel %}
+            <form method="post" class="mt-3">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="cancel_slot">
+              <input type="hidden" name="slot_id" value="{{ slot.id }}">
+              <button class="btn secondary" type="submit">Отменить</button>
+            </form>
+            {% else %}
+            <p class="muted small mt-3 mb-0">Отмена недоступна (менее {{ dash.cancel_before_hours }} ч. до старта)</p>
+            {% endif %}
+          </article>
+          {% endfor %}
+
+          {% for slot in dash.open_trainer_slots %}
+          <article class="club-card">
+            <time class="club-schedule-time">{{ slot.starts_at.strftime('%d.%m · %H:%M') }}–{{ slot.ends_at.strftime('%H:%M') }}</time>
+            <h3>{{ slot.trainer_name }}</h3>
+            <p class="muted">{{ slot.place or 'Клуб' }} · свободное окно</p>
+            <form method="post" action="{{ url_for('portal.book_slot') }}" class="mt-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="slot_id" value="{{ slot.id }}">
+              <button class="btn" type="submit">Записаться</button>
+            </form>
+          </article>
+          {% else %}
+          {% if not dash.my_trainer_slots %}
+          <article class="club-card">
+            <h3>Свободных окон нет</h3>
+            <p class="muted mb-0">Тренеры пока не открыли окна на ближайшие две недели.</p>
+          </article>
+          {% endif %}
+          {% endfor %}
+        </div>
+        <p class="muted small mt-3 mb-0">
+          Заявку подтверждает тренер — до этого окно закреплено за вами со статусом «Ждём подтверждения».
+          Одновременно можно держать не больше {{ dash.max_active_trainer_slots }} незакрытых записей.
+          Оплата персональной тренировки — на ресепшене или напрямую с тренером.
+        </p>
+      </section>
+      {% endif %}
+
       <section class="club-section-new">
         <p class="club-kicker">Финансы</p>
         <h2 class="club-heading mb-3">Оплаты</h2>

@@ -47,6 +47,7 @@ def _core_blueprints():
     from app.routes.reports import bp as reports_bp
     from app.routes.schedule import bp as schedule_bp
     from app.routes.settings import bp as settings_bp
+    from app.routes.trainer_cabinet import bp as trainer_cabinet_bp
     from app.routes.trainers import bp as trainers_bp
     return {
         'auth': auth_bp,
@@ -56,6 +57,7 @@ def _core_blueprints():
         'reception': reception_bp,
         'schedule': schedule_bp,
         'trainers': trainers_bp,
+        'trainer_cabinet': trainer_cabinet_bp,
         'alerts': alerts_bp,
         'reports': reports_bp,
         'settings': settings_bp,
@@ -92,6 +94,7 @@ def init_single_tenant(app: Flask) -> None:
     app.register_blueprint(bps['reception'], url_prefix='/reception')
     app.register_blueprint(bps['schedule'], url_prefix='/schedule')
     app.register_blueprint(bps['trainers'], url_prefix='/trainers')
+    app.register_blueprint(bps['trainer_cabinet'], url_prefix='/trainer')
     app.register_blueprint(bps['alerts'], url_prefix='/alerts')
     app.register_blueprint(bps['reports'], url_prefix='/reports')
     app.register_blueprint(bps['settings'], url_prefix='/settings')
@@ -112,6 +115,7 @@ def register_tenant_blueprints(app: Flask, feature_bps=None) -> None:
     app.register_blueprint(bps['reception'], url_prefix=f'{prefix}/reception')
     app.register_blueprint(bps['schedule'], url_prefix=f'{prefix}/schedule')
     app.register_blueprint(bps['trainers'], url_prefix=f'{prefix}/trainers')
+    app.register_blueprint(bps['trainer_cabinet'], url_prefix=f'{prefix}/trainer')
     app.register_blueprint(bps['alerts'], url_prefix=f'{prefix}/alerts')
     app.register_blueprint(bps['reports'], url_prefix=f'{prefix}/reports')
     app.register_blueprint(bps['settings'], url_prefix=f'{prefix}/settings')

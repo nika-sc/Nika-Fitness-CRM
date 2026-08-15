@@ -23,6 +23,10 @@ def dashboard():
     # Reception works from the desk; owner/admin stay on the overview dashboard.
     if current_user.role == 'reception':
         return redirect(url_for('reception.desk'))
+    if current_user.role == 'trainer':
+        from app.services.trainer_service import TrainerService
+        if TrainerService.by_user(current_user.id):
+            return redirect(url_for('trainer_cabinet.week'))
     summary = ReportService.summary()
     alerts = AlertService.list_recent(12)
     recent = CheckinService.recent(10)

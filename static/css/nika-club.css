@@ -604,3 +604,61 @@
     min-height: 44px;
   }
 }
+
+.nika-club .nps-card {
+  max-width: 36rem;
+  margin: 2rem auto 3rem;
+}
+
+.nika-club .nps-scale {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.nika-club .nps-scale legend {
+  font-weight: 700;
+  margin-bottom: .65rem;
+}
+
+.nika-club .nps-scale-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.nika-club .nps-score {
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+}
+
+.nika-club .nps-score input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nika-club .nps-score span {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 35%, rgba(255, 255, 255, .12));
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.nika-club .nps-score input:checked + span,
+.nika-club .nps-score:hover span {
+  color: #fff;
+  background: var(--club-accent);
+  border-color: var(--club-accent);
+}
+
+.nika-club .nps-scale-hints {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .45rem;
+  color: var(--club-muted);
+}

@@ -79,6 +79,11 @@ def home():
             elif action == 'cancel':
                 PortalService.cancel(int(request.form.get('booking_id')))
                 flash('Запись отменена', 'info')
+            elif action == 'book_slot':
+                return portal_book_slot()
+            elif action == 'cancel_slot':
+                PortalService.cancel_slot(int(request.form.get('slot_id')))
+                flash('Запись к тренеру отменена', 'info')
         except Exception as exc:
             flash(str(exc), 'error')
         return redirect(url_for('portal.home'))
@@ -93,6 +98,23 @@ def home():
         site=site,
         theme=ClubSiteService.theme(site),
     )
+
+
+@portal_bp.route('/slots/book', methods=['POST'], endpoint='book_slot')
+@limiter.limit('20 per minute')
+def portal_book_slot():
+    try:
+        slot = PortalService.book_slot(int(request.form.get('slot_id')))
+        starts = slot.get('starts_at')
+        when = starts.strftime('%d.%m в %H:%M') if hasattr(starts, 'strftime') else ''
+        flash(
+            f"Заявка отправлена тренеру {slot.get('trainer_name', '')} · {when}. "
+            'Запись станет подтверждённой, когда тренер её примет.',
+            'success',
+        )
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('portal.home'))
 
 
 @portal_bp.route('/login', methods=['POST'], endpoint='login')
@@ -292,28 +314,29 @@ def index():
 
 
 # ----- Cash -----
+def _cash_period_from_request():
+    from app.utils.periods import PERIODS, parse_date, period_bounds
+
+    period = (request.values.get('period') or 'today').strip()
+    allowed = {p[0] for p in PERIODS}
+    if period not in allowed:
+        period = 'today'
+    date_from = parse_date(request.values.get('date_from'))
+    date_to = parse_date(request.values.get('date_to'))
+    start, end = period_bounds(period, date_from, date_to)
+    return period, start, end
+
+
 @cash_bp.route('/', methods=['GET', 'POST'])
 @login_required
 @permission_required('manage_cash')
 def index():
+    from app.utils.periods import PERIODS
+
     if request.method == 'POST':
         try:
             action = request.form.get('action')
-            if action == 'open':
-                CashService.open_shift(current_user.id, int(float(request.form.get('opening') or 0) * 100))
-                flash('Смена открыта', 'success')
-            elif action == 'close':
-                CashService.close_shift(current_user.id, int(float(request.form.get('closing') or 0) * 100))
-                flash('Смена закрыта', 'success')
-            elif action == 'debt':
-                CashService.create_debt(
-                    int(request.form.get('member_id')),
-                    request.form.get('amount') or 0,
-                    request.form.get('note') or '',
-                    current_user.id,
-                )
-                flash('Долг создан', 'success')
-            elif action == 'income':
+            if action == 'income':
                 CashService.record_tx(
                     amount_cents=int(round(float(request.form.get('amount') or 0) * 100)),
                     kind='income',
@@ -334,42 +357,28 @@ def index():
                     created_by=current_user.id,
                 )
                 flash('Расход записан', 'success')
-            elif action == 'pay_debt':
-                CashService.pay_debt(
-                    int(request.form.get('debt_id')),
-                    request.form.get('amount') or 0,
-                    current_user.id,
-                    request.form.get('method') or 'cash',
-                )
-                flash('Оплата долга принята', 'success')
         except Exception as exc:
             flash(str(exc), 'error')
-        return redirect(url_for('cash.index'))
-    from datetime import date, timedelta
-    today_d = date.today()
-    day = CashService.day_summary(today_d)
-    yest = CashService.day_summary(today_d - timedelta(days=1))
+        period, start, end = _cash_period_from_request()
+        return redirect(url_for(
+            'cash.index',
+            period=period,
+            date_from=start.isoformat(),
+            date_to=end.isoformat(),
+        ))
 
-    def _d(cur, prev):
-        diff = int(cur) - int(prev)
-        return {'value': diff, 'sign': 'up' if diff > 0 else ('down' if diff < 0 else 'flat')}
-
+    period, start, end = _cash_period_from_request()
+    day = CashService.summary_for_range(start, end)
     return render_template(
         'features/cash.html',
-        shift=CashService.current_shift(),
-        shift_totals=CashService.payment_totals(shift_id=CashService.open_shift_id()) if CashService.current_shift() else None,
-        today=CashService.payment_totals(today=True),
+        periods=PERIODS,
+        period=period,
+        date_from=start.isoformat(),
+        date_to=end.isoformat(),
         day=day,
-        yest=yest,
-        cash_deltas={
-            'income': _d(day['income'], yest['income']),
-            'net': _d(day['net'], yest['net']),
-        },
-        transactions=CashService.list_transactions(today_d),
+        transactions=CashService.list_transactions(start=start, end=end),
         income_cats=CashService.list_categories('income'),
         expense_cats=CashService.list_categories('expense'),
-        shifts=CashService.list_shifts(),
-        debts=CashService.list_debts(),
         members=MemberService.list_members(limit=200),
     )
 
@@ -610,20 +619,29 @@ def desk():
 def form():
     member_id = request.args.get('member') or request.form.get('member_id')
     token = request.args.get('token') or request.form.get('token') or ''
-    mid = int(member_id) if member_id else None
+    mid = None
+    if member_id:
+        try:
+            mid = int(member_id)
+        except (TypeError, ValueError):
+            mid = None
+    member = None
+    allowed = False
+    if mid is not None:
+        portal = PortalService.current_member()
+        allowed = bool(portal and int(portal['id']) == mid)
+        if not allowed:
+            allowed = verify_signed_member_token(
+                'nps', mid, current_app.config['SECRET_KEY'], token,
+            )
+        if allowed:
+            member = MemberService.get(mid)
     if request.method == 'POST':
         try:
-            if mid is not None:
-                portal = PortalService.current_member()
-                allowed = bool(portal and int(portal['id']) == mid)
-                if not allowed:
-                    allowed = verify_signed_member_token(
-                        'nps', mid, current_app.config['SECRET_KEY'], token,
-                    )
-                if not allowed:
-                    abort(403)
+            if mid is not None and not allowed:
+                abort(403)
             NpsService.submit(
-                mid,
+                mid if allowed else None,
                 int(request.form.get('score') or 0),
                 request.form.get('comment') or '',
             )
@@ -631,7 +649,15 @@ def form():
             return redirect(url_for('nps.form', member=member_id or None, token=token or None))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('features/nps.html', member_id=member_id, token=token)
+    site = ClubSiteService.get()
+    return render_template(
+        'features/nps.html',
+        member_id=mid if allowed else None,
+        token=token if allowed else '',
+        member=member,
+        site=site,
+        theme=ClubSiteService.theme(site),
+    )
 
 
 # ----- Member QR helper used from members routes -----

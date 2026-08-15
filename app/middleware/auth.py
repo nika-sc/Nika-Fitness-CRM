@@ -37,6 +37,13 @@ def setup_auth(login_manager: LoginManager):
     @login_manager.user_loader
     def load_user(user_id):
         try:
+            if saas_enabled():
+                from app.database.connection import get_tenant_dsn
+
+                try:
+                    get_tenant_dsn()
+                except RuntimeError:
+                    return None
             slug = None
             raw_id = user_id
             if isinstance(user_id, str) and ':' in user_id:

@@ -6,6 +6,7 @@ from app import limiter
 from app.middleware.auth import User
 from app.services.user_service import UserService
 from app.utils.security import rotate_session, safe_next_url
+from app.utils.session_lifetime import next_midnight_timestamp
 
 bp = Blueprint('auth', __name__)
 
@@ -31,6 +32,12 @@ def login():
             return render_template('auth/login.html', club_name=club_name), 401
         rotate_session()
         session['tenant_slug'] = tenant_slug
+        remember = bool(request.form.get('remember'))
+        if remember:
+            session.permanent = True
+            session['staff_until'] = next_midnight_timestamp(
+                current_app.config.get('TIMEZONE_OFFSET', 3)
+            )
         login_user(User(user), remember=False)
         nxt = safe_next_url(request.args.get('next'), url_for('main.dashboard'))
         return redirect(nxt)
@@ -48,6 +55,7 @@ def logout():
         return redirect(url_for('public.index'))
     logout_user()
     session.pop('tenant_slug', None)
+    session.pop('staff_until', None)
     session.pop('portal_member_id', None)
     session.pop('portal_login', None)
     flash('Вы вышли из системы.', 'info')

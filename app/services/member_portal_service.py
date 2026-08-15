@@ -5,11 +5,13 @@ from datetime import date, datetime, timedelta
 
 from app.database.connection import fetch_all, fetch_one
 from app.services.crm_extra_service import LoyaltyService
+from app.services.feature_flags_service import FeatureFlagsService
 from app.services.growth_service import MedicalService
 from app.services.membership_service import MembershipService
 from app.services.pt_service import PtService
 from app.services.schedule_service import ScheduleService
 from app.services.settings_service import SettingsService
+from app.services.trainer_slot_service import TrainerSlotService
 
 
 class MemberPortalService:
@@ -89,6 +91,18 @@ class MemberPortalService:
             p for p in PtService.list_packages(member_id) if p.get('status') == 'active' and int(p.get('sessions_left') or 0) > 0
         ]
 
+        slots_enabled = FeatureFlagsService.is_enabled('module_trainer_slots')
+        my_slots = TrainerSlotService.list_for_member(member_id) if slots_enabled else []
+        open_slots = TrainerSlotService.list_open(days=14) if slots_enabled else []
+        for slot in my_slots:
+            starts = slot.get('starts_at')
+            if isinstance(starts, str):
+                starts = datetime.fromisoformat(starts)
+            now_cmp = datetime.now(starts.tzinfo) if getattr(starts, 'tzinfo', None) else now
+            slot['can_cancel'] = slot.get('status') == 'pending' or bool(
+                starts and (starts - now_cmp) >= timedelta(hours=cancel_hours)
+            )
+
         member_since = member.get('created_at')
         if isinstance(member_since, datetime):
             member_since_date = member_since.date()
@@ -119,6 +133,10 @@ class MemberPortalService:
             'medical': medical,
             'medical_valid': medical_valid,
             'pt_packages': pt_packages,
+            'trainer_slots_enabled': slots_enabled,
+            'my_trainer_slots': my_slots,
+            'open_trainer_slots': open_slots,
+            'max_active_trainer_slots': SettingsService.get_int('pt_max_active_bookings', 3),
         }
 
     @staticmethod

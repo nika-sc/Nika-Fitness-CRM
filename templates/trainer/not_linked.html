@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Мои тренировки{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Мои тренировки</h1>
+    <p class="muted">Кабинет тренера</p>
+  </div>
+</div>
+
+<div class="panel">
+  <h3 class="mb-2"><i class="bi bi-person-exclamation me-2" aria-hidden="true"></i>Аккаунт не связан с карточкой тренера</h3>
+  <p class="muted mb-0">
+    Попросите администратора открыть <strong>Тренеры</strong> → нужный тренер → <strong>Изменить</strong>
+    и выбрать в поле <strong>Учётная запись</strong> ваш логин. После этого здесь появятся ваши окна и записи.
+  </p>
+</div>
+{% endblock %}

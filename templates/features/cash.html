@@ -2,15 +2,55 @@
 {% block title %}Касса{% endblock %}
 {% block content %}
 <div class="topbar">
-  <div><h1>Касса</h1><p class="muted">Приход и расход за день · нал / карта / QR</p></div>
+  <div>
+    <h1>Касса</h1>
+    <p class="muted">{{ date_from }} — {{ date_to }} · нал / карта / QR</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#incomeModal">
+      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Приход
+    </button>
+    <button type="button" class="btn secondary" data-bs-toggle="modal" data-bs-target="#expenseModal">
+      <i class="bi bi-dash-lg me-1" aria-hidden="true"></i>Расход
+    </button>
+  </div>
 </div>
 
-<div class="grid grid-4 mb-3">
-  <div class="panel stat">
-    <span class="muted">Приход сегодня</span>
-    <strong>{{ '%.0f'|format((day.income or 0)/100) }} ₽</strong>
-    <span class="stat-delta {{ cash_deltas.income.sign }}">{% if cash_deltas.income.value > 0 %}+{% endif %}{{ '%.0f'|format(cash_deltas.income.value/100) }} vs вчера</span>
+<form method="get" class="panel mb-3">
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    {% for key, label in periods %}
+    <a class="btn btn-sm {% if period == key %}{% else %}secondary{% endif %}" href="{{ url_for('cash.index', period=key) }}">{{ label }}</a>
+    {% endfor %}
   </div>
+  <div class="d-flex flex-wrap gap-2 align-items-end">
+    <div>
+      <label class="form-label">С</label>
+      <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+      <label class="form-label">По</label>
+      <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <input type="hidden" name="period" value="custom">
+    <button class="btn" type="submit">Показать</button>
+  </div>
+</form>
+
+<div class="grid grid-3 mb-3">
+  <div class="panel stat">
+    <span class="muted">Приход</span>
+    <strong>{{ '%.0f'|format((day.income or 0)/100) }} ₽</strong>
+  </div>
+  <div class="panel stat">
+    <span class="muted">Расход</span>
+    <strong>{{ '%.0f'|format((day.expense or 0)/100) }} ₽</strong>
+  </div>
+  <div class="panel stat">
+    <span class="muted">Итог</span>
+    <strong>{{ '%.0f'|format((day.net or 0)/100) }} ₽</strong>
+  </div>
+</div>
+<div class="grid grid-3 mb-3">
   <div class="panel stat">
     <span class="muted">Нал</span>
     <strong>{{ '%.0f'|format((day.cash or 0)/100) }} ₽</strong>
@@ -24,170 +64,109 @@
     <strong>{{ '%.0f'|format((day.qr or 0)/100) }} ₽</strong>
   </div>
 </div>
-<div class="grid grid-4 mb-3">
-  <div class="panel stat">
-    <span class="muted">Расход сегодня</span>
-    <strong>{{ '%.0f'|format((day.expense or 0)/100) }} ₽</strong>
+
+<div class="panel">
+  <div class="panel-head">
+    <h3 class="mb-0"><i class="bi bi-list-ul me-2" aria-hidden="true"></i>Операции</h3>
   </div>
-  <div class="panel stat">
-    <span class="muted">Итог дня</span>
-    <strong>{{ '%.0f'|format((day.net or 0)/100) }} ₽</strong>
-    <span class="stat-delta {{ cash_deltas.net.sign }}">{% if cash_deltas.net.value > 0 %}+{% endif %}{{ '%.0f'|format(cash_deltas.net.value/100) }} vs вчера</span>
-  </div>
-  <div class="panel stat">
-    <span class="muted">Смена</span>
-    <strong>{% if shift %}открыта #{{ shift.id }}{% else %}закрыта{% endif %}</strong>
-  </div>
-  <div class="panel stat">
-    <span class="muted">Платежи (таблица)</span>
-    <strong>{{ '%.0f'|format((today.total or 0)/100) }} ₽</strong>
+  <div class="table-responsive mt-2">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr><th>Время</th><th>Тип</th><th>Статья</th><th>Метод</th><th>Сумма</th><th>Клиент</th><th>Заметка</th></tr>
+      </thead>
+      <tbody>
+        {% for t in transactions %}
+        <tr>
+          <td>{{ t.paid_at.strftime('%d.%m %H:%M') if t.paid_at else '' }}</td>
+          <td><span class="pill {{ 'ok' if t.kind=='income' else 'danger' }}">{{ 'Приход' if t.kind=='income' else 'Расход' }}</span></td>
+          <td>{{ t.category_name or '—' }}</td>
+          <td>{{ method_label(t.method) }}</td>
+          <td>{{ '%.0f'|format(t.amount_cents/100) }} ₽</td>
+          <td>{{ t.full_name or '—' }}</td>
+          <td class="muted small">{{ t.note }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="muted">За выбранный период операций нет</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
-<div class="grid grid-2">
-  <div class="panel">
-    <h3>Приход</h3>
-    <form method="post">
+<div class="modal fade" id="incomeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{{ url_for('cash.index', period=period, date_from=date_from, date_to=date_to) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="income">
-      <label>Статья</label>
-      <select name="category_id">{% for c in income_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
-      <label>Куда пришло</label>
-      <select name="method">
-        <option value="cash">Наличные</option>
-        <option value="card">Карта</option>
-        <option value="qr">QR</option>
-      </select>
-      <label>Сумма, ₽</label>
-      <input name="amount" type="number" min="0" step="1" required>
-      <label>Клиент (необязательно)</label>
-      <select name="member_id">
-        <option value="">—</option>
-        {% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}
-      </select>
-      <label>Комментарий</label>
-      <input name="note">
-      <button class="btn tap-lg mt-2" type="submit">Записать приход</button>
+      <input type="hidden" name="period" value="{{ period }}">
+      <input type="hidden" name="date_from" value="{{ date_from }}">
+      <input type="hidden" name="date_to" value="{{ date_to }}">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Приход</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Статья</label>
+        <select class="form-select" name="category_id">
+          {% for c in income_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+        <label class="form-label mt-2">Способ</label>
+        <select class="form-select" name="method">
+          <option value="cash">Наличные</option>
+          <option value="card">Карта</option>
+          <option value="qr">QR</option>
+        </select>
+        <label class="form-label mt-2">Сумма, ₽</label>
+        <input class="form-control" name="amount" type="number" min="0" step="1" required>
+        <label class="form-label mt-2">Клиент (необязательно)</label>
+        <select class="form-select" name="member_id">
+          <option value="">—</option>
+          {% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}
+        </select>
+        <label class="form-label mt-2">Комментарий</label>
+        <input class="form-control" name="note">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn" type="submit">Записать приход</button>
+      </div>
     </form>
   </div>
-  <div class="panel">
-    <h3>Расход / списание</h3>
-    <form method="post">
+</div>
+
+<div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{{ url_for('cash.index', period=period, date_from=date_from, date_to=date_to) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="expense">
-      <label>Статья</label>
-      <select name="category_id">{% for c in expense_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
-      <label>Откуда списали</label>
-      <select name="method">
-        <option value="cash">Наличные</option>
-        <option value="card">Карта</option>
-        <option value="qr">QR</option>
-      </select>
-      <label>Сумма, ₽</label>
-      <input name="amount" type="number" min="0" step="1" required>
-      <label>Комментарий</label>
-      <input name="note">
-      <button class="btn tap-lg mt-2" type="submit">Записать расход</button>
+      <input type="hidden" name="period" value="{{ period }}">
+      <input type="hidden" name="date_from" value="{{ date_from }}">
+      <input type="hidden" name="date_to" value="{{ date_to }}">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Расход</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Статья</label>
+        <select class="form-select" name="category_id">
+          {% for c in expense_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+        <label class="form-label mt-2">Способ</label>
+        <select class="form-select" name="method">
+          <option value="cash">Наличные</option>
+          <option value="card">Карта</option>
+          <option value="qr">QR</option>
+        </select>
+        <label class="form-label mt-2">Сумма, ₽</label>
+        <input class="form-control" name="amount" type="number" min="0" step="1" required>
+        <label class="form-label mt-2">Комментарий</label>
+        <input class="form-control" name="note">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn" type="submit">Записать расход</button>
+      </div>
     </form>
-  </div>
-</div>
-
-<div class="panel mt-3">
-  <h3>Операции сегодня</h3>
-  <div class="table-responsive">
-    <table class="table">
-      <tr><th>Время</th><th>Тип</th><th>Статья</th><th>Метод</th><th>Сумма</th><th>Клиент</th><th>Заметка</th></tr>
-      {% for t in transactions %}
-      <tr>
-        <td>{{ t.paid_at.strftime('%H:%M') if t.paid_at else '' }}</td>
-        <td><span class="pill {{ 'ok' if t.kind=='income' else 'danger' }}">{{ 'Приход' if t.kind=='income' else 'Расход' }}</span></td>
-        <td>{{ t.category_name or '—' }}</td>
-        <td>{{ method_label(t.method) }}</td>
-        <td>{{ '%.0f'|format(t.amount_cents/100) }} ₽</td>
-        <td>{{ t.full_name or '—' }}</td>
-        <td class="muted small">{{ t.note }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="7" class="muted">За сегодня операций нет</td></tr>
-      {% endfor %}
-    </table>
-  </div>
-</div>
-
-<div class="grid grid-2" style="margin-top:1rem;">
-  <div class="panel">
-    {% if not shift %}
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="open">
-      <label>Наличка на открытие, ₽</label>
-      <input name="opening" type="number" value="0">
-      <button class="btn" type="submit">Открыть смену</button>
-    </form>
-    {% else %}
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="close">
-      <label>Наличка на закрытие, ₽</label>
-      <input name="closing" type="number" value="{{ '%.0f'|format(((shift.opening_cents or 0) + (shift_totals.cash or 0))/100) }}">
-      <button class="btn" type="submit">Закрыть смену</button>
-    </form>
-    {% endif %}
-    <h3 class="mt-3">Новый долг</h3>
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action" value="debt">
-      <select name="member_id">{% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}</select>
-      <input name="amount" type="number" placeholder="Сумма ₽" required>
-      <input name="note" placeholder="Комментарий">
-      <button class="btn" type="submit">Создать долг</button>
-    </form>
-  </div>
-  <div class="panel">
-    <h3>Открытые долги</h3>
-    <div class="table-responsive">
-    <table class="table"><tr><th>Клиент</th><th>Сумма</th><th>Оплачено</th><th></th></tr>
-    {% for d in debts %}
-    <tr><td>{{ d.full_name }}</td><td>{{ '%.0f'|format(d.amount_cents/100) }}</td><td>{{ '%.0f'|format(d.paid_cents/100) }}</td>
-      <td>
-        <form method="post" class="d-flex gap-1 align-items-center">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" name="action" value="pay_debt">
-          <input type="hidden" name="debt_id" value="{{ d.id }}">
-          <input name="amount" type="number" placeholder="₽" style="width:5rem;">
-          <select name="method">
-            <option value="cash">Нал</option>
-            <option value="card">Карта</option>
-            <option value="qr">QR</option>
-          </select>
-          <button class="btn btn-sm" type="submit">Оплатить</button>
-        </form>
-      </td></tr>
-    {% else %}
-    <tr><td colspan="4" class="muted">Нет открытых долгов</td></tr>
-    {% endfor %}
-    </table>
-    </div>
-  </div>
-</div>
-<div class="panel mt-3">
-  <h3>История смен</h3>
-  <div class="table-responsive">
-  <table class="table">
-    <tr><th>#</th><th>Статус</th><th>Открыта</th><th>Закрыта</th><th>Продажи</th><th>Заметка</th></tr>
-    {% for s in shifts %}
-    <tr>
-      <td>{{ s.id }}</td>
-      <td><span class="pill {{ status_pill_class(s.status) }}">{{ status_label(s.status) }}</span></td>
-      <td>{{ s.opened_at.strftime('%d.%m %H:%M') if s.opened_at else '' }}</td>
-      <td>{{ s.closed_at.strftime('%d.%m %H:%M') if s.closed_at else '—' }}</td>
-      <td>{{ '%.0f'|format((s.sales_cents or 0)/100) }} ₽</td>
-      <td class="muted small">{{ s.note }}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="6" class="muted">Смен ещё не было</td></tr>
-    {% endfor %}
-  </table>
   </div>
 </div>
 {% endblock %}

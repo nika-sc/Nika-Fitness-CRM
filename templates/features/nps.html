@@ -1,20 +1,59 @@
-{% extends "base.html" %}
-{% block title %}NPS{% endblock %}
+{% extends "club/base_club.html" %}
+{% block title %}Оцените клуб — {{ club_name }}{% endblock %}
+{% block body_class %}nps-page{% endblock %}
 {% block body %}
-<div class="login-page"><div class="login-card">
-  <h1>Оцените клуб</h1>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}{% for c,m in messages %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endif %}
-  {% endwith %}
-  <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {% if member_id %}<input type="hidden" name="member_id" value="{{ member_id }}">{% endif %}
-    {% if token %}<input type="hidden" name="token" value="{{ token }}">{% endif %}
-    <label>Оценка 0–10</label>
-    <input type="number" name="score" min="0" max="10" required>
-    <label>Комментарий</label>
-    <input name="comment">
-    <button type="submit">Отправить</button>
-  </form>
-</div></div>
+{% set _parts = (club_name or 'NF').split() %}
+{% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
+<div class="app-wrapper">
+  <nav class="app-header navbar navbar-expand-lg" aria-label="Оценка клуба">
+    <div class="container-xxl">
+      <a class="navbar-brand brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
+        <span class="brand-mark">{{ brand_letters }}</span>
+        <span class="brand-copy">
+          <span class="brand-title">{{ club_name }}</span>
+          <span class="brand-subtitle">Оценка клуба</span>
+        </span>
+      </a>
+    </div>
+  </nav>
+  <main class="app-main">
+    <section class="nps-card panel">
+      <p class="club-kicker">{{ club_name }}</p>
+      <h1 class="club-heading">Оцените клуб</h1>
+      {% if member %}
+      <p class="muted">{{ member.full_name }}, насколько готовы рекомендовать клуб друзьям?</p>
+      {% else %}
+      <p class="muted">Насколько готовы рекомендовать клуб друзьям? 0 — точно нет, 10 — обязательно да.</p>
+      {% endif %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="post" class="mt-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if member_id %}<input type="hidden" name="member_id" value="{{ member_id }}">{% endif %}
+        {% if token %}<input type="hidden" name="token" value="{{ token }}">{% endif %}
+        <fieldset class="nps-scale">
+          <legend>Оценка от 0 до 10</legend>
+          <div class="nps-scale-row">
+            {% for i in range(0, 11) %}
+            <label class="nps-score">
+              <input type="radio" name="score" value="{{ i }}" required>
+              <span>{{ i }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="nps-scale-hints">
+            <small>Не порекомендую</small>
+            <small>Обязательно порекомендую</small>
+          </div>
+        </fieldset>
+        <label class="form-label mt-3">Комментарий <span class="muted">(необязательно)</span></label>
+        <textarea class="form-control" name="comment" rows="3" placeholder="Что понравилось или что улучшить"></textarea>
+        <button class="btn w-100 mt-3" type="submit">Отправить оценку</button>
+      </form>
+    </section>
+  </main>
+</div>
 {% endblock %}

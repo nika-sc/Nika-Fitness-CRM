@@ -17,7 +17,7 @@
 <div class="grid grid-4" style="margin-top:1rem;">
   <div class="panel stat"><span class="muted">Чекинов сегодня</span><strong>{{ summary.checkins_today }}</strong></div>
   <div class="panel stat"><span class="muted">Уникальных сегодня</span><strong>{{ summary.unique_checkins_today }}</strong></div>
-  <div class="panel stat"><span class="muted">Касса</span><strong>{% if summary.cash_shift %}открыта{% else %}закрыта{% endif %}</strong></div>
+  <div class="panel stat"><span class="muted">Касса сегодня</span><strong>{{ '%.0f'|format((summary.cash_net_today or 0)/100) }} ₽</strong></div>
   <div class="panel stat"><span class="muted">Выручка сегодня</span><strong>{{ '%.0f'|format((summary.revenue_today_cents or 0)/100) }} ₽</strong></div>
 </div>
 <div class="grid grid-2" style="margin-top:1rem;">

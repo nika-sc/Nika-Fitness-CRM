@@ -1,5 +1,4 @@
-"""Reception desk: search + card check-in + guest visits."""
-from calendar import monthrange
+"""Reception desk: search + card check-in."""
 from datetime import date, timedelta
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
@@ -12,61 +11,10 @@ from app.services.guest_service import GuestService
 from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
 from app.services.portal_service import PortalService
-from app.utils.decorators import permission_required
+from app.utils.decorators import feature_required, permission_required
+from app.utils.periods import PERIODS, parse_date, period_bounds
 
 bp = Blueprint('reception', __name__)
-
-PERIODS = (
-    ('today', 'Сегодня'),
-    ('yesterday', 'Вчера'),
-    ('day_before', 'Позавчера'),
-    ('week', 'Неделя'),
-    ('month', 'Месяц'),
-    ('quarter', 'Квартал'),
-    ('year', 'Год'),
-    ('custom', 'Произвольно'),
-)
-
-
-def _parse_date(raw: str | None):
-    if not raw:
-        return None
-    try:
-        return date.fromisoformat(raw)
-    except ValueError:
-        return None
-
-
-def _period_bounds(period: str, date_from: date | None, date_to: date | None) -> tuple[date, date]:
-    today = date.today()
-    if period == 'custom' and date_from and date_to:
-        start, end = date_from, date_to
-        if start > end:
-            start, end = end, start
-        return start, end
-    if period == 'yesterday':
-        d = today - timedelta(days=1)
-        return d, d
-    if period == 'day_before':
-        d = today - timedelta(days=2)
-        return d, d
-    if period == 'week':
-        start = today - timedelta(days=today.weekday())
-        return start, start + timedelta(days=6)
-    if period == 'month':
-        start = today.replace(day=1)
-        last = monthrange(today.year, today.month)[1]
-        return start, today.replace(day=last)
-    if period == 'quarter':
-        q = (today.month - 1) // 3
-        start_month = q * 3 + 1
-        start = date(today.year, start_month, 1)
-        end_month = start_month + 2
-        last = monthrange(today.year, end_month)[1]
-        return start, date(today.year, end_month, last)
-    if period == 'year':
-        return date(today.year, 1, 1), date(today.year, 12, 31)
-    return today, today
 
 
 def _previous_bounds(start: date, end: date) -> tuple[date, date]:
@@ -95,14 +43,13 @@ def desk():
     from app.services.ops_service import ZoneService
 
     q = request.args.get('q', '').strip()
+    visits_filter = 'present' if request.args.get('visits') == 'present' else 'all'
     members = MemberService.search_public(q, limit=20) if q else []
-    recent = CheckinService.recent(20)
     expiring = MembershipService.expiring_members()[:5]
     expiring_n = MembershipService.expiring_count_on(date.today())
-    guests_today = GuestService.list_today()
-    host_candidates = MemberService.list_members(limit=200)
     attendance = CheckinService.today_stats()
     present = CheckinService.present_now()
+    visits_today = CheckinService.today_visits(present_only=(visits_filter == 'present'))
     plans = MembershipService.list_plans(active_only=True)
     zones = []
     if FeatureFlagsService.is_enabled('module_zones'):
@@ -115,18 +62,47 @@ def desk():
         'reception/desk.html',
         q=q,
         members=members,
-        recent=recent,
         expiring=expiring,
-        guests_today=guests_today,
-        host_candidates=host_candidates,
         zones=zones,
         attendance=attendance,
         present=present,
+        visits_today=visits_today,
+        visits_filter=visits_filter,
         plans=plans,
         last_checkin=last_checkin,
         deltas=_desk_deltas(attendance, expiring_n),
         vip_numbers=MemberService.available_vip_numbers(),
         expiring_n=expiring_n,
+        host_candidates=MemberService.list_members(limit=200),
+    )
+
+
+@bp.route('/trainer-slots', methods=['GET', 'POST'])
+@login_required
+@feature_required('module_trainer_slots')
+@permission_required('manage_trainer_slots')
+def trainer_slots():
+    from app.services.trainer_slot_service import TrainerSlotService
+
+    if request.method == 'POST':
+        try:
+            TrainerSlotService.book(
+                int(request.form.get('slot_id')),
+                int(request.form.get('member_id')),
+                source='staff',
+            )
+            flash('Клиент записан к тренеру', 'success')
+        except Exception as exc:
+            flash(str(exc), 'error')
+        return redirect(url_for('reception.trainer_slots'))
+
+    slots = TrainerSlotService.list_open(days=2)
+    today = date.today()
+    return render_template(
+        'reception/trainer_slots.html',
+        today_slots=[s for s in slots if s['starts_at'].date() == today],
+        tomorrow_slots=[s for s in slots if s['starts_at'].date() == today + timedelta(days=1)],
+        members=MemberService.list_members(limit=200),
     )
 
 
@@ -138,9 +114,9 @@ def stats():
     allowed = {p[0] for p in PERIODS}
     if period not in allowed:
         period = 'today'
-    date_from = _parse_date(request.args.get('date_from'))
-    date_to = _parse_date(request.args.get('date_to'))
-    start, end = _period_bounds(period, date_from, date_to)
+    date_from = parse_date(request.args.get('date_from'))
+    date_to = parse_date(request.args.get('date_to'))
+    start, end = period_bounds(period, date_from, date_to)
     prev_start, prev_end = _previous_bounds(start, end)
     current = CheckinService.stats_for_range(start, end)
     previous = CheckinService.stats_for_range(prev_start, prev_end)
@@ -207,29 +183,17 @@ def checkin():
             'visits': visits,
         }
         msg = f"{member['full_name']}: {result['message']}"
-        flash(msg, 'error' if level == 'expired' else ('warning' if level == 'expiring' else 'success'))
-        return redirect(url_for('members.detail', member_id=member['id'], checkin=1))
-    except Exception as exc:
-        flash(str(exc), 'error')
-    return redirect(url_for('reception.desk'))
-
-
-@bp.route('/guest', methods=['POST'])
-@login_required
-@permission_required('checkin')
-def guest():
-    host_raw = (request.form.get('host_member_id') or '').strip()
-    try:
-        GuestService.create(
-            guest_name=request.form.get('guest_name') or '',
-            guest_phone=request.form.get('guest_phone') or '',
-            host_member_id=int(host_raw) if host_raw else None,
-            amount=request.form.get('amount') or 0,
-            method=request.form.get('method') or 'cash',
-            note=request.form.get('note') or '',
-            created_by=current_user.id,
+        flash(
+            msg,
+            'error'
+            if level == 'expired'
+            else (
+                'warning'
+                if level == 'expiring'
+                else ('info' if result.get('already_present') else 'success')
+            ),
         )
-        flash('Гостевой визит записан', 'success')
+        return redirect(url_for('members.detail', member_id=member['id'], checkin=1))
     except Exception as exc:
         flash(str(exc), 'error')
     return redirect(url_for('reception.desk'))
@@ -286,6 +250,33 @@ def checkout():
     try:
         CheckinService.checkout(int(request.form.get('checkin_id')))
         flash('Выход отмечен', 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    visits = (request.form.get('visits') or '').strip()
+    target = (
+        url_for('reception.desk', visits='present')
+        if visits == 'present'
+        else url_for('reception.desk')
+    )
+    return redirect(target + '#desk-visits')
+
+
+@bp.route('/guest', methods=['POST'])
+@login_required
+@permission_required('checkin')
+def guest():
+    try:
+        host_raw = (request.form.get('host_member_id') or '').strip()
+        GuestService.create(
+            guest_name=request.form.get('guest_name') or '',
+            guest_phone=request.form.get('guest_phone') or '',
+            host_member_id=int(host_raw) if host_raw else None,
+            amount=request.form.get('amount') or 0,
+            method=request.form.get('method') or 'cash',
+            note=request.form.get('note') or '',
+            created_by=current_user.id,
+        )
+        flash('Гостевой визит записан', 'success')
     except Exception as exc:
         flash(str(exc), 'error')
     return redirect(url_for('reception.desk'))

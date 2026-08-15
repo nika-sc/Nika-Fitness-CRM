@@ -215,6 +215,20 @@ label { display: block; margin: .55rem 0 .3rem; color: var(--muted); font-size: 
   margin: 0 0 .3rem;
 }
 .login-card .btn { width: 100%; margin-top: 1rem; }
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin-top: .85rem;
+  color: var(--muted);
+  font-size: .9rem;
+  cursor: pointer;
+}
+.login-remember input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+}
 
 @media (max-width: 960px) {
   .app-shell { grid-template-columns: 1fr; }

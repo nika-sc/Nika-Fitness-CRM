@@ -202,10 +202,7 @@ class CashService:
         )
 
     @staticmethod
-    def day_summary(day=None) -> dict:
-        from datetime import date as date_cls
-
-        d = day or date_cls.today()
+    def summary_for_range(start, end) -> dict:
         row = fetch_one(
             """
             SELECT
@@ -215,9 +212,9 @@ class CashService:
               COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income' AND method = 'card'), 0)::bigint AS card,
               COALESCE(SUM(amount_cents) FILTER (WHERE kind = 'income' AND method = 'qr'), 0)::bigint AS qr
             FROM cash_transactions
-            WHERE paid_at::date = %s
+            WHERE paid_at::date BETWEEN %s AND %s
             """,
-            (d,),
+            (start, end),
         )
         income = int(row['income']) if row else 0
         expense = int(row['expense']) if row else 0
@@ -231,21 +228,34 @@ class CashService:
         }
 
     @staticmethod
-    def list_transactions(day=None, limit: int = 200) -> list[dict]:
+    def day_summary(day=None) -> dict:
         from datetime import date as date_cls
 
         d = day or date_cls.today()
+        return CashService.summary_for_range(d, d)
+
+    @staticmethod
+    def list_transactions(day=None, limit: int = 200, start=None, end=None) -> list[dict]:
+        from datetime import date as date_cls
+
+        if start is None and end is None:
+            d = day or date_cls.today()
+            start = end = d
+        elif start is None:
+            start = end
+        elif end is None:
+            end = start
         return fetch_all(
             """
             SELECT t.*, c.name AS category_name, m.full_name
             FROM cash_transactions t
             LEFT JOIN cash_categories c ON c.id = t.category_id
             LEFT JOIN members m ON m.id = t.member_id
-            WHERE t.paid_at::date = %s
+            WHERE t.paid_at::date BETWEEN %s AND %s
             ORDER BY t.id DESC
             LIMIT %s
             """,
-            (d, limit),
+            (start, end, limit),
         )
 
     @staticmethod

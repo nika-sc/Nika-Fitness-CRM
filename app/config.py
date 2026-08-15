@@ -26,7 +26,7 @@ class Config:
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME', 'nikafit_session')
     MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', str(8 * 1024 * 1024)))
     TRUSTED_HOSTS = [

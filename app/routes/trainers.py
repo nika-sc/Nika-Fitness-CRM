@@ -31,12 +31,17 @@ def create():
                 'email': request.form.get('email', ''),
                 'bio': request.form.get('bio', ''),
                 'photo_path': photo_path,
+                'user_id': request.form.get('user_id', ''),
             })
             flash('Тренер добавлен', 'success')
             return redirect(url_for('trainers.detail', trainer_id=trainer['id']))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('trainers/form.html', trainer=None)
+    return render_template(
+        'trainers/form.html',
+        trainer=None,
+        link_candidates=TrainerService.link_candidates(),
+    )
 
 
 @bp.route('/<int:trainer_id>')
@@ -70,9 +75,14 @@ def edit(trainer_id):
                 'bio': request.form.get('bio', ''),
                 'is_active': request.form.get('is_active') == 'on',
                 'photo_path': photo_path,
+                'user_id': request.form.get('user_id', ''),
             })
             flash('Сохранено', 'success')
             return redirect(url_for('trainers.detail', trainer_id=trainer_id))
         except Exception as exc:
             flash(str(exc), 'error')
-    return render_template('trainers/form.html', trainer=trainer)
+    return render_template(
+        'trainers/form.html',
+        trainer=trainer,
+        link_candidates=TrainerService.link_candidates(),
+    )

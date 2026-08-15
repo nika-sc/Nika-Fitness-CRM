@@ -16,11 +16,28 @@ class TrainerService:
         return fetch_one('SELECT * FROM trainers WHERE id = %s', (trainer_id,))
 
     @staticmethod
+    def by_user(user_id: int) -> dict | None:
+        return fetch_one('SELECT * FROM trainers WHERE user_id = %s', (user_id,))
+
+    @staticmethod
+    def link_candidates() -> list[dict]:
+        """Staff accounts that can be attached to a trainer card."""
+        return fetch_all(
+            """
+            SELECT u.id, u.username, u.full_name, u.role, t.id AS linked_trainer_id
+            FROM users u
+            LEFT JOIN trainers t ON t.user_id = u.id
+            WHERE u.is_active = TRUE AND u.role = 'trainer'
+            ORDER BY u.full_name, u.username
+            """
+        )
+
+    @staticmethod
     def create(data: dict) -> dict:
         return execute_returning(
             """
-            INSERT INTO trainers (full_name, phone, email, bio, photo_path, is_active)
-            VALUES (%s, %s, %s, %s, %s, TRUE)
+            INSERT INTO trainers (full_name, phone, email, bio, photo_path, user_id, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s, TRUE)
             RETURNING *
             """,
             (
@@ -29,6 +46,7 @@ class TrainerService:
                 (data.get('email') or '').strip(),
                 (data.get('bio') or '').strip(),
                 data.get('photo_path'),
+                TrainerService._clean_user_id(data.get('user_id')),
             ),
         )
 
@@ -42,6 +60,7 @@ class TrainerService:
                 email = %s,
                 bio = %s,
                 photo_path = COALESCE(%s, photo_path),
+                user_id = %s,
                 is_active = %s
             WHERE id = %s
             RETURNING *
@@ -52,10 +71,31 @@ class TrainerService:
                 (data.get('email') or '').strip(),
                 (data.get('bio') or '').strip(),
                 data.get('photo_path'),
+                TrainerService._clean_user_id(data.get('user_id'), trainer_id),
                 data.get('is_active', True),
                 trainer_id,
             ),
         )
+
+    @staticmethod
+    def _clean_user_id(raw, trainer_id: int | None = None) -> int | None:
+        value = str(raw or '').strip()
+        if not value:
+            return None
+        try:
+            user_id = int(value)
+        except ValueError:
+            raise ValueError('Некорректная учётная запись')
+        user = fetch_one("SELECT id FROM users WHERE id = %s AND role = 'trainer'", (user_id,))
+        if not user:
+            raise ValueError('Учётная запись должна быть сотрудником с ролью «Тренер»')
+        taken = fetch_one(
+            'SELECT id FROM trainers WHERE user_id = %s AND (%s IS NULL OR id <> %s)',
+            (user_id, trainer_id, trainer_id),
+        )
+        if taken:
+            raise ValueError('Эта учётная запись уже привязана к другому тренеру')
+        return user_id
 
     @staticmethod
     def delete(trainer_id: int) -> int:

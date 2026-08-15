@@ -16,7 +16,9 @@ STATUS_LABELS = {
     'open': 'Открыта',
     'closed': 'Закрыта',
     'booked': 'Записан',
+    'pending': 'Ждёт подтверждения',
     'attended': 'Был',
+    'done': 'Проведено',
     'no_show': 'Неявка',
     'cancelled': 'Отмена',
 }
@@ -34,6 +36,7 @@ SOURCE_LABELS = {
     'reception': 'Ресепшен',
     'portal': 'ЛК',
     'kiosk': 'Киоск',
+    'trainer': 'Тренер',
 }
 
 
@@ -62,9 +65,9 @@ def source_label(value) -> str:
 
 def status_pill_class(value) -> str:
     key = str(value or '')
-    if key in ('active', 'attended', 'ok', 'open'):
+    if key in ('active', 'attended', 'done', 'ok', 'open'):
         return 'ok'
-    if key in ('expiring', 'frozen', 'booked', 'inactive'):
+    if key in ('expiring', 'frozen', 'booked', 'pending', 'inactive'):
         return 'warn'
     if key in ('expired', 'no_show', 'cancelled', 'closed'):
         return 'danger'

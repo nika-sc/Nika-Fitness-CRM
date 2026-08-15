@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from datetime import datetime
 
-from flask import Flask, g, request
+from flask import Flask, g, request, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager, current_user
@@ -82,6 +83,10 @@ def create_app(config_class=Config):
         session_cookie_http_only=True,
     )
 
+    from app.utils.session_lifetime import MidnightSessionInterface
+
+    app.session_interface = MidnightSessionInterface()
+
     from app.middleware.auth import setup_auth
     setup_auth(login_manager)
 
@@ -102,8 +107,25 @@ def create_app(config_class=Config):
     @app.before_request
     def _secure_session_cookie():
         proto = (request.headers.get('X-Forwarded-Proto') or '').split(',')[0].strip().lower()
-        if proto == 'https' or request.is_secure:
-            app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['SESSION_COOKIE_SECURE'] = proto == 'https' or request.is_secure
+        return None
+
+    @app.before_request
+    def _expire_staff_at_midnight():
+        until = session.get('staff_until')
+        if not until:
+            return None
+        try:
+            ts = float(until)
+        except (TypeError, ValueError):
+            return None
+        if time.time() < ts:
+            return None
+        from flask_login import logout_user
+
+        logout_user()
+        session.pop('staff_until', None)
+        session.permanent = False
         return None
 
     @app.after_request
@@ -132,6 +154,7 @@ def create_app(config_class=Config):
 
         unread = 0
         club_name = 'Nika Fitness'
+        my_trainer_card = None
         tenant_slug = getattr(g, 'tenant_slug', None)
         if getattr(g, 'tenant', None):
             club_name = g.tenant.get('name') or club_name
@@ -146,6 +169,11 @@ def create_app(config_class=Config):
                     club_name = row['value']
             except Exception:
                 pass
+            try:
+                from app.services.trainer_service import TrainerService
+                my_trainer_card = TrainerService.by_user(current_user.id)
+            except Exception:
+                my_trainer_card = None
         from app.utils.labels import method_label, role_label, source_label, status_label, status_pill_class
 
         return {
@@ -157,6 +185,7 @@ def create_app(config_class=Config):
             'source_label': source_label,
             'status_pill_class': status_pill_class,
             'unread_alerts': unread,
+            'my_trainer_card': my_trainer_card,
             'club_name': club_name,
             'tenant_slug': tenant_slug,
             'saas_mode': saas_enabled(),

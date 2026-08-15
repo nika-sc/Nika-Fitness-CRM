@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Персоналки{% endblock %}
+
+{% macro slots_table(rows, empty_text) %}
+<div class="table-responsive mt-2">
+  <table class="table align-middle mb-0">
+    <thead>
+      <tr><th>Время</th><th>Тренер</th><th>Место</th><th>Записать клиента</th></tr>
+    </thead>
+    <tbody>
+      {% for slot in rows %}
+      <tr>
+        <td>{{ slot.starts_at.strftime('%H:%M') }}–{{ slot.ends_at.strftime('%H:%M') }}</td>
+        <td>{{ slot.trainer_name }}</td>
+        <td>{{ slot.place or '—' }}</td>
+        <td>
+          <form method="post" class="d-flex gap-2 flex-wrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="slot_id" value="{{ slot.id }}">
+            <select class="form-select" name="member_id" required style="max-width:18rem;">
+              <option value="">— клиент —</option>
+              {% for m in members %}
+              <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-sm" type="submit">Записать</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">{{ empty_text }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Свободные окна тренеров</h1>
+    <p class="muted">Сегодня и завтра · запись со стойки подтверждения тренером не требует · оплата отдельно</p>
+  </div>
+  <a class="btn secondary" href="{{ url_for('reception.desk') }}">К стойке</a>
+</div>
+
+<div class="panel">
+  <div class="panel-head"><h3 class="mb-0"><i class="bi bi-calendar-day me-2" aria-hidden="true"></i>Сегодня</h3></div>
+  {{ slots_table(today_slots, 'На сегодня свободных окон нет') }}
+</div>
+
+<div class="panel mt-3">
+  <div class="panel-head"><h3 class="mb-0"><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Завтра</h3></div>
+  {{ slots_table(tomorrow_slots, 'На завтра свободных окон нет') }}
+</div>
+{% endblock %}

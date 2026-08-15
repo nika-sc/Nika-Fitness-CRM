@@ -29,6 +29,10 @@
   --bs-link-hover-color: #ffb09f;
 }
 
+html:has(body.nika-admin) {
+  scroll-behavior: smooth;
+}
+
 body.nika-admin {
   min-height: 100vh;
   font-family: "Manrope", sans-serif;
@@ -464,9 +468,36 @@ body.nika-admin {
 }
 
 .nika-admin .checkin-input {
-  min-height: 58px;
-  font-size: 1.15rem;
-  letter-spacing: .04em;
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.nika-admin .desk-checkin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: .75rem;
+}
+
+.nika-admin .desk-checkin-search {
+  flex: 1 1 14rem;
+  min-width: 0;
+  position: relative;
+}
+
+.nika-admin .desk-checkin-zone {
+  flex: 0 1 10rem;
+}
+
+.nika-admin .desk-checkin-submit {
+  flex: 0 0 auto;
+}
+
+.nika-admin .desk-checkin-search .live-search-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 8;
 }
 
 .nika-admin .tap-lg,
@@ -520,6 +551,84 @@ body.nika-admin {
   border-color: #ff5a3c;
 }
 
+.nika-admin .member-actions {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-shrink: 0;
+}
+
+.nika-admin .member-actions .bi {
+  margin-right: .35rem;
+}
+
+.nika-admin .member-action-checkin,
+.nika-admin .member-action-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.nika-admin .member-action-checkin {
+  padding: .72rem 1.2rem;
+  font-size: 1rem;
+  box-shadow: 0 8px 22px rgba(255, 90, 60, .28);
+}
+
+.nika-admin .member-action-edit {
+  min-height: 44px;
+  color: #fff;
+  background: rgba(255, 90, 60, .16);
+  border: 1px solid rgba(255, 90, 60, .72);
+}
+
+.nika-admin .member-action-edit:hover {
+  color: #fff;
+  background: rgba(255, 90, 60, .3);
+  border-color: #ff5a3c;
+}
+
+.nika-admin .member-sheet {
+  padding: 1.15rem 1.2rem 1.25rem;
+}
+
+.nika-admin .member-medical {
+  max-width: 22rem;
+}
+
+.nika-admin .member-medical .form-control {
+  min-width: 0;
+}
+
+.nika-admin .member-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.15rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--nika-line);
+}
+
+.nika-admin .member-facts h3 {
+  margin: 0 0 .55rem;
+}
+
+.nika-admin .member-facts .table-responsive {
+  max-height: 240px;
+}
+
+.nika-admin .member-ops {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem;
+  margin-top: .9rem;
+}
+
+.nika-admin .member-ops .panel {
+  margin: 0;
+}
+
 .nika-admin .js-row-link {
   cursor: pointer;
 }
@@ -571,6 +680,49 @@ body.nika-admin {
 .nika-admin .week-card:hover {
   color: inherit;
   border-color: #ff5a3c;
+}
+
+.nika-admin .slot-card.is-pending { border-color: rgba(240, 180, 41, .65); background: rgba(240, 180, 41, .07); }
+.nika-admin .slot-card.is-booked { border-color: rgba(47, 212, 163, .45); }
+.nika-admin .slot-card.is-done { border-color: rgba(47, 212, 163, .5); }
+.nika-admin .slot-card.is-no_show { border-color: rgba(255, 90, 106, .5); }
+.nika-admin .slot-card.is-cancelled { opacity: .55; }
+
+.nika-admin .slot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-top: .45rem;
+}
+
+.nika-admin .weekday-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.nika-admin .weekday-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nika-admin .weekday-chip span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  min-height: 40px;
+  padding: 0 .5rem;
+  border: 1px solid var(--nika-line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.nika-admin .weekday-chip input:checked + span {
+  color: #fff;
+  border-color: #ff5a3c;
+  background: rgba(255, 90, 60, .18);
 }
 
 .nika-admin details.panel > summary {
@@ -796,6 +948,19 @@ body.nika-admin {
     align-items: flex-start;
     flex-direction: column;
   }
+  .nika-admin .member-actions {
+    width: 100%;
+  }
+  .nika-admin .member-action-checkin,
+  .nika-admin .member-action-edit {
+    flex: 1 1 auto;
+    text-align: center;
+    justify-content: center;
+  }
+  .nika-admin .member-facts,
+  .nika-admin .member-ops {
+    grid-template-columns: 1fr;
+  }
   .nika-admin .grid-2,
   .nika-admin .grid-3,
   .nika-admin .grid-4,
@@ -852,6 +1017,29 @@ body.nika-admin {
 .nika-admin a.desk-kpi:hover {
   color: inherit;
   border-color: #ff5a3c;
+}
+
+.nika-admin .desk-visits-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.nika-admin .desk-visits-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.nika-admin .desk-visits-scroll {
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.nika-admin #desk-visits tr.is-in-hall td {
+  background: rgba(47, 212, 163, .06);
 }
 
 .nika-admin .stat-delta {

@@ -73,6 +73,7 @@ class ReportService:
         hourly_raw = {int(r['hour']): int(r['cnt']) for r in CheckinService.hourly_today()}
         hourly = [{'hour': h, 'cnt': hourly_raw.get(h, 0)} for h in range(6, 23)]
         revenue = CashService.payment_totals(today=True)
+        cash_today = CashService.day_summary()
         return {
             'active_memberships': active['c'] if active else 0,
             'frozen_memberships': frozen['c'] if frozen else 0,
@@ -95,7 +96,7 @@ class ReportService:
             'unique_checkins_today': attendance['unique_members'],
             'hourly_checkins': hourly,
             'revenue_today_cents': revenue['total'],
-            'cash_shift': CashService.current_shift(),
+            'cash_net_today': cash_today['net'],
         }
 
     @staticmethod

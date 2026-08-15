@@ -6,7 +6,7 @@ from app.services.checkin_service import CheckinService
 from app.services.member_service import MemberService
 from app.services.membership_service import MembershipService
 from app.services.settings_service import SettingsService
-from app.utils.decorators import permission_required
+from app.utils.decorators import feature_required, permission_required
 from app.utils.security import signed_member_token
 from app.utils.uploads import save_image
 
@@ -89,13 +89,20 @@ def detail(member_id):
     pt_packages = PtService.list_packages(member_id)
     if request.args.get('add_cert') == '1' and request.method == 'GET':
         pass
+    portal_url = url_for('portal.home')
     nps_url = url_for(
         'nps.form',
         member=member_id,
         token=signed_member_token('nps', member_id, current_app.config['SECRET_KEY']),
     )
+    from app.services.feature_flags_service import FeatureFlagsService
+    from app.services.trainer_slot_service import TrainerSlotService
+    slots_enabled = FeatureFlagsService.is_enabled('module_trainer_slots')
     return render_template(
         'members/detail.html',
+        slots_enabled=slots_enabled,
+        open_slots=TrainerSlotService.list_open(days=14, limit=60) if slots_enabled else [],
+        member_slots=TrainerSlotService.list_for_member(member_id) if slots_enabled else [],
         member=member,
         memberships=memberships,
         payments=payments,
@@ -108,6 +115,7 @@ def detail(member_id):
         medical=medical,
         loyalty=loyalty,
         pt_packages=pt_packages,
+        portal_url=portal_url,
         nps_url=nps_url,
         just_checkin=request.args.get('checkin') == '1',
         checkin_info=session.get('desk_last') if request.args.get('checkin') == '1' else None,
@@ -169,6 +177,29 @@ def portal_password(member_id):
     except Exception as exc:
         flash(str(exc), 'error')
     return redirect(url_for('members.detail', member_id=member_id))
+
+
+@bp.route('/<int:member_id>/trainer-slot', methods=['POST'])
+@login_required
+@feature_required('module_trainer_slots')
+@permission_required('manage_trainer_slots')
+def trainer_slot(member_id):
+    from app.services.trainer_slot_service import TrainerSlotService
+
+    action = (request.form.get('action') or 'book').strip()
+    try:
+        slot_id = int(request.form.get('slot_id'))
+        if action == 'cancel':
+            TrainerSlotService.cancel_booking(slot_id, member_id=member_id)
+            flash('Запись к тренеру отменена', 'info')
+        else:
+            slot = TrainerSlotService.book(slot_id, member_id, source='staff')
+            starts = slot.get('starts_at')
+            when = starts.strftime('%d.%m в %H:%M') if hasattr(starts, 'strftime') else ''
+            flash(f"Клиент записан к тренеру {slot.get('trainer_name', '')} · {when}", 'success')
+    except Exception as exc:
+        flash(str(exc), 'error')
+    return redirect(url_for('members.detail', member_id=member_id) + '#trainer-slots')
 
 
 @bp.route('/<int:member_id>/edit', methods=['GET', 'POST'])

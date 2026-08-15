@@ -24,6 +24,10 @@
       <input name="username" autocomplete="username" required autofocus value="{{ demo_credentials.staff_user if demo_mode else '' }}">
       <label>Пароль</label>
       <input type="password" name="password" autocomplete="current-password" required value="{{ demo_credentials.staff_password if demo_mode else '' }}">
+      <label class="login-remember">
+        <input type="checkbox" name="remember" value="1" checked>
+        Запомнить до полуночи
+      </label>
       <button class="btn" type="submit">Войти</button>
     </form>
     {% if demo_mode %}

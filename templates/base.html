@@ -130,8 +130,11 @@
           <li class="nav-item"><a href="{{ url_for('loyalty.index') }}" class="nav-link {% if ep.startswith('loyalty.') %}active{% endif %}"><i class="nav-icon bi bi-stars"></i><p>Лояльность</p></a></li>
       {% endif %}
 
-      {% if has_permission('view_schedule') or has_permission('view_trainers') or (has_permission('manage_pt') and feature_enabled('module_pt')) %}
+      {% if has_permission('view_schedule') or has_permission('view_trainers') or (has_permission('manage_pt') and feature_enabled('module_pt')) or (has_permission('manage_trainer_slots') and feature_enabled('module_trainer_slots')) %}
           <li class="nav-header">Тренировки</li>
+      {% endif %}
+      {% if has_permission('manage_trainer_slots') and feature_enabled('module_trainer_slots') and my_trainer_card %}
+          <li class="nav-item"><a href="{{ url_for('trainer_cabinet.week') }}" class="nav-link {% if ep.startswith('trainer_cabinet.') %}active{% endif %}"><i class="nav-icon bi bi-clipboard-check"></i><p>Мои тренировки</p></a></li>
       {% endif %}
       {% if has_permission('view_schedule') %}
           <li class="nav-item"><a href="{{ url_for('schedule.week') }}" class="nav-link {% if ep.startswith('schedule.') %}active{% endif %}"><i class="nav-icon bi bi-calendar3"></i><p>Расписание</p></a></li>
