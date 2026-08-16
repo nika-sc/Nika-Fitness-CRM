@@ -195,7 +195,6 @@ def create_app(config_class=Config):
                 'staff_password': app.config.get('DEMO_STAFF_PASSWORD', ''),
                 'portal_login': app.config.get('DEMO_PORTAL_LOGIN', ''),
                 'portal_password': app.config.get('DEMO_PORTAL_PASSWORD', ''),
-                'platform_user': app.config.get('PLATFORM_ADMIN_USER', ''),
             } if app.config.get('DEMO_MODE') else {},
             'now': datetime.now(),
         }

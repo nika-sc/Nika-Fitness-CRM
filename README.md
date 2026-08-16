@@ -259,6 +259,8 @@ TRUSTED_HOSTS=localhost,127.0.0.1,your.domain
 
 Чеклист: [docs/DEPLOY.md](docs/DEPLOY.md).
 
+Кто **уже поставил** CRM раньше: `git pull` и `python scripts/run_migrations.py --legacy` (подробно — раздел «Обновление» в [DEPLOY.md](docs/DEPLOY.md)). Свежий clone с GitHub уже содержит текущие фичи.
+
 ---
 
 ## Архитектура
