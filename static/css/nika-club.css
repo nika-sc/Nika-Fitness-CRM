@@ -169,7 +169,7 @@
 }
 
 .nika-club .btn,
-.nika-club button:not(.navbar-toggler):not(.btn-close),
+.nika-club button:not(.navbar-toggler):not(.btn-close):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item),
 .nika-club input[type="submit"] {
   width: auto;
   padding: .64rem .95rem;
@@ -185,7 +185,7 @@
 }
 
 .nika-club .btn:hover,
-.nika-club button:not(.navbar-toggler):hover {
+.nika-club button:not(.navbar-toggler):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item):hover {
   color: #fff;
   filter: brightness(1.06);
 }
@@ -661,4 +661,364 @@
   justify-content: space-between;
   margin-top: .45rem;
   color: var(--club-muted);
+}
+
+/* Public club landing — cinematic layout, scoped away from portal */
+body.club-landing .club-site-hero {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  padding: clamp(2.2rem, 6vw, 4.5rem) 0 2.4rem;
+}
+
+body.club-landing .club-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+  gap: clamp(1.2rem, 4vw, 2.4rem);
+  align-items: center;
+}
+
+body.club-landing .club-site-hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+  line-height: .96;
+  letter-spacing: -.05em;
+  text-shadow: 0 18px 48px rgba(0, 0, 0, .45);
+}
+
+body.club-landing .club-site-hero-lead {
+  max-width: 36rem;
+  font-size: 1.12rem;
+  line-height: 1.6;
+}
+
+body.club-landing .club-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem 1.8rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.club-landing .club-hero-stats strong {
+  display: block;
+  font-family: "Syne", sans-serif;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+body.club-landing .club-hero-stats span {
+  color: var(--club-muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+body.club-landing .club-hero-visual {
+  position: relative;
+}
+
+body.club-landing .club-hero-shot {
+  margin: 0 0 1rem;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 28%, rgba(255, 255, 255, .12));
+  box-shadow: 0 28px 60px rgba(0, 0, 0, .38);
+}
+
+body.club-landing .club-hero-shot img {
+  display: block;
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+}
+
+body.club-landing .club-hero-hours strong {
+  display: block;
+  white-space: pre-line;
+  font-size: 1.12rem;
+}
+
+body.club-landing .club-amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+body.club-landing .club-about-modern {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(1rem, 3vw, 2.4rem);
+  align-items: start;
+}
+
+body.club-landing .club-about-copy {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.7;
+  color: var(--club-muted);
+  white-space: pre-line;
+}
+
+body.club-landing .club-price-card.is-featured {
+  border-color: color-mix(in srgb, var(--club-accent) 55%, rgba(255, 255, 255, .16));
+  box-shadow: 0 22px 50px color-mix(in srgb, var(--club-accent) 22%, transparent);
+}
+
+body.club-landing .trainer-modern img,
+body.club-landing .trainer-placeholder {
+  height: 280px;
+}
+
+body.club-landing .club-gallery-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 150px;
+  gap: .75rem;
+}
+
+body.club-landing .club-gallery-item {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, .25);
+  cursor: zoom-in;
+  color: inherit;
+  text-align: left;
+}
+
+body.club-landing .club-gallery-item.is-feature {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+body.club-landing .club-gallery-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 0;
+  transition: transform .45s ease;
+}
+
+body.club-landing .club-gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+body.club-landing .club-gallery-item span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: .65rem .8rem;
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 700;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .72));
+}
+
+body.club-landing .club-gallery-swiper .club-gallery-item {
+  width: 100%;
+}
+
+body.club-landing .club-gallery-swiper img {
+  height: 260px;
+  min-height: 260px;
+}
+
+body.club-landing .club-week-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: .85rem;
+}
+
+body.club-landing .club-week-col {
+  padding: 1rem 1.05rem 1.1rem;
+}
+
+body.club-landing .club-week-col header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: .7rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .08));
+}
+
+body.club-landing .club-week-col header strong {
+  font-family: "Syne", sans-serif;
+  font-size: 1.15rem;
+}
+
+body.club-landing .club-week-row {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+  gap: .55rem;
+  align-items: start;
+  padding: .45rem 0;
+}
+
+body.club-landing .club-week-row time {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: .92rem;
+}
+
+@media (max-width: 991.98px) {
+  body.club-landing .club-hero-grid,
+  body.club-landing .club-about-modern {
+    grid-template-columns: 1fr;
+  }
+  body.club-landing .club-hero-shot img {
+    height: 240px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  body.club-landing .club-gallery-bento {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 140px;
+  }
+  body.club-landing .club-gallery-item.is-feature {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+}
+
+/* Booking without a portal account */
+body.club-landing .club-schedule-hint {
+  margin-top: -.4rem;
+  margin-bottom: 1rem;
+}
+
+body.club-landing .club-week-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .35rem;
+}
+
+body.club-landing .club-week-book {
+  padding: .28rem .6rem;
+  font-size: .74rem;
+  border-radius: 8px;
+}
+
+body.club-landing .club-week-row.is-past {
+  opacity: .5;
+}
+
+body.club-landing .club-booking-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+
+body.club-landing .club-booking-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .9rem;
+}
+
+body.club-landing .club-booking-steps li {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  gap: .85rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .08));
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .2);
+}
+
+body.club-landing .club-booking-step-num {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  font-family: "Syne", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  background: color-mix(in srgb, var(--club-accent) 32%, transparent);
+}
+
+body.club-landing .club-booking-cta {
+  padding: 1.35rem 1.3rem;
+}
+
+body.club-landing .club-booking-cta h3 {
+  font-family: "Syne", sans-serif;
+  margin-bottom: .5rem;
+}
+
+body.club-landing .club-booking-flash {
+  display: grid;
+  gap: .5rem;
+  margin-bottom: 1.1rem;
+}
+
+body.club-landing .club-booking-alert {
+  margin: 0;
+  padding: .75rem .95rem;
+  border-radius: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+body.club-landing .club-booking-alert.is-ok {
+  color: #2fd4a3;
+  background: rgba(47, 212, 163, .1);
+  border-color: rgba(47, 212, 163, .35);
+}
+
+body.club-landing .club-booking-alert.is-error {
+  color: #ff8a95;
+  background: rgba(255, 90, 106, .1);
+  border-color: rgba(255, 90, 106, .35);
+}
+
+.nika-club .club-booking-modal .modal-content {
+  padding: .35rem .25rem;
+}
+
+.nika-club .club-booking-modal .modal-header,
+.nika-club .club-booking-modal .modal-footer {
+  border-color: color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .08));
+}
+
+.nika-club .club-booking-modal .modal-footer {
+  gap: .5rem;
+  justify-content: space-between;
+}
+
+.nika-club .club-booking-target {
+  padding: .7rem .85rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--club-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--club-accent) 26%, transparent);
+}
+
+.nika-club .club-booking-trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+  body.club-landing .club-booking-grid {
+    grid-template-columns: 1fr;
+  }
 }

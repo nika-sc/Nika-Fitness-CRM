@@ -709,6 +709,19 @@ ALTER TABLE club_site DROP CONSTRAINT IF EXISTS club_site_background_overlay_che
 ALTER TABLE club_site ADD CONSTRAINT club_site_background_overlay_check
     CHECK (background_overlay BETWEEN 0 AND 90);
 
+ALTER TABLE club_site
+    ADD COLUMN IF NOT EXISTS hero_kicker VARCHAR(80) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS hero_lead TEXT NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS cta_label VARCHAR(80) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS about_heading VARCHAR(120) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS gallery_heading VARCHAR(120) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS footer_tagline VARCHAR(160) NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS amenities JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+UPDATE club_site
+SET hero_lead = about_text
+WHERE COALESCE(hero_lead, '') = '' AND COALESCE(about_text, '') <> '';
+
 ALTER TABLE payments
     ADD COLUMN IF NOT EXISTS cash_shift_id INTEGER REFERENCES cash_shifts(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_payments_cash_shift ON payments (cash_shift_id);
@@ -844,6 +857,43 @@ INSERT INTO app_settings (key, value) VALUES
     ('pt_max_active_bookings', '3')
 ON CONFLICT (key) DO NOTHING;
 
+ALTER TABLE club_site
+    ADD COLUMN IF NOT EXISTS booking_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    ADD COLUMN IF NOT EXISTS booking_note VARCHAR(300) NOT NULL DEFAULT '';
+
+CREATE TABLE IF NOT EXISTS site_booking_requests (
+    id SERIAL PRIMARY KEY,
+    kind VARCHAR(20) NOT NULL DEFAULT 'trial'
+        CHECK (kind IN ('class', 'trainer', 'trial')),
+    session_id INTEGER REFERENCES class_sessions(id) ON DELETE SET NULL,
+    slot_id INTEGER REFERENCES trainer_slots(id) ON DELETE SET NULL,
+    trainer_id INTEGER REFERENCES trainers(id) ON DELETE SET NULL,
+    member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+    full_name VARCHAR(200) NOT NULL,
+    phone VARCHAR(40) NOT NULL,
+    comment VARCHAR(500) NOT NULL DEFAULT '',
+    target_label VARCHAR(200) NOT NULL DEFAULT '',
+    status VARCHAR(20) NOT NULL DEFAULT 'new'
+        CHECK (status IN ('new', 'contacted', 'confirmed', 'declined', 'spam')),
+    staff_note VARCHAR(500) NOT NULL DEFAULT '',
+    processed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    processed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_site_requests_status ON site_booking_requests (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_site_requests_phone ON site_booking_requests (phone, created_at DESC);
+
+INSERT INTO permissions (name, description) VALUES
+    ('manage_site_requests', 'Заявки с сайта клуба')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO role_permissions (role, permission_id)
+SELECT r.role, p.id FROM (VALUES ('admin'), ('owner'), ('reception')) AS r(role)
+CROSS JOIN permissions p
+WHERE p.name = 'manage_site_requests'
+ON CONFLICT DO NOTHING;
+
 INSERT INTO schema_migrations_pg (version, name)
 VALUES
     ('001', 'initial'),
@@ -862,5 +912,7 @@ VALUES
     ('014', 'security_hardening'),
     ('015', 'cash_articles'),
     ('016', 'trainer_slots'),
-    ('017', 'trainer_slot_confirm')
+    ('017', 'trainer_slot_confirm'),
+    ('018', 'club_site_content'),
+    ('019', 'site_booking_requests')
 ON CONFLICT (version) DO NOTHING;

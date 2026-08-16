@@ -13,11 +13,23 @@
   <input type="hidden" name="action" value="save">
   <div class="grid grid-2">
     <div class="panel">
-      <h3>О клубе</h3>
+      <h3>Герой и о клубе</h3>
+      <label>Короткий девиз над заголовком</label>
+      <input name="hero_kicker" value="{{ site.hero_kicker or '' }}" maxlength="80" placeholder="Сильнее каждый день">
       <label>Заголовок</label>
       <input name="headline" value="{{ site.headline or '' }}" required>
-      <label>Описание</label>
-      <textarea name="about_text" rows="5">{{ site.about_text or '' }}</textarea>
+      <label>Лид на первом экране</label>
+      <textarea name="hero_lead" rows="3" placeholder="Короткий текст под заголовком">{{ site.hero_lead or '' }}</textarea>
+      <label>Текст кнопки</label>
+      <input name="cta_label" value="{{ site.cta_label or '' }}" maxlength="80" placeholder="Начать тренировку">
+      <label>Заголовок блока «О клубе»</label>
+      <input name="about_heading" value="{{ site.about_heading or '' }}" maxlength="120" placeholder="Пространство для результата">
+      <label>Подробное описание</label>
+      <textarea name="about_text" rows="6" placeholder="История клуба, зоны, чем вы отличаетесь">{{ site.about_text or '' }}</textarea>
+      <label>Заголовок галереи</label>
+      <input name="gallery_heading" value="{{ site.gallery_heading or '' }}" maxlength="120" placeholder="Посмотрите клуб">
+      <label>Фраза в подвале</label>
+      <input name="footer_tagline" value="{{ site.footer_tagline or '' }}" maxlength="160" placeholder="Тренируйтесь. Прогрессируйте. Возвращайтесь.">
       <label>Телефон</label>
       <input name="phone" value="{{ site.phone or '' }}">
       <label>Адрес</label>
@@ -75,6 +87,43 @@
         <input type="checkbox" name="is_published" value="1" {% if site.is_published %}checked{% endif %}>
         Опубликовать сайт
       </label>
+
+      <h3 class="mt-4">Запись с сайта</h3>
+      <p class="muted">
+        Гость оставляет заявку на занятие или к тренеру без личного кабинета. Место занимается только после подтверждения
+        в разделе <a href="{{ url_for('site_requests.index') }}">«Заявки с сайта»</a>{% if new_requests %} · новых: {{ new_requests }}{% endif %}.
+      </p>
+      <label style="display:flex;align-items:center;gap:.5rem;">
+        <input type="checkbox" name="booking_enabled" value="1" {% if site.booking_enabled %}checked{% endif %}>
+        Принимать заявки с сайта
+      </label>
+      <label>Текст в блоке записи</label>
+      <textarea name="booking_note" rows="2" maxlength="300"
+                placeholder="Оставьте заявку на пробную тренировку — подберём формат и время под вас.">{{ site.booking_note or '' }}</textarea>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:1rem;">
+    <h3>Зоны и удобства</h3>
+    <p class="muted">До шести карточек на сайте: иконка, название и короткое описание. Пустые строки не публикуются.</p>
+    <div class="amenity-admin-grid">
+      {% for row in amenity_rows %}
+      <div class="amenity-admin-row">
+        <label>Иконка
+          <select name="amenity_icon_{{ loop.index0 }}">
+            {% for value, label in amenity_icons %}
+            <option value="{{ value }}" {% if row.icon == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Название
+          <input name="amenity_title_{{ loop.index0 }}" value="{{ row.title }}" maxlength="80" placeholder="Например, силовая зона">
+        </label>
+        <label>Описание
+          <input name="amenity_text_{{ loop.index0 }}" value="{{ row.text }}" maxlength="200" placeholder="Коротко, что есть в зоне">
+        </label>
+      </div>
+      {% endfor %}
     </div>
   </div>
   <button style="margin:1rem 0 1.5rem;" type="submit">Сохранить сайт и дизайн</button>
@@ -82,24 +131,34 @@
 
 <div class="panel">
   <h3>Галерея</h3>
+  <p class="muted">{{ photos|length }} из {{ max_gallery_photos }} фото. JPG, PNG или WEBP.</p>
+  {% if photos|length < max_gallery_photos %}
   <form method="post" enctype="multipart/form-data" style="margin-bottom:1rem;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="action" value="add_photo">
     <label>Фото</label>
     <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required>
     <label>Подпись</label>
-    <input name="caption">
+    <input name="caption" maxlength="200">
     <button type="submit">Добавить</button>
   </form>
+  {% else %}
+  <p class="muted">Достигнут лимит галереи. Удалите фото, чтобы добавить новое.</p>
+  {% endif %}
   <div class="club-gallery">
     {% for p in photos %}
     <figure>
-      <img src="{{ url_for('static', filename=p.photo_path) }}" alt="">
-      <form method="post" style="margin-top:.4rem;">
+      <img src="{{ url_for('static', filename=p.photo_path) }}" alt="{{ p.caption or '' }}">
+      <form method="post" class="gallery-admin-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="action" value="delete_photo">
         <input type="hidden" name="photo_id" value="{{ p.id }}">
-        <button type="submit" class="btn secondary">Удалить</button>
+        <input name="caption" value="{{ p.caption or '' }}" maxlength="200" placeholder="Подпись">
+        <div class="gallery-admin-actions">
+          <button type="submit" name="action" value="update_caption">Подпись</button>
+          <button type="submit" name="action" value="move_up" {% if loop.first %}disabled{% endif %}>↑</button>
+          <button type="submit" name="action" value="move_down" {% if loop.last %}disabled{% endif %}>↓</button>
+          <button type="submit" name="action" value="delete_photo" class="btn secondary">Удалить</button>
+        </div>
       </form>
     </figure>
     {% else %}
@@ -118,6 +177,14 @@
 .theme-live-preview span{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
 .theme-live-preview strong{font-size:1.5rem;margin:.25rem 0 .7rem}
 .theme-live-preview button{border:0;border-radius:999px;padding:.6rem 1rem;color:#fff;background:var(--preview-accent);font-weight:800}
+.amenity-admin-grid{display:grid;gap:.75rem}
+.amenity-admin-row{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1fr) minmax(0,1.4fr);gap:.6rem;align-items:end}
+.gallery-admin-form{margin-top:.45rem;display:grid;gap:.4rem}
+.gallery-admin-actions{display:flex;flex-wrap:wrap;gap:.35rem}
+.gallery-admin-actions button[disabled]{opacity:.4}
+@media (max-width: 900px){
+  .amenity-admin-row{grid-template-columns:1fr}
+}
 </style>
 <script>
 (function(){

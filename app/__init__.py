@@ -153,6 +153,7 @@ def create_app(config_class=Config):
                 return False
 
         unread = 0
+        new_site_requests = 0
         club_name = 'Nika Fitness'
         my_trainer_card = None
         tenant_slug = getattr(g, 'tenant_slug', None)
@@ -174,6 +175,11 @@ def create_app(config_class=Config):
                 my_trainer_card = TrainerService.by_user(current_user.id)
             except Exception:
                 my_trainer_card = None
+            try:
+                from app.services.site_request_service import SiteRequestService
+                new_site_requests = SiteRequestService.new_count()
+            except Exception:
+                new_site_requests = 0
         from app.utils.labels import method_label, role_label, source_label, status_label, status_pill_class
 
         return {
@@ -185,6 +191,7 @@ def create_app(config_class=Config):
             'source_label': source_label,
             'status_pill_class': status_pill_class,
             'unread_alerts': unread,
+            'new_site_requests': new_site_requests,
             'my_trainer_card': my_trainer_card,
             'club_name': club_name,
             'tenant_slug': tenant_slug,

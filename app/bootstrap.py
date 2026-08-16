@@ -39,7 +39,7 @@ def get_feature_blueprints():
 def _core_blueprints():
     from app.routes.alerts import bp as alerts_bp
     from app.routes.auth import bp as auth_bp
-    from app.routes.club_site import club_public_bp, site_admin_bp
+    from app.routes.club_site import club_public_bp, site_admin_bp, site_requests_bp
     from app.routes.main import bp as main_bp
     from app.routes.members import bp as members_bp
     from app.routes.memberships import bp as memberships_bp
@@ -62,6 +62,7 @@ def _core_blueprints():
         'reports': reports_bp,
         'settings': settings_bp,
         'site_admin': site_admin_bp,
+        'site_requests': site_requests_bp,
         'club_public': club_public_bp,
     }
 
@@ -99,6 +100,7 @@ def init_single_tenant(app: Flask) -> None:
     app.register_blueprint(bps['reports'], url_prefix='/reports')
     app.register_blueprint(bps['settings'], url_prefix='/settings')
     app.register_blueprint(bps['site_admin'], url_prefix='/site-admin')
+    app.register_blueprint(bps['site_requests'], url_prefix='/site-requests')
     app.register_blueprint(bps['club_public'], url_prefix='/club')
     for bp, path in get_feature_blueprints():
         app.register_blueprint(bp, url_prefix=path)
@@ -120,6 +122,7 @@ def register_tenant_blueprints(app: Flask, feature_bps=None) -> None:
     app.register_blueprint(bps['reports'], url_prefix=f'{prefix}/reports')
     app.register_blueprint(bps['settings'], url_prefix=f'{prefix}/settings')
     app.register_blueprint(bps['site_admin'], url_prefix=f'{prefix}/site-admin')
+    app.register_blueprint(bps['site_requests'], url_prefix=f'{prefix}/site-requests')
     app.register_blueprint(bps['club_public'], url_prefix='/club/<slug>')
     for bp, path in (feature_bps or get_feature_blueprints()):
         app.register_blueprint(bp, url_prefix=f'{prefix}{path}')

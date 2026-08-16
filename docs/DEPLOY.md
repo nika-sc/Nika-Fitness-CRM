@@ -60,7 +60,7 @@ git pull
 python scripts/run_migrations.py --legacy
 ```
 
-Docker: `docker compose up -d --build` — `entrypoint` применит новые миграции. Для релиза от 15.08.2026 на старой копии нужны `016_trainer_slots` и `017_trainer_slot_confirm`.
+Docker: `docker compose up -d --build` — `entrypoint` применит новые миграции. Для релиза от 15.08.2026 на старой копии нужны `016_trainer_slots` и `017_trainer_slot_confirm`. Для релиза от 16.08.2026 — ещё `018_club_site_content` и `019_site_booking_requests`.
 
 Чтобы тренер вошёл в кабинет (и на новой установке, и после обновления): **Тренеры** → карточка → **Учётная запись** — сотрудник с ролью «Тренер».
 

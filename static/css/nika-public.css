@@ -241,7 +241,7 @@ body.nika-public.landing-home {
 }
 
 .nika-public .btn,
-.nika-public button:not(.navbar-toggler):not(.btn-close):not(.lp-shot):not(.lp-lightbox-close):not(.lp-lightbox-nav),
+.nika-public button:not(.navbar-toggler):not(.btn-close):not(.lp-shot):not(.lp-foto-slide):not(.lp-lightbox-close):not(.lp-lightbox-nav):not(.nika-lightbox-close):not(.nika-lightbox-nav),
 .nika-public input[type="submit"] {
   width: auto;
   padding: .64rem .95rem;
@@ -257,7 +257,7 @@ body.nika-public.landing-home {
 }
 
 .nika-public .btn:hover,
-.nika-public button:not(.navbar-toggler):hover {
+.nika-public button:not(.navbar-toggler):not(.lp-shot):not(.lp-foto-slide):not(.nika-lightbox-close):not(.nika-lightbox-nav):hover {
   color: #fff;
   background: linear-gradient(135deg, var(--nika-accent-hover), #ff8b4c);
 }

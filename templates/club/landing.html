@@ -1,12 +1,21 @@
 {% extends "club/base_club.html" %}
 {% block title %}{{ site.headline or club_name }} — {{ club_name }}{% endblock %}
 {% block meta %}
-<meta name="description" content="{{ (site.about_text or club_name)[:155] }}">
+<meta name="description" content="{{ (site.hero_lead or site.about_text or club_name)[:155] }}">
+{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/swiper/11.2.10/swiper-bundle.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nika-lightbox.css') }}">
 {% endblock %}
 {% block body_class %}club-landing{% endblock %}
 {% block body %}
 {% set _parts = (club_name or 'NF').split() %}
 {% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
+{% set cta_text = site.cta_label or 'Начать тренировку' %}
+{% set weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] %}
+{% set booking_on = site.booking_enabled %}
+{% set portal_url = url_for('portal.home', slug=slug) if saas else url_for('portal.home') %}
+{% set booking_action = url_for('club_public.request_booking', slug=slug) if saas else url_for('club_public.request_booking') %}
 <div class="app-wrapper">
   <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация сайта клуба">
     <div class="container-xxl">
@@ -24,15 +33,17 @@
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
           <li class="nav-item"><a class="nav-link" href="#prices">Тарифы</a></li>
           <li class="nav-item"><a class="nav-link" href="#trainers">Тренеры</a></li>
+          {% if photos %}
+          <li class="nav-item"><a class="nav-link" href="#gallery">Галерея</a></li>
+          {% endif %}
           <li class="nav-item"><a class="nav-link" href="#schedule">Расписание</a></li>
           <li class="nav-item"><a class="nav-link" href="#contacts">Контакты</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ portal_url }}">Личный кабинет</a></li>
+          {% if booking_on %}
           <li class="nav-item">
-            {% if saas %}
-            <a class="btn btn-sm ms-lg-2" href="{{ url_for('portal.home', slug=slug) }}">Личный кабинет</a>
-            {% else %}
-            <a class="btn btn-sm ms-lg-2" href="{{ url_for('portal.home') }}">Личный кабинет</a>
-            {% endif %}
+            <button type="button" class="btn btn-sm ms-lg-2" data-booking-open data-kind="trial" data-title="Запись в клуб">Записаться</button>
           </li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -41,25 +52,38 @@
   <main class="app-main" id="top">
     <section class="club-site-hero">
       <div class="club-container">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-7">
-            <p class="club-kicker">Сильнее каждый день</p>
+        <div class="club-hero-grid">
+          <div class="club-hero-copy">
+            <p class="club-kicker">{{ site.hero_kicker or 'Сильнее каждый день' }}</p>
             <h1>{{ site.headline or club_name }}</h1>
-            <p class="club-site-hero-lead">{{ site.about_text or 'Тренируйтесь в современном клубе с сильной командой и удобным расписанием.' }}</p>
+            <p class="club-site-hero-lead">{{ site.hero_lead or 'Тренируйтесь в современном клубе с сильной командой и удобным расписанием.' }}</p>
             <div class="d-flex flex-wrap gap-2 mt-3">
-              {% if saas %}
-              <a class="btn" href="{{ url_for('portal.home', slug=slug) }}">Начать тренировку</a>
-              <a class="btn secondary" href="{{ url_for('auth.login', slug=slug) }}">Вход сотрудникам</a>
+              {% if booking_on %}
+              <button type="button" class="btn" data-booking-open data-kind="trial" data-title="Запись в клуб">{{ cta_text }}</button>
+              <a class="btn secondary" href="{{ portal_url }}">Личный кабинет</a>
               {% else %}
-              <a class="btn" href="{{ url_for('portal.home') }}">Начать тренировку</a>
+              <a class="btn" href="{{ portal_url }}">{{ cta_text }}</a>
+              {% endif %}
+              {% if saas %}
+              <a class="btn secondary" href="{{ url_for('auth.login', slug=slug) }}">Вход сотрудникам</a>
               {% endif %}
             </div>
+            <ul class="club-hero-stats">
+              <li><strong>{{ trainers|length }}</strong><span>тренеров</span></li>
+              <li><strong>{{ sessions|length }}</strong><span>занятий на неделе</span></li>
+              <li><strong>{{ plans|length }}</strong><span>тарифов</span></li>
+            </ul>
           </div>
-          <div class="col-lg-5">
-            <aside class="panel">
+          <div class="club-hero-visual">
+            {% if site.hero_photo_path %}
+            <figure class="club-hero-shot">
+              <img src="{{ url_for('static', filename=site.hero_photo_path) }}" alt="{{ club_name }}">
+            </figure>
+            {% endif %}
+            <aside class="panel club-hero-hours">
               <div class="feature-icon"><i class="bi bi-clock" aria-hidden="true"></i></div>
               <p class="club-kicker mb-1">Сегодня открыты</p>
-              <strong style="font-size:1.15rem;">{{ site.hours_text or 'Уточните часы работы' }}</strong>
+              <strong>{{ site.hours_text or 'Уточните часы работы' }}</strong>
               {% if site.address %}<p class="muted mt-2 mb-1"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ site.address }}</p>{% endif %}
               {% if site.phone %}<p class="mb-0"><a href="tel:{{ site.phone }}"><i class="bi bi-telephone me-1" aria-hidden="true"></i>{{ site.phone }}</a></p>{% endif %}
             </aside>
@@ -68,16 +92,32 @@
       </div>
     </section>
 
+    {% if amenities is sequence and amenities %}
+    <section class="club-section-new" id="amenities">
+      <div class="club-container">
+        <p class="club-kicker">Пространство</p>
+        <h2 class="club-heading mb-3">Зоны клуба</h2>
+        <div class="club-amenity-grid">
+          {% for item in amenities %}
+          <article class="club-card club-amenity-card">
+            <div class="feature-icon"><i class="bi bi-{{ item.icon }}" aria-hidden="true"></i></div>
+            <h3>{{ item.title }}</h3>
+            {% if item.text %}<p class="muted mb-0">{{ item.text }}</p>{% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
     <section class="club-section-new" id="about">
       <div class="club-container">
-        <div class="row g-3 align-items-start">
-          <div class="col-md-4">
+        <div class="club-about-modern">
+          <div>
             <p class="club-kicker">О клубе</p>
-            <h2 class="club-heading">Пространство для результата</h2>
+            <h2 class="club-heading">{{ site.about_heading or 'Пространство для результата' }}</h2>
           </div>
-          <div class="col-md-8">
-            <p class="muted mb-0" style="font-size:1.05rem;">{{ site.about_text or 'Всё необходимое для персональных и групповых тренировок в одном клубе.' }}</p>
-          </div>
+          <p class="club-about-copy">{{ site.about_text or 'Всё необходимое для персональных и групповых тренировок в одном клубе.' }}</p>
         </div>
       </div>
     </section>
@@ -88,7 +128,7 @@
         <h2 class="club-heading mb-3">Выберите свой ритм</h2>
         <div class="club-card-grid">
           {% for plan in plans %}
-          <article class="club-card">
+          <article class="club-card club-price-card {% if loop.index == 2 %}is-featured{% endif %}">
             <div class="feature-icon"><i class="bi bi-card-checklist" aria-hidden="true"></i></div>
             <h3>{{ plan.name }}</h3>
             <p class="muted">{{ plan.description or 'Доступ к тренировкам клуба' }}</p>
@@ -124,6 +164,15 @@
               <small class="club-kicker">Ближайшее</small>
               <p class="mb-0">{{ trainer.upcoming[0].starts_at.strftime('%d.%m · %H:%M') }} · {{ trainer.upcoming[0].class_name }}</p>
               {% endif %}
+              {% if booking_on %}
+              <button type="button" class="btn btn-sm mt-3" data-booking-open data-kind="trainer" data-trainer="{{ trainer.id }}"
+                      data-title="Персональная тренировка" data-target="{{ trainer.full_name }}">
+                {% if trainer.open_slots %}Выбрать время{% else %}Записаться{% endif %}
+              </button>
+              {% if trainer.open_slots %}
+              <p class="muted small mb-0 mt-2">{{ trainer.open_slots|length }} свободных окон</p>
+              {% endif %}
+              {% endif %}
             </div>
           </article>
           {% else %}
@@ -137,14 +186,26 @@
     <section class="club-section-new" id="gallery">
       <div class="club-container">
         <p class="club-kicker">Атмосфера</p>
-        <h2 class="club-heading mb-3">Посмотрите клуб</h2>
-        <div class="gallery-modern">
+        <h2 class="club-heading mb-3">{{ site.gallery_heading or 'Посмотрите клуб' }}</h2>
+        <div class="club-gallery-bento d-none d-md-grid">
           {% for photo in photos %}
-          <figure>
+          <button type="button" class="club-gallery-item {% if loop.first %}is-feature{% endif %}" data-nika-lightbox data-full="{{ url_for('static', filename=photo.photo_path) }}" data-caption="{{ photo.caption or club_name }}">
             <img src="{{ url_for('static', filename=photo.photo_path) }}" alt="{{ photo.caption or club_name }}">
-            {% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}
-          </figure>
+            {% if photo.caption %}<span>{{ photo.caption }}</span>{% endif %}
+          </button>
           {% endfor %}
+        </div>
+        <div class="swiper club-gallery-swiper d-md-none" id="club-gallery-swiper">
+          <div class="swiper-wrapper">
+            {% for photo in photos %}
+            <div class="swiper-slide">
+              <button type="button" class="club-gallery-item" data-full="{{ url_for('static', filename=photo.photo_path) }}" data-caption="{{ photo.caption or club_name }}">
+                <img src="{{ url_for('static', filename=photo.photo_path) }}" alt="{{ photo.caption or club_name }}">
+                {% if photo.caption %}<span>{{ photo.caption }}</span>{% endif %}
+              </button>
+            </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </section>
@@ -153,23 +214,100 @@
     <section class="club-section-new" id="schedule">
       <div class="club-container">
         <p class="club-kicker">Групповые тренировки</p>
-        <h2 class="club-heading mb-3">Расписание недели</h2>
-        <div class="club-glass schedule-modern">
-          {% for item in sessions %}
-          <div class="club-schedule-card">
-            <time class="club-schedule-time">{{ item.starts_at.strftime('%d.%m') }}<br>{{ item.starts_at.strftime('%H:%M') }}</time>
-            <div>
-              <strong>{{ item.class_name }}</strong>
-              <p class="muted mb-0">{{ item.trainer_name or 'Тренер клуба' }}</p>
+        <h2 class="club-heading mb-3">Ближайшие 7 дней</h2>
+        {% if booking_on %}
+        <p class="muted club-schedule-hint">Нажмите на занятие, чтобы оставить заявку — личный кабинет не нужен.</p>
+        {% endif %}
+        <div class="club-week-grid">
+          {% for day_group in sessions_by_day %}
+          <article class="club-glass club-week-col">
+            <header>
+              <strong>{{ weekdays[day_group.day.weekday()] }}</strong>
+              <span class="muted">{{ day_group.day.strftime('%d.%m') }}</span>
+            </header>
+            {% for class_row in day_group.lessons %}
+            {% set is_full = class_row.is_full %}
+            {% set is_past = class_row.is_past %}
+            <div class="club-week-row {% if is_past %}is-past{% endif %}">
+              <time>{{ class_row.starts_at.strftime('%H:%M') }}</time>
+              <div>
+                <strong>{{ class_row.class_name }}</strong>
+                <p class="muted mb-0">{{ class_row.trainer_name or 'Тренер клуба' }}</p>
+              </div>
+              <div class="club-week-actions">
+                <span class="pill {% if is_full %}warn{% else %}ok{% endif %}">{{ class_row.booked_count }}/{{ class_row.capacity }}</span>
+                {% if booking_on and not is_past %}
+                <button type="button" class="btn btn-sm club-week-book" data-booking-open data-kind="class"
+                        data-session="{{ class_row.id }}" data-title="Групповая тренировка"
+                        data-target="{{ class_row.class_name }} · {{ weekdays[class_row.starts_at.weekday()] }} {{ class_row.starts_at.strftime('%d.%m в %H:%M') }}{% if class_row.trainer_name %} · {{ class_row.trainer_name }}{% endif %}">
+                  {% if is_full %}В лист ожидания{% else %}Записаться{% endif %}
+                </button>
+                {% endif %}
+              </div>
             </div>
-            <span class="pill ok">{{ item.booked_count }}/{{ item.capacity }}</span>
-          </div>
+            {% endfor %}
+          </article>
           {% else %}
-          <div class="club-schedule-card"><p class="muted mb-0">На эту неделю занятий нет</p></div>
+          <div class="club-glass club-schedule-card"><p class="muted mb-0">На эту неделю занятий нет</p></div>
           {% endfor %}
         </div>
       </div>
     </section>
+
+    {% if booking_on %}
+    <section class="club-section-new" id="booking">
+      <div class="club-container">
+        <p class="club-kicker">Запись</p>
+        <h2 class="club-heading mb-3">Записаться без личного кабинета</h2>
+        {% with messages = get_flashed_messages(with_categories=true, category_filter=['booking_ok', 'booking_error']) %}
+        {% if messages %}
+        <div class="club-booking-flash">
+          {% for category, message in messages %}
+          <p class="club-booking-alert {% if category == 'booking_error' %}is-error{% else %}is-ok{% endif %}">
+            <i class="bi {% if category == 'booking_error' %}bi-exclamation-triangle{% else %}bi-check-circle{% endif %} me-2" aria-hidden="true"></i>{{ message }}
+          </p>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <div class="club-booking-grid">
+          <ol class="club-booking-steps">
+            <li>
+              <span class="club-booking-step-num">1</span>
+              <div>
+                <strong>Выберите тренировку</strong>
+                <p class="muted mb-0">Групповое занятие в расписании или свободное окно тренера.</p>
+              </div>
+            </li>
+            <li>
+              <span class="club-booking-step-num">2</span>
+              <div>
+                <strong>Оставьте имя и телефон</strong>
+                <p class="muted mb-0">Регистрация и пароль не нужны — только контакт для связи.</p>
+              </div>
+            </li>
+            <li>
+              <span class="club-booking-step-num">3</span>
+              <div>
+                <strong>Мы перезвоним и подтвердим</strong>
+                <p class="muted mb-0">Администратор закрепит за вами место и расскажет, что взять с собой.</p>
+              </div>
+            </li>
+          </ol>
+          <aside class="club-glass club-booking-cta">
+            <div class="feature-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></div>
+            <h3>Первый раз в клубе?</h3>
+            <p class="muted">{{ site.booking_note or 'Оставьте заявку на пробную тренировку — подберём формат и время под вас.' }}</p>
+            <button type="button" class="btn w-100" data-booking-open data-kind="trial" data-title="Пробное занятие">Оставить заявку</button>
+            {% if site.phone %}
+            <p class="muted mb-0 mt-3">Или позвоните: <a href="tel:{{ site.phone }}">{{ site.phone }}</a></p>
+            {% endif %}
+            <p class="muted small mb-0 mt-2">Уже занимаетесь? <a href="{{ portal_url }}">Войдите в личный кабинет</a> — там видны ваши записи и QR-пропуск.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+    {% endif %}
 
     <section class="club-section-new" id="load">
       <div class="club-container">
@@ -213,8 +351,157 @@
         <span class="brand-mark brand-mark-sm">{{ brand_letters }}</span>
         <strong>{{ club_name }}</strong>
       </div>
-      <span class="muted">Тренируйтесь. Прогрессируйте. Возвращайтесь.</span>
+      <span class="muted">{{ site.footer_tagline or 'Тренируйтесь. Прогрессируйте. Возвращайтесь.' }}</span>
     </div>
   </footer>
 </div>
+
+{% if booking_on %}
+<div class="modal fade club-booking-modal" id="club-booking-modal" tabindex="-1" aria-labelledby="club-booking-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content club-glass" method="post" action="{{ booking_action }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="kind" value="trial" data-booking-kind>
+      <input type="hidden" name="session_id" value="" data-booking-session>
+      <input type="hidden" name="trainer_id" value="" data-booking-trainer>
+      <div class="modal-header">
+        <div>
+          <p class="club-kicker mb-1" data-booking-kicker>Заявка</p>
+          <h2 class="h5 mb-0" id="club-booking-title" data-booking-title>Запись в клуб</h2>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <p class="club-booking-target" data-booking-target hidden></p>
+        <div class="mb-3" data-booking-slots hidden>
+          <label class="form-label" for="club-booking-slot">Свободное время</label>
+          <select class="form-select" id="club-booking-slot" name="slot_id" data-booking-slot-select>
+            <option value="">Подберите время со мной</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="club-booking-name">Как вас зовут</label>
+          <input class="form-control" id="club-booking-name" name="full_name" type="text" required maxlength="120" autocomplete="name" placeholder="Имя и фамилия">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="club-booking-phone">Телефон</label>
+          <input class="form-control" id="club-booking-phone" name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+7 900 000-00-00">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="club-booking-comment">Комментарий <span class="muted">(необязательно)</span></label>
+          <textarea class="form-control" id="club-booking-comment" name="comment" rows="2" maxlength="500" placeholder="Опыт тренировок, удобное время, вопросы"></textarea>
+        </div>
+        <div class="club-booking-trap" aria-hidden="true">
+          <label for="club-booking-website">Не заполняйте это поле</label>
+          <input id="club-booking-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <p class="muted small mb-0">Нажимая «Отправить», вы соглашаетесь на обработку персональных данных для связи по заявке.</p>
+      </div>
+      <div class="modal-footer">
+        <a class="btn secondary" href="{{ portal_url }}">Я уже занимаюсь</a>
+        <button class="btn" type="submit">Отправить заявку</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="nika-lightbox" id="nika-lightbox" hidden>
+  <button type="button" class="nika-lightbox-close" data-nika-lightbox-close aria-label="Закрыть">×</button>
+  <button type="button" class="nika-lightbox-nav prev" data-nika-lightbox-prev aria-label="Назад">‹</button>
+  <figure class="nika-lightbox-figure">
+    <img src="" alt="" data-nika-lightbox-img>
+    <figcaption data-nika-lightbox-caption></figcaption>
+  </figure>
+  <button type="button" class="nika-lightbox-nav next" data-nika-lightbox-next aria-label="Вперёд">›</button>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='vendor/swiper/11.2.10/swiper-bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nika-lightbox.js') }}"></script>
+<script>
+(function () {
+  if (window.NikaLightbox) {
+    NikaLightbox.bind({ items: '[data-nika-lightbox]', box: '#nika-lightbox' });
+  }
+  var el = document.getElementById('club-gallery-swiper');
+  if (el && window.Swiper) {
+    new Swiper(el, {
+      slidesPerView: 1.12,
+      spaceBetween: 12,
+      speed: 550
+    });
+    el.querySelectorAll('.club-gallery-item').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var match = document.querySelector('.club-gallery-bento [data-full="' + btn.getAttribute('data-full') + '"]');
+        if (match) match.click();
+      });
+    });
+  }
+})();
+</script>
+{% if booking_on %}
+<script>
+(function () {
+  var modalEl = document.getElementById('club-booking-modal');
+  if (!modalEl || !window.bootstrap) return;
+  var openSlots = {{ trainer_open_slots|tojson }};
+  var modal = new bootstrap.Modal(modalEl);
+  var kindField = modalEl.querySelector('[data-booking-kind]');
+  var sessionField = modalEl.querySelector('[data-booking-session]');
+  var trainerField = modalEl.querySelector('[data-booking-trainer]');
+  var kicker = modalEl.querySelector('[data-booking-kicker]');
+  var title = modalEl.querySelector('[data-booking-title]');
+  var target = modalEl.querySelector('[data-booking-target]');
+  var slotsBox = modalEl.querySelector('[data-booking-slots]');
+  var slotSelect = modalEl.querySelector('[data-booking-slot-select]');
+  var kickers = {
+    class: 'Групповая тренировка',
+    trainer: 'Персональная тренировка',
+    trial: 'Пробное занятие'
+  };
+
+  function fillSlots(trainerId) {
+    var list = openSlots[trainerId] || [];
+    slotSelect.innerHTML = '';
+    var any = document.createElement('option');
+    any.value = '';
+    any.textContent = list.length ? 'Другое время — подберём вместе' : 'Подберём удобное время';
+    slotSelect.appendChild(any);
+    list.forEach(function (slot) {
+      var option = document.createElement('option');
+      option.value = slot.id;
+      option.textContent = slot.label;
+      slotSelect.appendChild(option);
+    });
+    if (list.length) {
+      slotSelect.selectedIndex = 1;
+    }
+    slotsBox.hidden = !list.length;
+  }
+
+  document.querySelectorAll('[data-booking-open]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var kind = btn.getAttribute('data-kind') || 'trial';
+      var trainerId = btn.getAttribute('data-trainer') || '';
+      kindField.value = kind;
+      sessionField.value = btn.getAttribute('data-session') || '';
+      trainerField.value = trainerId;
+      kicker.textContent = kickers[kind] || 'Заявка';
+      title.textContent = btn.getAttribute('data-title') || 'Запись в клуб';
+      var label = btn.getAttribute('data-target') || '';
+      target.textContent = label;
+      target.hidden = !label;
+      if (kind === 'trainer' && trainerId) {
+        fillSlots(trainerId);
+      } else {
+        slotSelect.innerHTML = '';
+        slotsBox.hidden = true;
+      }
+      modal.show();
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

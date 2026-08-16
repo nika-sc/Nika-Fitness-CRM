@@ -8,6 +8,7 @@ Node.js build step.
 | AdminLTE | 4.2.0 | https://github.com/ColorlibHQ/AdminLTE | MIT |
 | Bootstrap | 5.3.8 | https://github.com/twbs/bootstrap | MIT |
 | Bootstrap Icons | 1.13.1 | https://github.com/twbs/icons | MIT |
+| Swiper | 11.2.10 | https://github.com/nolimits4web/swiper | MIT |
 
 Do not edit minified vendor files. Put Nika Fitness customizations in
 `static/css/nika-admin.css` and behavior in `static/js/nika-admin.js`.

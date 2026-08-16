@@ -108,7 +108,7 @@
           </li>
       {% endif %}
 
-      {% if has_permission('view_memberships') or (has_permission('manage_leads') and feature_enabled('module_leads')) or (has_permission('manage_loyalty') and feature_enabled('module_loyalty')) %}
+      {% if has_permission('view_memberships') or has_permission('manage_site_requests') or (has_permission('manage_leads') and feature_enabled('module_leads')) or (has_permission('manage_loyalty') and feature_enabled('module_loyalty')) %}
           <li class="nav-header">Продажи</li>
       {% endif %}
       {% if has_permission('view_memberships') %}
@@ -122,6 +122,9 @@
               <i class="nav-icon bi bi-wallet2"></i><p>Оплаты</p>
             </a>
           </li>
+      {% endif %}
+      {% if has_permission('manage_site_requests') %}
+          <li class="nav-item"><a href="{{ url_for('site_requests.index') }}" class="nav-link {% if ep.startswith('site_requests.') %}active{% endif %}"><i class="nav-icon bi bi-inbox"></i><p>Заявки с сайта {% if new_site_requests %}<span class="nav-badge badge">{{ new_site_requests }}</span>{% endif %}</p></a></li>
       {% endif %}
       {% if has_permission('manage_leads') and feature_enabled('module_leads') %}
           <li class="nav-item"><a href="{{ url_for('leads.index') }}" class="nav-link {% if ep.startswith('leads.') %}active{% endif %}"><i class="nav-icon bi bi-funnel"></i><p>Лиды</p></a></li>

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Заявки с сайта{% endblock %}
+
+{% set status_pills = {
+  'new': 'warn',
+  'contacted': 'ok',
+  'confirmed': 'ok',
+  'declined': 'danger',
+  'spam': 'danger'
+} %}
+
+{% macro filter_link(key, label, count) %}
+<a class="btn btn-sm {% if status != key %}secondary{% endif %}" href="{{ url_for('site_requests.index', status=key) }}">
+  {{ label }}{% if count %} · {{ count }}{% endif %}
+</a>
+{% endmacro %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Заявки с сайта</h1>
+    <p class="muted">Гости оставляют запись на сайте клуба без личного кабинета. Место занимается только после вашего подтверждения.</p>
+  </div>
+  <a class="btn secondary" href="{{ url_for('site_admin.edit') }}">Настройки сайта</a>
+</div>
+
+<div class="panel">
+  <div class="d-flex flex-wrap gap-2">
+    {{ filter_link('open', 'В работе', counts.new + counts.contacted) }}
+    {{ filter_link('new', 'Новые', counts.new) }}
+    {{ filter_link('confirmed', 'Записаны', counts.confirmed) }}
+    {{ filter_link('declined', 'Отказы', 0) }}
+    {{ filter_link('spam', 'Спам', 0) }}
+  </div>
+</div>
+
+{% for r in requests %}
+<article class="panel mt-3 site-request">
+  <div class="site-request-head">
+    <div>
+      <span class="pill {{ status_pills.get(r.status, 'ok') }}">{{ status_label(r.status) }}</span>
+      <strong class="ms-2">{{ kind_label(r.kind) }}</strong>
+      <p class="mb-0 mt-1">{{ r.target_label or '—' }}</p>
+      {% if r.slot_id and r.slot_status and r.slot_status != 'open' and r.status not in ('confirmed', 'declined', 'spam') %}
+      <p class="muted mb-0"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>Это окно тренера уже занято — предложите другое время</p>
+      {% endif %}
+    </div>
+    <div class="site-request-contact">
+      <strong>{{ r.full_name }}</strong>
+      <p class="mb-0"><a href="tel:{{ r.phone }}">{{ r.phone }}</a></p>
+      <small class="muted">{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+    </div>
+  </div>
+
+  {% if r.comment %}
+  <p class="site-request-comment">«{{ r.comment }}»</p>
+  {% endif %}
+
+  <div class="site-request-actions">
+    {% if r.member_id %}
+    <div class="site-request-member">
+      <span class="muted">Клиент:</span>
+      <a href="{{ url_for('members.detail', member_id=r.member_id) }}">{{ r.member_name }}</a>
+      <span class="muted">· {{ r.member_card }}</span>
+      {% if r.member_name != r.full_name %}
+      <span class="pill warn" title="Совпадение по номеру телефона — проверьте, тот ли это клиент">по телефону</span>
+      {% endif %}
+    </div>
+    {% if r.status != 'confirmed' %}
+    {% set books_a_seat = (r.kind == 'class' and r.session_id) or (r.kind == 'trainer' and r.slot_id) %}
+    <form method="post" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="confirm">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <button class="btn btn-sm" type="submit">
+        {% if r.session_full %}В лист ожидания{% elif books_a_seat %}Записать и подтвердить{% else %}Подтвердить{% endif %}
+      </button>
+    </form>
+    {% endif %}
+    {% else %}
+    <form method="post" class="d-flex gap-2 flex-wrap align-items-center">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="link_member">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <select class="form-select" name="member_id" required style="max-width:20rem;">
+        <option value="">— найти клиента —</option>
+        {% for m in members %}
+        <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}{% if m.phone %} · {{ m.phone }}{% endif %}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-sm secondary" type="submit">Привязать</button>
+    </form>
+    <form method="post" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="create_member">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <button class="btn btn-sm" type="submit">Создать карточку</button>
+    </form>
+    {% endif %}
+
+    {% if r.status in ('new', 'contacted') %}
+    <form method="post" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="status">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <input type="hidden" name="status" value="contacted">
+      <button class="btn btn-sm secondary" type="submit">Связались</button>
+    </form>
+    <form method="post" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="status">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <input type="hidden" name="status" value="declined">
+      <button class="btn btn-sm secondary" type="submit">Отказ</button>
+    </form>
+    <form method="post" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="status">
+      <input type="hidden" name="request_id" value="{{ r.id }}">
+      <input type="hidden" name="status" value="spam">
+      <button class="btn btn-sm secondary" type="submit">Спам</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <form method="post" class="site-request-note">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="note">
+    <input type="hidden" name="request_id" value="{{ r.id }}">
+    <input class="form-control" name="staff_note" maxlength="500" value="{{ r.staff_note }}" placeholder="Комментарий администратора">
+    <button class="btn btn-sm secondary" type="submit">Сохранить</button>
+  </form>
+
+  {% if r.processed_by_name %}
+  <small class="muted">Обработал: {{ r.processed_by_name }}{% if r.processed_at %} · {{ r.processed_at.strftime('%d.%m %H:%M') }}{% endif %}</small>
+  {% endif %}
+</article>
+{% else %}
+<div class="panel mt-3">
+  <p class="muted mb-0">Заявок в этом статусе нет. Проверьте, что сайт клуба опубликован и приём заявок включён в разделе «Сайт клуба».</p>
+</div>
+{% endfor %}
+{% endblock %}
