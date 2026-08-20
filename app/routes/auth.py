@@ -11,6 +11,30 @@ from app.utils.session_lifetime import next_midnight_timestamp
 bp = Blueprint('auth', __name__)
 
 
+def perform_staff_login(username: str, password: str, remember: bool):
+    """Authenticate staff inside the already resolved tenant context.
+
+    Returns an error message, or None when the session is established.
+    Callers must have g.tenant_slug set for the club being entered.
+    """
+    tenant_slug = getattr(g, 'tenant_slug', None) or 'legacy'
+    client_key = f"{request.remote_addr}:{tenant_slug}:{username.lower()}"
+    user, err = UserService.authenticate(
+        username, password, client_key, current_app.config, ip=request.remote_addr or '',
+    )
+    if err:
+        return err
+    rotate_session()
+    session['tenant_slug'] = tenant_slug
+    if remember:
+        session.permanent = True
+        session['staff_until'] = next_midnight_timestamp(
+            current_app.config.get('TIMEZONE_OFFSET', 3)
+        )
+    login_user(User(user), remember=False)
+    return None
+
+
 @bp.route('/login', methods=['GET', 'POST'])
 @limiter.limit('10 per minute', methods=['POST'])
 def login():
@@ -20,25 +44,14 @@ def login():
     if getattr(g, 'tenant', None):
         club_name = g.tenant.get('name')
     if request.method == 'POST':
-        username = (request.form.get('username') or '').strip()
-        password = request.form.get('password') or ''
-        tenant_slug = getattr(g, 'tenant_slug', None) or 'legacy'
-        client_key = f"{request.remote_addr}:{tenant_slug}:{username.lower()}"
-        user, err = UserService.authenticate(
-            username, password, client_key, current_app.config, ip=request.remote_addr or '',
+        err = perform_staff_login(
+            (request.form.get('username') or '').strip(),
+            request.form.get('password') or '',
+            bool(request.form.get('remember')),
         )
         if err:
             flash(err, 'error')
             return render_template('auth/login.html', club_name=club_name), 401
-        rotate_session()
-        session['tenant_slug'] = tenant_slug
-        remember = bool(request.form.get('remember'))
-        if remember:
-            session.permanent = True
-            session['staff_until'] = next_midnight_timestamp(
-                current_app.config.get('TIMEZONE_OFFSET', 3)
-            )
-        login_user(User(user), remember=False)
         nxt = safe_next_url(request.args.get('next'), url_for('main.dashboard'))
         return redirect(nxt)
     return render_template('auth/login.html', club_name=club_name)

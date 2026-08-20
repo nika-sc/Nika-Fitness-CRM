@@ -60,6 +60,8 @@ def smoke_saas() -> None:
     eps = _endpoints(app)
     assert 'public.index' in eps
     assert 'platform.register' in eps
+    assert 'platform.login' in eps
+    assert 'platform.demo' in eps
     assert 'platform_admin.login' in eps
     assert any('/t/<slug>' in str(r) for r in app.url_map.iter_rules())
     print('saas OK', sorted(e for e in eps if e and e.startswith(('public.', 'platform'))))

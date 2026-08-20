@@ -51,4 +51,4 @@ summary: Гость выбирает занятие или тренера пря
 2. Примените миграцию `019_site_booking_requests`: `python scripts/run_migrations.py --legacy` (в Docker — через entrypoint при перезапуске).
 3. Проверьте в разделе **Сайт клуба**, что стоит галочка «Принимать заявки с сайта».
 
-Подробности — в [руководстве](/docs). Демо: [fitness.nika-crm.ru](https://fitness.nika-crm.ru/). Вопросы: info@nika-sc.ru.
+Подробности — в [руководстве](/docs). Демо: [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo). Вопросы: info@nika-sc.ru.

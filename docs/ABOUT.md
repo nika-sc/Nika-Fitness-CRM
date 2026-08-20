@@ -4,7 +4,7 @@
 
 Мы создали её, чтобы **учёт клуба был доступным**: без обязательной дорогой подписки можно вести зал на своём сервере (open-source) и познакомиться с продуктом на живом демо. Цель простая и человеческая — **привлечь больше людей к спорту** и **помочь начинающим руководителям** фитнес-центров запускать клуб, популяризировать тренировки и держать порядок в клиентах, визитах и оплатах с первого дня.
 
-- Живое демо: [fitness.nika-crm.ru](https://fitness.nika-crm.ru/)
+- Живое демо: [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo)
 - Бренд-хаб: [nika-crm.ru](https://www.nika-crm.ru/)
 - Self-hosted на GitHub: [Nika-Fitness-CRM](https://github.com/nika-sc/Nika-Fitness-CRM)
 - Лицензия публичного среза: MIT
@@ -32,9 +32,9 @@
 
 ## Живое демо
 
-На [fitness.nika-crm.ru](https://fitness.nika-crm.ru/) можно сразу войти сотрудником демо-клуба (`/t/nika/login`, `admin` / `admin123`), открыть ЛК клиента и публичный сайт клуба.
+Демо-стенд — [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo): вход сотрудником демо-клуба (`admin` / `admin123`), личный кабинет клиента и публичный сайт клуба. Данные там вымышленные и периодически сбрасываются.
 
-Подробности развёртывания у себя — на [главной](/#deploy) и в [DEPLOY.md](https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/DEPLOY.md).
+Подробности развёртывания у себя — в [документации](/docs) и в [DEPLOY.md](https://github.com/nika-sc/Nika-Fitness-CRM/blob/master/docs/DEPLOY.md).
 
 ## Linux / Docker
 

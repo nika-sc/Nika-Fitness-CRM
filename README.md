@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://www.nika-crm.ru/"><img src="https://img.shields.io/badge/Hub-nika--crm.ru-ff5a3c?style=for-the-badge" alt="Nika CRM hub"></a>
-  <a href="https://fitness.nika-crm.ru/"><img src="https://img.shields.io/badge/Demo-Fitness-ff5a3c?style=for-the-badge" alt="Live demo Fitness"></a>
+  <a href="https://fitness.nika-crm.ru/demo"><img src="https://img.shields.io/badge/Demo-Fitness-ff5a3c?style=for-the-badge" alt="Live demo Fitness"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2d6a4f?style=for-the-badge" alt="MIT"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/Python-3.12%2B-3776ab?style=for-the-badge" alt="Python"></a>
   <a href="docs/DEPLOY.md"><img src="https://img.shields.io/badge/PostgreSQL-18%2B-336791?style=for-the-badge" alt="PostgreSQL"></a>
@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="https://www.nika-crm.ru/"><b>Все продукты</b></a> ·
-  <a href="https://fitness.nika-crm.ru/"><b>Демо Fitness</b></a> ·
+  <a href="https://fitness.nika-crm.ru/demo"><b>Демо Fitness</b></a> ·
   <a href="#установка"><b>Установка</b></a> ·
   <a href="docs/USER_GUIDE.md"><b>Руководство</b></a> ·
   <a href="docs/USER_WALKTHROUGH.md"><b>Сценарий дня</b></a> ·
@@ -29,7 +29,7 @@
   <a href="#лицензия-и-контакты"><b>Связаться</b></a>
 </p>
 
-**Домены:** [www.nika-crm.ru](https://www.nika-crm.ru/) (хаб) · [fitness.nika-crm.ru](https://fitness.nika-crm.ru/) (демо Fitness) · Service CRM — [service.nika-crm.ru](https://service.nika-crm.ru/) / [Nika-Service-CRM](https://github.com/nika-sc/Nika-Service-CRM)
+**Домены:** [www.nika-crm.ru](https://www.nika-crm.ru/) (хаб) · [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo) (демо Fitness) · Service CRM — [service.nika-crm.ru](https://service.nika-crm.ru/) / [Nika-Service-CRM](https://github.com/nika-sc/Nika-Service-CRM)
 
 > **Не хотите разбираться с установкой сами?**  
 > Помогу развернуть CRM на **Linux VPS** или **Windows в зале** (Docker, домен, HTTPS, бэкапы) — по запросу.  

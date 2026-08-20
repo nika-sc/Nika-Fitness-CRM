@@ -36,4 +36,4 @@ summary: Живой поиск на ресепшене, короткие ном�
 
 Подробные шаги для стойки и кассы — в [руководстве](/docs) и сценарии рабочего дня.
 
-Демо: [fitness.nika-crm.ru](https://fitness.nika-crm.ru/). Вопросы: info@nika-sc.ru.
+Демо: [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo). Вопросы: info@nika-sc.ru.

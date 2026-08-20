@@ -35,4 +35,4 @@ summary: Тренер открывает свои окна, клиент зап�
 2. Примените миграции `016_trainer_slots` и `017_trainer_slot_confirm`: `python scripts/run_migrations.py --legacy` (Docker — через entrypoint при перезапуске).
 3. Привяжите учётную запись тренера, как выше.
 
-Подробности — в [руководстве](/docs). Демо: [fitness.nika-crm.ru](https://fitness.nika-crm.ru/). Вопросы: info@nika-sc.ru.
+Подробности — в [руководстве](/docs). Демо: [fitness.nika-crm.ru/demo](https://fitness.nika-crm.ru/demo). Вопросы: info@nika-sc.ru.

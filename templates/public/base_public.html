@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="index, follow, max-image-preview:large">
+  {% block robots %}<meta name="robots" content="index, follow, max-image-preview:large">{% endblock %}
   <title>{% block title %}Бесплатная CRM для фитнес-клубов — Nika Fitness CRM{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Nika Fitness CRM — бесплатная open-source CRM для фитнес-клубов: ресепшен, абонементы, расписание, ЛК с QR и сайт клуба. Self-hosted на Linux или Windows.{% endblock %}">
   <meta name="keywords" content="{% block meta_keywords %}бесплатная CRM для фитнес клуба, CRM фитнес open source, абонементы, ресепшен, расписание занятий, ЛК клиента, Nika Fitness CRM, self-hosted{% endblock %}">
@@ -53,13 +53,15 @@
           <li class="nav-item"><a class="nav-link {% if ep.startswith('public.docs') %}active{% endif %}" href="{{ url_for('public.docs') }}">Документация</a></li>
           <li class="nav-item"><a class="nav-link {% if ep.startswith('public.blog') %}active{% endif %}" href="{{ url_for('public.blog') }}">Блог</a></li>
           <li class="nav-item">
-            <a class="ml-btn ml-btn-primary btn-sm ms-lg-2" href="{{ url_for('auth.login', slug='nika') }}">
-              <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Войти в демо
+            <a class="ml-btn ml-btn-primary btn-sm ms-lg-2" href="{{ url_for('public.index') }}">
+              <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Войти
             </a>
           </li>
+          {% if saas_mode %}
           <li class="nav-item">
-            <a class="ml-btn ml-btn-ghost btn-sm" href="{{ url_for('club_public.landing', slug='nika') }}">Сайт клуба</a>
+            <a class="ml-btn ml-btn-ghost btn-sm" href="{{ url_for('platform.demo') }}">Демо-стенд</a>
           </li>
+          {% endif %}
           {% endblock %}
         </ul>
       </div>
@@ -77,7 +79,8 @@
         <strong>Nika Fit</strong>
       </div>
       <div class="public-footer-links">
-        <a href="{{ url_for('public.index') }}">Главная</a>
+        <a href="{{ url_for('public.index') }}">Вход</a>
+        {% if saas_mode %}<a href="{{ url_for('platform.demo') }}">Демо-стенд</a>{% endif %}
         <a href="{{ url_for('public.docs') }}">Документация</a>
         <a href="{{ url_for('public.blog') }}">Блог</a>
       </div>
