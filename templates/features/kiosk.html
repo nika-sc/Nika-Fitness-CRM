@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ru" data-theme="nika-dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Киоск</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-</head><body class="nika-surface">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nika.build.css') }}">
+</head><body>
 <div class="login-page"><div class="login-card" style="max-width:32rem;">
   <h1>Киоск чекина</h1>
   <p class="muted">{{ device.name }}</p>
@@ -13,7 +12,7 @@
     <input type="hidden" name="token" value="{{ token }}">
     <label>Карта / QR</label>
     <input class="checkin-input card-number" name="card_number" autofocus required placeholder="NF…">
-    <button type="submit">Войти</button>
+    <button class="btn" type="submit">Войти</button>
   </form>
 </div></div>
 </body></html>

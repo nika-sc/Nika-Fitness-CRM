@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
+<html lang="ru" data-theme="nika-dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,33 +21,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/5.3.8/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/adminlte/4.2.0/css/adminlte.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-public.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika.build.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
-<body class="layout-top-nav nika-public {% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}">
 {% set ep = request.endpoint or '' %}
 {% block pre_wrapper %}{% endblock %}
 <div class="app-wrapper">
-  <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация сайта">
-    <div class="container-xxl">
-      <a class="navbar-brand brand-link" href="{{ url_for('public.index') }}">
+  <nav class="nika-header navbar" aria-label="Навигация сайта">
+    <div class="container-xxl d-flex justify-content-between align-items-center flex-wrap" style="min-height:68px;">
+      <a class="brand-link" href="{{ url_for('public.index') }}">
         <span class="brand-mark">NF</span>
         <span class="brand-copy">
           <span class="brand-title">Nika Fit</span>
           <span class="brand-subtitle">Fitness CRM</span>
         </span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Меню">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Меню">
         <i class="bi bi-list fs-3" aria-hidden="true"></i>
       </button>
       <div class="collapse navbar-collapse" id="publicNav">
-        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 flex-wrap public-nav-list">
+        <ul class="navbar-nav ms-auto align-items-lg-center public-nav-list">
           {% block nav_items %}
           <li class="nav-item"><a class="nav-link" href="https://nika-crm.ru/" rel="noopener">О CRM</a></li>
           <li class="nav-item"><a class="nav-link {% if ep.startswith('public.docs') %}active{% endif %}" href="{{ url_for('public.docs') }}">Документация</a></li>
@@ -68,7 +63,7 @@
     </div>
   </nav>
 
-  <main class="app-main">
+  <main>
     {% block content %}{% endblock %}
   </main>
 
@@ -87,8 +82,7 @@
     </div>
   </footer>
 </div>
-<script src="{{ url_for('static', filename='vendor/bootstrap/5.3.8/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='vendor/adminlte/4.2.0/js/adminlte.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nika-ui.js') }}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,17 +1,14 @@
 # Vendored UI assets
 
-These files are committed so self-hosted installations work without a CDN or
-Node.js build step.
+Self-hosted installs run without a CDN. Optional Node.js is a **local CSS build**
+(`npm run css`); the compiled file `static/css/nika.build.css` is committed.
 
 | Package | Version | Upstream | License |
 | --- | --- | --- | --- |
-| AdminLTE | 4.2.0 | https://github.com/ColorlibHQ/AdminLTE | MIT |
-| Bootstrap | 5.3.8 | https://github.com/twbs/bootstrap | MIT |
 | Bootstrap Icons | 1.13.1 | https://github.com/twbs/icons | MIT |
 | Swiper | 11.2.10 | https://github.com/nolimits4web/swiper | MIT |
 
-Do not edit minified vendor files. Put Nika Fitness customizations in
-`static/css/nika-admin.css` and behavior in `static/js/nika-admin.js`.
+Source of the product theme: `static/src/nika.css` (Tailwind v4 + daisyUI v5).
+Do not edit `nika.build.css` by hand.
 
-To upgrade, download the pinned `dist`/`font` assets from the corresponding
-release and retain each package's `LICENSE` file.
+AdminLTE and Bootstrap CSS/JS were removed in the 2026 redesign.

@@ -1,0 +1,495 @@
+/* Brand hub nika-crm.ru */
+/*
+ * Brand hub nika-crm.ru — AdminLTE 4 top-nav, shared Nika chrome.
+ */
+:root,
+[data-bs-theme="dark"] {
+  --nika-bg: #08101d;
+  --nika-bg-soft: #0f1929;
+  --nika-surface: #142033;
+  --nika-line: rgba(170, 190, 220, 0.14);
+  --nika-text: #eef4fc;
+  --nika-muted: #94a7c2;
+  --nika-accent: #ff5a3c;
+  --nika-accent-hover: #ff735b;
+  --service-accent: #2bb8a6;
+  --fitness-accent: #ff5a3c;
+  --nika-radius: 14px;
+  --nika-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  --bs-body-bg: var(--nika-bg);
+  --bs-body-color: var(--nika-text);
+  --bs-border-color: var(--nika-line);
+  --bs-primary: var(--nika-accent);
+  --bs-link-color: #ff8b75;
+}
+
+body.nika-hub {
+  min-height: 100vh;
+  font-family: "Manrope", sans-serif;
+  color: var(--nika-text);
+  background:
+    radial-gradient(900px 540px at 98% -5%, rgba(255, 90, 60, 0.1), transparent 58%),
+    radial-gradient(900px 540px at 5% 105%, rgba(43, 184, 166, 0.1), transparent 60%),
+    var(--nika-bg);
+}
+
+.nika-hub .app-wrapper {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.nika-hub .app-header {
+  min-height: 68px;
+  padding-block: .35rem;
+  background: rgba(9, 17, 30, 0.88);
+  border-bottom: 1px solid var(--nika-line);
+  backdrop-filter: blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.nika-hub .navbar-brand.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  color: var(--nika-text);
+  text-decoration: none;
+}
+
+.nika-hub .brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(135deg, var(--nika-accent), #ff8b3d);
+  box-shadow: 0 4px 12px rgba(255, 90, 60, .18);
+}
+
+.nika-hub .brand-mark-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  font-size: 0.72rem;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.nika-hub .brand-copy { line-height: 1.1; }
+.nika-hub .brand-title {
+  display: block;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.nika-hub .brand-subtitle {
+  display: block;
+  color: var(--nika-muted);
+  font-size: .7rem;
+}
+
+.nika-hub .app-header .nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--nika-muted);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: .45rem .8rem;
+  line-height: 1.2;
+}
+.nika-hub .app-header .nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, .06);
+}
+.nika-hub .navbar-toggler { color: var(--nika-text); }
+
+.nika-hub .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  width: auto;
+  padding: .64rem .95rem;
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--nika-accent), #ff793d);
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+.nika-hub .btn:hover { color: #fff; filter: brightness(1.06); }
+.nika-hub .btn.secondary {
+  color: var(--nika-text);
+  background: rgba(255, 255, 255, .045);
+  border-color: var(--nika-line);
+}
+.nika-hub .btn-sm { padding: .42rem .75rem; font-size: .85rem; }
+
+.nika-hub .hub-hero {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: calc(100vh - 68px);
+  padding: clamp(1.4rem, 3.5vh, 2.4rem) 0 clamp(1.6rem, 4vh, 2.8rem);
+  overflow: hidden;
+}
+
+.nika-hub .hub-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nika-hub .hub-hero-pane {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-position: left 18%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  will-change: transform;
+}
+
+/* Straight vertical split — Service | Fitness */
+.nika-hub .hub-hero-pane--service {
+  left: 0;
+  width: 50%;
+  background-image: url("/img/hub-service.jpg");
+  background-position: left 18%;
+  filter: saturate(1.05) contrast(1.04);
+  transform: scale(1.03);
+  transform-origin: left center;
+  animation: hub-kenburns-left 22s ease-in-out alternate infinite;
+}
+
+.nika-hub .hub-hero-pane--fitness {
+  right: 0;
+  width: 50%;
+  background-image: url("/img/hub-fitness.jpg");
+  background-position: left 18%;
+  filter: saturate(1.05) contrast(1.04);
+  transform: none;
+  animation: none;
+}
+
+.nika-hub .hub-hero-seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  width: 1px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(43, 184, 166, .55) 16%,
+    rgba(238, 244, 252, .92) 50%,
+    rgba(255, 90, 60, .55) 84%,
+    transparent 100%
+  );
+}
+
+.nika-hub .hub-hero-seam::before,
+.nika-hub .hub-hero-seam::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.nika-hub .hub-hero-seam::before {
+  right: 1px;
+  width: 42px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(43, 184, 166, .08) 42%,
+    rgba(43, 184, 166, .42) 100%
+  );
+  filter: blur(10px);
+  opacity: .85;
+}
+
+.nika-hub .hub-hero-seam::after {
+  left: 1px;
+  width: 42px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 90, 60, .42) 0%,
+    rgba(255, 90, 60, .08) 58%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  opacity: .85;
+}
+
+.nika-hub .hub-hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(90deg,
+      rgba(8, 16, 29, .76) 0%,
+      rgba(8, 16, 29, .42) 22%,
+      rgba(8, 16, 29, .68) 46%,
+      rgba(8, 16, 29, .68) 54%,
+      rgba(8, 16, 29, .42) 78%,
+      rgba(8, 16, 29, .76) 100%),
+    linear-gradient(180deg,
+      rgba(8, 16, 29, .62) 0%,
+      rgba(8, 16, 29, .36) 36%,
+      rgba(8, 16, 29, .64) 78%,
+      rgba(8, 16, 29, .92) 100%),
+    linear-gradient(115deg,
+      rgba(43, 184, 166, .12) 0%,
+      transparent 34%,
+      transparent 66%,
+      rgba(255, 90, 60, .14) 100%);
+}
+
+.nika-hub .hub-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.1rem, 2.8vh, 1.85rem);
+  width: 100%;
+}
+
+.nika-hub .hub-hero-copy {
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+  animation: hub-hero-in .9s ease both;
+}
+
+.nika-hub .hub-eyebrow {
+  margin: 0 0 .55rem;
+  color: var(--nika-accent);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.nika-hub .hub-brand {
+  margin: 0;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2.35rem, 5.8vw, 3.85rem);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.02;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, .45);
+}
+.nika-hub .hub-lead {
+  margin: .75rem auto 0;
+  max-width: 36rem;
+  color: #c5d3e8;
+  font-size: 1.05rem;
+}
+
+@keyframes hub-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hub-kenburns-left {
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to { transform: scale(1.08) translate3d(-1%, .6%, 0); }
+}
+
+@keyframes hub-kenburns-right {
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to { transform: scale(1.08) translate3d(1%, -.6%, 0); }
+}
+
+.nika-hub .hub-section-title {
+  margin: 0;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.nika-hub .hub-products--hero {
+  width: 100%;
+  animation: hub-hero-in 1s ease .12s both;
+}
+
+.nika-hub .hub-products--hero .hub-section-title {
+  text-align: center;
+}
+
+.nika-hub .hub-products--hero > .hub-eyebrow {
+  text-align: center;
+}
+
+.nika-hub .hub-contacts {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 0 3rem;
+  background: linear-gradient(180deg, rgba(8, 16, 29, .96), var(--nika-bg) 28%);
+}
+
+.nika-hub .hub-card {
+  padding: 1.2rem 1.25rem 1.3rem;
+  color: var(--nika-text);
+  background: linear-gradient(145deg, rgba(16, 26, 42, .88), rgba(10, 18, 32, .9));
+  border: 1px solid var(--nika-line);
+  border-radius: var(--nika-radius);
+  box-shadow: var(--nika-shadow);
+  backdrop-filter: blur(10px);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.nika-hub .hub-card:hover {
+  transform: translateY(-2px);
+}
+.nika-hub .hub-card--service:hover { border-color: color-mix(in srgb, var(--service-accent) 45%, transparent); }
+.nika-hub .hub-card--fitness:hover { border-color: color-mix(in srgb, var(--fitness-accent) 45%, transparent); }
+
+.nika-hub .hub-card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: .85rem;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+.nika-hub .hub-card--service .hub-card-icon {
+  background: color-mix(in srgb, var(--service-accent) 30%, transparent);
+  color: #7dffef;
+}
+.nika-hub .hub-card--fitness .hub-card-icon {
+  background: color-mix(in srgb, var(--fitness-accent) 28%, transparent);
+  color: #ff9a87;
+}
+.nika-hub .hub-card--service .hub-card-kicker { color: var(--service-accent); }
+.nika-hub .hub-card--fitness .hub-card-kicker { color: var(--fitness-accent); }
+.nika-hub .hub-card-kicker {
+  margin: 0 0 .45rem;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.nika-hub .hub-card h3 {
+  margin: 0 0 .75rem;
+  font-family: "Syne", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.nika-hub .hub-card-text {
+  margin: 0 0 1.1rem;
+  color: var(--nika-muted);
+  min-height: 0;
+}
+.nika-hub .hub-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+}
+.nika-hub .hub-card--service .btn:not(.secondary) {
+  background: linear-gradient(135deg, var(--service-accent), #1a9e8f);
+}
+.nika-hub .hub-card--fitness .btn:not(.secondary) {
+  background: linear-gradient(135deg, var(--fitness-accent), #ff793d);
+}
+
+.nika-hub .muted { color: var(--nika-muted); }
+.nika-hub a { color: #ff9a87; }
+
+.nika-hub .app-footer {
+  margin-top: auto;
+  padding: 1.25rem 0;
+  color: var(--nika-muted);
+  background: rgba(8, 16, 29, .72);
+  border-top: 1px solid var(--nika-line);
+}
+.nika-hub .hub-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .85rem 1.1rem;
+}
+.nika-hub .hub-footer-links a {
+  color: var(--nika-muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+.nika-hub .hub-footer-links a:hover { color: #fff; }
+
+@media (max-width: 991.98px) {
+  .nika-hub .app-header .navbar-nav { padding: .75rem 0 1rem; }
+
+  .nika-hub .hub-hero {
+    min-height: auto;
+    padding: 1.35rem 0 2rem;
+  }
+
+  /* Mobile: full-bleed blend; keep left menus of both UIs */
+  .nika-hub .hub-hero-pane--service,
+  .nika-hub .hub-hero-pane--fitness {
+    left: 0;
+    right: 0;
+    width: 100%;
+    clip-path: none;
+    background-position: left 14%;
+    transform: none;
+    animation: none;
+  }
+
+  .nika-hub .hub-hero-pane--service {
+    opacity: .38;
+    mix-blend-mode: luminosity;
+  }
+
+  .nika-hub .hub-hero-seam {
+    display: none;
+  }
+
+  .nika-hub .hub-hero-veil {
+    background:
+      linear-gradient(180deg,
+        rgba(8, 16, 29, .82) 0%,
+        rgba(8, 16, 29, .58) 42%,
+        rgba(8, 16, 29, .92) 100%),
+      linear-gradient(115deg,
+        rgba(43, 184, 166, .12) 0%,
+        transparent 45%,
+        rgba(255, 90, 60, .14) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nika-hub .hub-hero-copy,
+  .nika-hub .hub-hero-pane--service,
+  .nika-hub .hub-hero-pane--fitness {
+    animation: none;
+  }
+
+  .nika-hub .hub-hero-pane {
+    transform: none;
+  }
+}

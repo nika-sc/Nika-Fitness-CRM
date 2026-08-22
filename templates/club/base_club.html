@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
+<html lang="ru" data-theme="nika-dark" style="--color-primary:{{ theme.accent }};--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--color-base-content:{{ theme.text }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};{% if theme.background_photo_path %}--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}');{% endif %}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#ff5a3c">
+  <meta name="theme-color" content="{{ theme.accent }}">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}{{ club_name }}{% endblock %}</title>
+  {% block meta %}{% endblock %}
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/nf-pwa.svg') }}">
   {% if request.endpoint and request.endpoint.startswith('portal.') %}
   <link rel="manifest" href="{{ url_for('portal.manifest') }}">
@@ -12,23 +14,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/5.3.8/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/adminlte/4.2.0/css/adminlte.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/club-theme.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-club.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika.build.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
-<body
-  class="layout-top-nav club-theme nika-surface nika-club {% block body_class %}{% endblock %}"
-  data-theme="{{ theme.preset }}"
-  style="--club-accent:{{ theme.accent }};--club-overlay:{{ theme.overlay / 100 }};--club-surface:{{ theme.surface_rgb }};--club-text:{{ theme.text }};--club-muted:{{ theme.muted }};--club-background:url('{{ url_for('static', filename=theme.background_photo_path) }}')"
->
+<body class="club-theme {% block body_class %}{% endblock %}" data-club-preset="{{ theme.preset }}">
 {% block body %}{% endblock %}
-<script src="{{ url_for('static', filename='vendor/bootstrap/5.3.8/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='vendor/adminlte/4.2.0/js/adminlte.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nika-ui.js') }}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

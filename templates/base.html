@@ -1,90 +1,98 @@
 <!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
+<html lang="ru" data-theme="nika-dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ff5a3c">
+  <title>{% block title %}Nika Fitness CRM{% endblock %}</title>
   {% if current_user.is_authenticated %}
   <link rel="manifest" href="{{ url_for('main.staff_manifest') }}">
   {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  {% if current_user.is_authenticated %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/5.3.8/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/adminlte/4.2.0/css/adminlte.min.css') }}">
-  {% endif %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-surface.css') }}">
-  {% if current_user.is_authenticated %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika-admin.css') }}">
-  {% endif %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nika.build.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
 {% if current_user.is_authenticated %}
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary nika-admin">
+<body class="nika-app">
 {% set ep = request.endpoint or '' %}
-<div class="app-wrapper">
-  <nav class="app-header navbar navbar-expand" aria-label="Верхняя навигация">
-    <div class="container-fluid">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <button class="nav-link border-0 bg-transparent" type="button" data-lte-toggle="sidebar" aria-label="Свернуть меню">
+<div class="drawer lg:drawer-open">
+  <input id="app-drawer" type="checkbox" class="drawer-toggle">
+  <div class="drawer-content flex flex-col min-h-screen">
+    <header class="nika-header navbar" aria-label="Верхняя навигация">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <label for="app-drawer" class="btn btn-ghost btn-sm lg:hidden" aria-label="Свернуть меню">
             <i class="bi bi-list" aria-hidden="true"></i>
-          </button>
-        </li>
-        <li class="nav-item d-none d-md-block">
-          <a class="nav-link" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
+          </label>
+          <a class="nav-link d-none d-md-block" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
             <i class="bi bi-house-door me-1" aria-hidden="true"></i>Главная
           </a>
-        </li>
-      </ul>
-      <ul class="navbar-nav ms-auto align-items-center">
-        {% if club_name %}
-        <li class="nav-item"><span class="mobile-club-name">{{ club_name }}{% if tenant_slug and tenant_slug != 'legacy' %} · {{ tenant_slug }}{% endif %}</span></li>
-        {% endif %}
-        {% if has_permission('view_alerts') %}
-        <li class="nav-item">
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          {% if club_name %}
+          <span class="mobile-club-name">{{ club_name }}{% if tenant_slug and tenant_slug != 'legacy' %} · {{ tenant_slug }}{% endif %}</span>
+          {% endif %}
+          {% if has_permission('view_alerts') %}
           <a class="nav-link position-relative" href="{{ url_for('alerts.list_alerts') }}" aria-label="Алерты">
             <i class="bi bi-bell" aria-hidden="true"></i>
-            {% if unread_alerts %}<span class="position-absolute top-0 start-100 translate-middle badge">{{ unread_alerts }}</span>{% endif %}
+            {% if unread_alerts %}<span class="badge">{{ unread_alerts }}</span>{% endif %}
           </a>
-        </li>
-        {% endif %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-            <span class="d-none d-sm-inline">{{ current_user.full_name }}</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><span class="dropdown-item-text text-body-secondary">{{ role_label(current_user.role) }}</span></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <form method="post" action="{{ url_for('auth.logout') }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Выйти</button>
-              </form>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <aside class="app-sidebar shadow" data-bs-theme="dark">
-    <div class="sidebar-brand">
-      <a class="brand-link" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
-        <span class="brand-mark">NF</span>
-        <span class="brand-copy">
-          <span class="brand-title">Nika Fit</span>
-          <span class="brand-subtitle">{{ club_name or 'Fitness CRM' }}</span>
-        </span>
-      </a>
-    </div>
-    <div class="sidebar-wrapper">
+          {% endif %}
+          <div class="dropdown">
+            <a class="nav-link" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+              <span class="d-none d-sm-inline">{{ current_user.full_name }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><span class="dropdown-item-text">{{ role_label(current_user.role) }}</span></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{{ url_for('auth.logout') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Выйти</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="flex-1">
+      <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <div class="flash-wrap">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+    <footer class="app-footer">
+      <strong>Nika Fit</strong>
+      <span class="float-end d-none d-sm-inline">Fitness CRM</span>
+    </footer>
+  </div>
+  <div class="drawer-side">
+    <label for="app-drawer" class="drawer-overlay" aria-label="Закрыть меню"></label>
+    <aside class="nika-sidebar min-h-full w-72">
+      <div class="sidebar-brand" style="padding: .85rem 1rem;">
+        <a class="brand-link" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
+          <span class="brand-mark">NF</span>
+          <span class="brand-copy">
+            <span class="brand-title">Nika Fit</span>
+            <span class="brand-subtitle">{{ club_name or 'Fitness CRM' }}</span>
+          </span>
+        </a>
+      </div>
       <nav aria-label="Основное меню">
-        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+        <ul class="sidebar-menu">
           <li class="nav-header">Работа клуба</li>
           {% if current_user.role != 'reception' %}
           <li class="nav-item">
@@ -209,43 +217,12 @@
       </nav>
       <div class="sidebar-user">
         <span class="user-avatar">{{ current_user.full_name[:1] }}</span>
-        <span><strong>{{ current_user.full_name }}</strong><small>{{ role_label(current_user.role) }}</small></span>
+        <span><strong>{{ current_user.full_name }}</strong><br><small>{{ role_label(current_user.role) }}</small></span>
       </div>
-    </div>
-  </aside>
-
-  <main class="app-main">
-    <div class="app-content-header">
-      <div class="container-fluid d-flex justify-content-between align-items-center gap-3">
-        <div class="content-context">
-          <i class="bi bi-building me-1" aria-hidden="true"></i>
-          {{ club_name or 'Nika Fitness CRM' }}
-        </div>
-        <div class="content-context d-none d-sm-block">{{ role_label(current_user.role) }}</div>
-      </div>
-    </div>
-    <div class="app-content">
-      <div class="container-fluid content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-          <div class="flash-wrap">
-            {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-          </div>
-          {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-      </div>
-    </div>
-  </main>
-  <footer class="app-footer">
-    <strong>Nika Fit</strong>
-    <span class="float-end d-none d-sm-inline">Fitness CRM</span>
-  </footer>
+    </aside>
+  </div>
 </div>
-<script src="{{ url_for('static', filename='vendor/bootstrap/5.3.8/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='vendor/adminlte/4.2.0/js/adminlte.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nika-ui.js') }}"></script>
 <script src="{{ url_for('static', filename='js/nika-admin.js') }}"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -254,8 +231,9 @@ if ('serviceWorker' in navigator) {
 </script>
 {% block extra_js %}{% endblock %}
 {% else %}
-<body class="nika-surface">
+<body>
   {% block body %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/nika-ui.js') }}"></script>
   {% block public_extra_js %}{% endblock %}
 {% endif %}
 </body>

@@ -444,9 +444,8 @@
 <script>
 (function () {
   var modalEl = document.getElementById('club-booking-modal');
-  if (!modalEl || !window.bootstrap) return;
+  if (!modalEl) return;
   var openSlots = {{ trainer_open_slots|tojson }};
-  var modal = new bootstrap.Modal(modalEl);
   var kindField = modalEl.querySelector('[data-booking-kind]');
   var sessionField = modalEl.querySelector('[data-booking-session]');
   var trainerField = modalEl.querySelector('[data-booking-trainer]');
@@ -498,7 +497,8 @@
         slotSelect.innerHTML = '';
         slotsBox.hidden = true;
       }
-      modal.show();
+      if (window.NikaModal) NikaModal.show(modalEl);
+      else modalEl.classList.add('is-open', 'show');
     });
   });
 })();

@@ -1,3 +1,4 @@
+/* Club theme tokens + layout; accent from inline HTML vars */
 :root {
   --club-accent: #ff3b30;
   --club-surface: 23, 9, 11;
@@ -8,13 +9,13 @@
   --club-shadow: 0 24px 70px rgba(0, 0, 0, .42);
 }
 
-[data-theme="midnight"] {
+body[data-club-preset="midnight"] {
   --club-surface: 7, 18, 33;
   --club-text: #f1f7ff;
   --club-muted: #9db2cc;
 }
 
-[data-theme="graphite"] {
+body[data-club-preset="graphite"] {
   --club-surface: 17, 18, 20;
   --club-text: #f6f6f2;
   --club-muted: #aaaeb5;

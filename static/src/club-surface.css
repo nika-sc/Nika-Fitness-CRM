@@ -1,20 +1,21 @@
+/* Club site + portal surface (daisyUI variables, no AdminLTE) */
 /*
  * Club site + member portal on AdminLTE 4.
  * Keeps per-club theme tokens (--club-*) while matching Nika Fit AdminLTE chrome.
  */
-.nika-club {
+body.club-theme {
   font-family: "Manrope", sans-serif;
 }
 
-.nika-club .app-wrapper {
+body.club-theme .app-wrapper {
   min-height: 100vh;
   background: transparent;
 }
 
-.nika-club .app-header {
+body.club-theme .app-header {
   min-height: 68px;
   padding-block: .35rem;
-  background: rgba(var(--club-surface), 0.82) !important;
+  background: rgba(var(--club-surface), 0.82);
   border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 28%, rgba(255, 255, 255, .08));
   backdrop-filter: blur(16px);
   position: sticky;
@@ -22,7 +23,7 @@
   z-index: 1030;
 }
 
-.nika-club .navbar-brand.brand-link {
+body.club-theme .navbar-brand.brand-link {
   display: inline-flex;
   align-items: center;
   gap: .7rem;
@@ -30,7 +31,7 @@
   text-decoration: none;
 }
 
-.nika-club .brand-mark {
+body.club-theme .brand-mark {
   width: 36px;
   height: 36px;
   display: grid;
@@ -47,7 +48,7 @@
   box-shadow: 0 4px 12px color-mix(in srgb, var(--club-accent) 22%, transparent);
 }
 
-.nika-club .brand-mark-sm {
+body.club-theme .brand-mark-sm {
   width: 28px;
   height: 28px;
   border-radius: 9px;
@@ -56,11 +57,11 @@
   line-height: 1;
 }
 
-.nika-club .brand-copy {
+body.club-theme .brand-copy {
   line-height: 1.1;
 }
 
-.nika-club .brand-title {
+body.club-theme .brand-title {
   display: block;
   max-width: min(46vw, 280px);
   overflow: hidden;
@@ -71,13 +72,13 @@
   white-space: nowrap;
 }
 
-.nika-club .brand-subtitle {
+body.club-theme .brand-subtitle {
   display: block;
   color: var(--club-muted);
   font-size: .7rem;
 }
 
-.nika-club .app-header .nav-link {
+body.club-theme .app-header .nav-link {
   display: inline-flex;
   align-items: center;
   min-height: 40px;
@@ -88,21 +89,21 @@
   line-height: 1.2;
 }
 
-.nika-club .app-header .nav-link:hover,
-.nika-club .app-header .nav-link.active {
+body.club-theme .app-header .nav-link:hover,
+body.club-theme .app-header .nav-link.active {
   color: #fff;
   background: rgba(255, 255, 255, .06);
 }
 
-.nika-club .navbar-toggler {
+body.club-theme .navbar-toggler {
   color: var(--club-text);
 }
 
-.nika-club .app-main {
+body.club-theme .app-main {
   background: transparent;
 }
 
-.nika-club .app-footer {
+body.club-theme .app-footer {
   margin-top: auto;
   padding: 1.25rem 0;
   color: var(--club-muted);
@@ -110,24 +111,24 @@
   border-top: 1px solid color-mix(in srgb, var(--club-accent) 22%, rgba(255, 255, 255, .08));
 }
 
-.nika-club .club-footer-links {
+body.club-theme .club-footer-links {
   display: flex;
   flex-wrap: wrap;
   gap: .85rem 1.1rem;
 }
 
-.nika-club .club-footer-links a {
+body.club-theme .club-footer-links a {
   color: var(--club-muted);
   font-weight: 600;
   text-decoration: none;
 }
 
-.nika-club .club-footer-links a:hover {
+body.club-theme .club-footer-links a:hover {
   color: #fff;
 }
 
-.nika-club .club-kicker,
-.nika-club .public-eyebrow {
+body.club-theme .club-kicker,
+body.club-theme .public-eyebrow {
   margin: 0 0 .7rem;
   color: var(--club-accent);
   font-size: .75rem;
@@ -136,18 +137,18 @@
   text-transform: uppercase;
 }
 
-.nika-club .club-heading,
-.nika-club .public-title {
+body.club-theme .club-heading,
+body.club-theme .public-title {
   margin: 0;
   font-family: "Syne", sans-serif;
   font-weight: 800;
   letter-spacing: -.035em;
 }
 
-.nika-club .panel,
-.nika-club .card,
-.nika-club .club-card,
-.nika-club .club-glass {
+body.club-theme .panel,
+body.club-theme .card,
+body.club-theme .club-card,
+body.club-theme .club-glass {
   color: var(--club-text);
   background: linear-gradient(145deg, rgba(var(--club-surface), .88), rgba(var(--club-surface), .78));
   border: 1px solid color-mix(in srgb, var(--club-accent) 22%, rgba(255, 255, 255, .1));
@@ -156,21 +157,21 @@
   backdrop-filter: blur(14px);
 }
 
-.nika-club .panel,
-.nika-club .club-card {
+body.club-theme .panel,
+body.club-theme .club-card {
   padding: 1.1rem 1.15rem;
 }
 
-.nika-club .panel h3,
-.nika-club .club-card h3 {
+body.club-theme .panel h3,
+body.club-theme .club-card h3 {
   margin-top: 0;
   font-family: "Syne", sans-serif;
   font-size: 1.08rem;
 }
 
-.nika-club .btn,
-.nika-club button:not(.navbar-toggler):not(.btn-close):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item),
-.nika-club input[type="submit"] {
+body.club-theme .btn,
+body.club-theme button:not(.navbar-toggler):not(.btn-close):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item),
+body.club-theme input[type="submit"] {
   width: auto;
   padding: .64rem .95rem;
   color: #fff;
@@ -184,22 +185,22 @@
   box-shadow: none;
 }
 
-.nika-club .btn:hover,
-.nika-club button:not(.navbar-toggler):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item):hover {
+body.club-theme .btn:hover,
+body.club-theme button:not(.navbar-toggler):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item):hover {
   color: #fff;
   filter: brightness(1.06);
 }
 
-.nika-club .btn.secondary {
+body.club-theme .btn.secondary {
   color: var(--club-text);
   background: rgba(255, 255, 255, .06);
   border-color: color-mix(in srgb, var(--club-accent) 20%, rgba(255, 255, 255, .12));
 }
 
-.nika-club input:not([type="checkbox"]):not([type="radio"]),
-.nika-club select,
-.nika-club textarea,
-.nika-club .form-control {
+body.club-theme input:not([type="checkbox"]):not([type="radio"]),
+body.club-theme select,
+body.club-theme textarea,
+body.club-theme .form-control {
   width: 100%;
   min-height: 42px;
   color: var(--club-text);
@@ -208,9 +209,9 @@
   border-radius: 10px;
 }
 
-.nika-club input:focus,
-.nika-club select:focus,
-.nika-club textarea:focus {
+body.club-theme input:focus,
+body.club-theme select:focus,
+body.club-theme textarea:focus {
   color: var(--club-text);
   background-color: rgba(0, 0, 0, .38);
   border-color: color-mix(in srgb, var(--club-accent) 70%, transparent);
@@ -218,14 +219,14 @@
   outline: 0;
 }
 
-.nika-club .table {
+body.club-theme .table {
   --bs-table-bg: transparent;
   --bs-table-color: var(--club-text);
   --bs-table-border-color: color-mix(in srgb, var(--club-accent) 14%, rgba(255, 255, 255, .08));
   color: var(--club-text);
 }
 
-.nika-club .table th {
+body.club-theme .table th {
   color: var(--club-muted);
   font-size: .75rem;
   font-weight: 800;
@@ -233,7 +234,7 @@
   text-transform: uppercase;
 }
 
-.nika-club .pill {
+body.club-theme .pill {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -242,11 +243,11 @@
   font-weight: 800;
 }
 
-.nika-club .pill.ok { color: #2fd4a3; background: rgba(47, 212, 163, .13); }
-.nika-club .pill.warn { color: #f0b429; background: rgba(240, 180, 41, .13); }
-.nika-club .pill.danger { color: #ff5a6a; background: rgba(255, 90, 106, .13); }
+body.club-theme .pill.ok { color: #2fd4a3; background: rgba(47, 212, 163, .13); }
+body.club-theme .pill.warn { color: #f0b429; background: rgba(240, 180, 41, .13); }
+body.club-theme .pill.danger { color: #ff5a6a; background: rgba(255, 90, 106, .13); }
 
-.nika-club .feature-icon {
+body.club-theme .feature-icon {
   width: 2.4rem;
   height: 2.4rem;
   display: grid;
@@ -258,14 +259,14 @@
   font-size: 1.15rem;
 }
 
-.nika-club .club-site-hero {
+body.club-theme .club-site-hero {
   min-height: calc(100vh - 68px);
   display: flex;
   align-items: center;
   padding: 2.5rem 0 2rem;
 }
 
-.nika-club .club-site-hero h1 {
+body.club-theme .club-site-hero h1 {
   margin: 0 0 1rem;
   font-family: "Syne", sans-serif;
   font-size: clamp(2.4rem, 6vw, 4rem);
@@ -274,23 +275,23 @@
   line-height: 1.02;
 }
 
-.nika-club .club-site-hero-lead {
+body.club-theme .club-site-hero-lead {
   max-width: 34rem;
   color: var(--club-muted);
   font-size: 1.08rem;
 }
 
-.nika-club .club-section-new {
+body.club-theme .club-section-new {
   padding: 2.5rem 0;
 }
 
-.nika-club .club-container {
+body.club-theme .club-container {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
 
-.nika-club .club-price {
+body.club-theme .club-price {
   display: block;
   margin-top: .75rem;
   font-family: "Syne", sans-serif;
@@ -298,20 +299,20 @@
   font-weight: 800;
 }
 
-.nika-club .trainer-modern {
+body.club-theme .trainer-modern {
   padding: 0;
   overflow: hidden;
 }
 
-.nika-club .trainer-modern img,
-.nika-club .trainer-placeholder {
+body.club-theme .trainer-modern img,
+body.club-theme .trainer-placeholder {
   width: 100%;
   height: 220px;
   object-fit: cover;
   display: block;
 }
 
-.nika-club .trainer-placeholder {
+body.club-theme .trainer-placeholder {
   display: grid;
   place-items: center;
   font-family: "Syne", sans-serif;
@@ -320,42 +321,42 @@
   background: color-mix(in srgb, var(--club-accent) 22%, rgba(0, 0, 0, .35));
 }
 
-.nika-club .trainer-modern-body {
+body.club-theme .trainer-modern-body {
   padding: 1rem 1.1rem 1.15rem;
 }
 
-.nika-club .gallery-modern {
+body.club-theme .gallery-modern {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
 }
 
-.nika-club .gallery-modern figure {
+body.club-theme .gallery-modern figure {
   margin: 0;
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .1));
 }
 
-.nika-club .gallery-modern img {
+body.club-theme .gallery-modern img {
   width: 100%;
   height: 200px;
   object-fit: cover;
   display: block;
 }
 
-.nika-club .gallery-modern figcaption {
+body.club-theme .gallery-modern figcaption {
   padding: .65rem .85rem;
   color: var(--club-muted);
   font-size: .85rem;
   background: rgba(var(--club-surface), .8);
 }
 
-.nika-club .schedule-modern {
+body.club-theme .schedule-modern {
   padding: .35rem 0;
 }
 
-.nika-club .club-schedule-card {
+body.club-theme .club-schedule-card {
   display: grid;
   grid-template-columns: 4.8rem minmax(0, 1fr) auto;
   gap: .85rem;
@@ -364,18 +365,18 @@
   border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 12%, rgba(255, 255, 255, .06));
 }
 
-.nika-club .club-schedule-card:last-child {
+body.club-theme .club-schedule-card:last-child {
   border-bottom: 0;
 }
 
-.nika-club .club-schedule-time {
+body.club-theme .club-schedule-time {
   font-family: "Syne", sans-serif;
   font-weight: 800;
   letter-spacing: -.03em;
   line-height: 1.15;
 }
 
-.nika-club .load-modern {
+body.club-theme .load-modern {
   display: flex;
   gap: .55rem;
   align-items: flex-end;
@@ -383,34 +384,34 @@
   padding: 1.1rem;
 }
 
-.nika-club .load-modern-item {
+body.club-theme .load-modern-item {
   flex: 0 0 auto;
   width: 2.6rem;
   text-align: center;
 }
 
-.nika-club .load-modern-item div {
+body.club-theme .load-modern-item div {
   margin: .35rem auto;
   width: 100%;
   border-radius: 10px 10px 4px 4px;
   background: linear-gradient(180deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 40%, transparent));
 }
 
-.nika-club .contacts-modern {
+body.club-theme .contacts-modern {
   display: grid;
   grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
   gap: 1rem;
 }
 
-.nika-club .contact-modern-card small {
+body.club-theme .contact-modern-card small {
   display: block;
   color: var(--club-muted);
   margin-bottom: .2rem;
 }
 
-.nika-club .club-map-modern,
-.nika-club .club-map-modern iframe,
-.nika-club .lp-map {
+body.club-theme .club-map-modern,
+body.club-theme .club-map-modern iframe,
+body.club-theme .lp-map {
   width: 100%;
   min-height: 280px;
   border: 0;
@@ -418,66 +419,66 @@
 }
 
 /* Portal */
-.nika-club .portal-login-wrap {
+body.club-theme .portal-login-wrap {
   min-height: calc(100vh - 68px);
   display: grid;
   place-items: center;
   padding: 2rem 1.25rem;
 }
 
-.nika-club .portal-login {
+body.club-theme .portal-login {
   width: min(100%, 420px);
   padding: 1.4rem 1.35rem;
 }
 
-.nika-club .portal-shell {
+body.club-theme .portal-shell {
   padding: 1.5rem 0 2.5rem;
 }
 
-.nika-club .portal-top {
+body.club-theme .portal-top {
   margin-bottom: 1.25rem;
 }
 
-.nika-club .portal-grid {
+body.club-theme .portal-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
   gap: 1rem;
 }
 
-.nika-club .membership-pass,
-.nika-club .portal-qr {
+body.club-theme .membership-pass,
+body.club-theme .portal-qr {
   padding: 1.2rem;
 }
 
-.nika-club .membership-dates {
+body.club-theme .membership-dates {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: .75rem;
   margin-top: 1rem;
 }
 
-.nika-club .membership-date {
+body.club-theme .membership-date {
   padding: .7rem .8rem;
   border: 1px solid color-mix(in srgb, var(--club-accent) 16%, rgba(255, 255, 255, .08));
   border-radius: 12px;
   background: rgba(0, 0, 0, .18);
 }
 
-.nika-club .membership-date small,
-.nika-club .portal-kpi small {
+body.club-theme .membership-date small,
+body.club-theme .portal-kpi small {
   display: block;
   color: var(--club-muted);
   margin-bottom: .25rem;
 }
 
-.nika-club .portal-qr {
+body.club-theme .portal-qr {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.nika-club .portal-qr img {
+body.club-theme .portal-qr img {
   width: 160px;
   height: 160px;
   background: #fff;
@@ -485,31 +486,31 @@
   border-radius: 14px;
 }
 
-.nika-club .portal-kpi-grid,
-.nika-club .portal-mini-grid,
-.nika-club .club-card-grid {
+body.club-theme .portal-kpi-grid,
+body.club-theme .portal-mini-grid,
+body.club-theme .club-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 
-.nika-club .portal-kpi,
-.nika-club .portal-mini {
+body.club-theme .portal-kpi,
+body.club-theme .portal-mini {
   padding: 1rem 1.05rem;
 }
 
-.nika-club .portal-kpi strong {
+body.club-theme .portal-kpi strong {
   font-family: "Syne", sans-serif;
   font-size: 1.55rem;
   font-weight: 800;
 }
 
-.nika-club .portal-chart-wrap {
+body.club-theme .portal-chart-wrap {
   margin-top: 1rem;
   padding: 1rem 1.1rem;
 }
 
-.nika-club .portal-chart-meta {
+body.club-theme .portal-chart-meta {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -517,14 +518,14 @@
   margin-bottom: .85rem;
 }
 
-.nika-club .portal-bars {
+body.club-theme .portal-bars {
   display: flex;
   align-items: flex-end;
   gap: .4rem;
   min-height: 120px;
 }
 
-.nika-club .portal-bar-col {
+body.club-theme .portal-bar-col {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -533,23 +534,23 @@
   min-width: 0;
 }
 
-.nika-club .portal-bar {
+body.club-theme .portal-bar {
   width: 100%;
   min-height: 4px;
   border-radius: 8px 8px 3px 3px;
   background: linear-gradient(180deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 35%, transparent));
 }
 
-.nika-club .portal-bar-col span {
+body.club-theme .portal-bar-col span {
   color: var(--club-muted);
   font-size: .7rem;
 }
 
-.nika-club .warn-text {
+body.club-theme .warn-text {
   color: #f0b429;
 }
 
-.nika-club .flash {
+body.club-theme .flash {
   margin-bottom: .75rem;
   padding: .8rem 1rem;
   border: 1px solid color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .1));
@@ -558,88 +559,88 @@
   background: rgba(85, 167, 255, .08);
 }
 
-.nika-club .flash.success { border-left-color: #2fd4a3; background: rgba(47, 212, 163, .08); }
-.nika-club .flash.warning { border-left-color: #f0b429; background: rgba(240, 180, 41, .08); }
-.nika-club .flash.error { border-left-color: #ff5a6a; background: rgba(255, 90, 106, .08); }
+body.club-theme .flash.success { border-left-color: #2fd4a3; background: rgba(47, 212, 163, .08); }
+body.club-theme .flash.warning { border-left-color: #f0b429; background: rgba(240, 180, 41, .08); }
+body.club-theme .flash.error { border-left-color: #ff5a6a; background: rgba(255, 90, 106, .08); }
 
 @media (max-width: 991.98px) {
-  body.nika-club,
-  .nika-club .app-wrapper {
+  bodybody.club-theme,
+  body.club-theme .app-wrapper {
     overflow-x: hidden;
   }
-  .nika-club .portal-grid,
-  .nika-club .contacts-modern {
+  body.club-theme .portal-grid,
+  body.club-theme .contacts-modern {
     grid-template-columns: 1fr;
   }
-  .nika-club .club-schedule-card {
+  body.club-theme .club-schedule-card {
     grid-template-columns: 3.8rem minmax(0, 1fr);
   }
-  .nika-club .club-schedule-card > span:last-child {
+  body.club-theme .club-schedule-card > span:last-child {
     grid-column: 2;
   }
-  .nika-club .navbar-toggler {
+  body.club-theme .navbar-toggler {
     min-width: 44px;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
-  .nika-club .brand-title {
+  body.club-theme .brand-title {
     max-width: min(58vw, 13.5rem);
     white-space: normal;
     line-height: 1.15;
     font-size: clamp(.82rem, 3.5vw, 1rem);
   }
-  .nika-club .app-header .navbar-brand.brand-link {
+  body.club-theme .app-header .navbar-brand.brand-link {
     max-width: calc(100% - 3.5rem);
   }
 }
 
 @media (max-width: 575.98px) {
-  .nika-club .portal-login-card,
-  .nika-club .panel {
+  body.club-theme .portal-login-card,
+  body.club-theme .panel {
     padding: 1rem .95rem;
   }
-  .nika-club .btn {
+  body.club-theme .btn {
     min-height: 44px;
   }
 }
 
-.nika-club .nps-card {
+body.club-theme .nps-card {
   max-width: 36rem;
   margin: 2rem auto 3rem;
 }
 
-.nika-club .nps-scale {
+body.club-theme .nps-scale {
   border: 0;
   padding: 0;
   margin: 0;
 }
 
-.nika-club .nps-scale legend {
+body.club-theme .nps-scale legend {
   font-weight: 700;
   margin-bottom: .65rem;
 }
 
-.nika-club .nps-scale-row {
+body.club-theme .nps-scale-row {
   display: flex;
   flex-wrap: wrap;
   gap: .4rem;
 }
 
-.nika-club .nps-score {
+body.club-theme .nps-score {
   position: relative;
   margin: 0;
   cursor: pointer;
 }
 
-.nika-club .nps-score input {
+body.club-theme .nps-score input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.nika-club .nps-score span {
+body.club-theme .nps-score span {
   display: grid;
   place-items: center;
   width: 2.4rem;
@@ -649,14 +650,14 @@
   font-weight: 800;
 }
 
-.nika-club .nps-score input:checked + span,
-.nika-club .nps-score:hover span {
+body.club-theme .nps-score input:checked + span,
+body.club-theme .nps-score:hover span {
   color: #fff;
   background: var(--club-accent);
   border-color: var(--club-accent);
 }
 
-.nika-club .nps-scale-hints {
+body.club-theme .nps-scale-hints {
   display: flex;
   justify-content: space-between;
   margin-top: .45rem;
@@ -985,21 +986,21 @@ body.club-landing .club-booking-alert.is-error {
   border-color: rgba(255, 90, 106, .35);
 }
 
-.nika-club .club-booking-modal .modal-content {
+body.club-theme .club-booking-modal .modal-content {
   padding: .35rem .25rem;
 }
 
-.nika-club .club-booking-modal .modal-header,
-.nika-club .club-booking-modal .modal-footer {
+body.club-theme .club-booking-modal .modal-header,
+body.club-theme .club-booking-modal .modal-footer {
   border-color: color-mix(in srgb, var(--club-accent) 18%, rgba(255, 255, 255, .08));
 }
 
-.nika-club .club-booking-modal .modal-footer {
+body.club-theme .club-booking-modal .modal-footer {
   gap: .5rem;
   justify-content: space-between;
 }
 
-.nika-club .club-booking-target {
+body.club-theme .club-booking-target {
   padding: .7rem .85rem;
   margin-bottom: 1rem;
   border-radius: 12px;
@@ -1008,7 +1009,7 @@ body.club-landing .club-booking-alert.is-error {
   border: 1px solid color-mix(in srgb, var(--club-accent) 26%, transparent);
 }
 
-.nika-club .club-booking-trap {
+body.club-theme .club-booking-trap {
   position: absolute;
   width: 1px;
   height: 1px;

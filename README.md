@@ -272,7 +272,7 @@ TRUSTED_HOSTS=localhost,127.0.0.1,your.domain
 - Bootstrap-схема: `database/bootstrap/`
 - Эта редакция — **self-hosted only** (без облачной мультитенантной платформы)
 
-Стек: Flask · Flask-Login · Flask-WTF (CSRF) · PostgreSQL · AdminLTE 4.2.0 / Bootstrap 5.3.8 (vendored, MIT) · (опционально) Docker Compose.
+Стек: Flask · Flask-Login · Flask-WTF (CSRF) · PostgreSQL · Tailwind CSS v4 + daisyUI v5 (собранный CSS в репозитории) · Bootstrap Icons · (опционально) Docker Compose.
 
 ---
 

@@ -1,0 +1,14 @@
+{
+  "name": "nika-fitness-crm-ui",
+  "private": true,
+  "description": "Optional CSS build for Nika Fitness CRM. Node is a local tooling dependency; the compiled stylesheet is committed.",
+  "scripts": {
+    "css": "npx @tailwindcss/cli -i ./static/src/nika.css -o ./static/css/nika.build.css --minify && node scripts/sync-hub-css.mjs",
+    "css:watch": "npx @tailwindcss/cli -i ./static/src/nika.css -o ./static/css/nika.build.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.12",
+    "daisyui": "^5.0.50",
+    "tailwindcss": "^4.1.12"
+  }
+}
