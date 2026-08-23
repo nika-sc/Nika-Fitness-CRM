@@ -6,7 +6,7 @@
     <h1>{{ session.class_name }}</h1>
     <p class="muted">{{ session.starts_at.strftime('%d.%m.%Y %H:%M') }} · {{ session.trainer_name or 'без тренера' }} · {{ session.room_name }}</p>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
+  <div class="flex gap-2 flex-wrap">
     {% if has_permission('manage_schedule') %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -18,22 +18,22 @@
   </div>
 </div>
 
-<div class="row g-3 mb-3">
-  <div class="col-sm-4">
+<div class="mb-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div>
     <div class="panel stat">
       <i class="bi bi-cash-coin stat-icon" aria-hidden="true"></i>
       <span class="muted">Цена</span>
       <strong>{{ '%.0f'|format(session.price_cents/100) }} ₽</strong>
     </div>
   </div>
-  <div class="col-sm-4">
+  <div>
     <div class="panel stat">
       <i class="bi bi-people stat-icon" aria-hidden="true"></i>
       <span class="muted">Записано</span>
       <strong>{{ bookings|length }}/{{ session.capacity }}</strong>
     </div>
   </div>
-  <div class="col-sm-4">
+  <div>
     <div class="panel stat">
       <i class="bi bi-geo-alt stat-icon" aria-hidden="true"></i>
       <span class="muted">Зал</span>
@@ -42,8 +42,8 @@
   </div>
 </div>
 
-<div class="row g-3">
-  <div class="{% if has_permission('manage_schedule') %}col-lg-7{% else %}col-12{% endif %}">
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+  <div class="{% if has_permission('manage_schedule') %}lg:col-span-7{% else %}lg:col-span-12{% endif %}">
     <div class="panel">
       <div class="panel-head"><h3 class="mb-0"><i class="bi bi-list-check me-2" aria-hidden="true"></i>Записи</h3></div>
       <div class="table-responsive mt-2">
@@ -88,14 +88,14 @@
   </div>
 
   {% if has_permission('manage_schedule') %}
-  <div class="col-lg-5">
+  <div class="lg:col-span-5">
     <div class="panel mb-3">
       <div class="panel-head"><h3 class="mb-0"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>Записать клиента</h3></div>
       <form method="post" class="mt-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="book">
         <label class="form-label">Клиент</label>
-        <select class="form-select" name="member_id" required>
+        <select name="member_id" required>
           {% for m in members %}
           <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}</option>
           {% endfor %}
@@ -110,7 +110,7 @@
       <form method="post" class="mt-2">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="waitlist">
-        <select class="form-select" name="member_id" required>
+        <select name="member_id" required>
           {% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}
         </select>
         <button class="btn tap-lg mt-2" type="submit">В лист ожидания</button>

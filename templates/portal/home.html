@@ -5,20 +5,20 @@
 {% set _parts = (club_name or 'NF').split() %}
 {% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
 <div class="app-wrapper">
-  <nav class="app-header navbar navbar-expand-lg" aria-label="Навигация личного кабинета">
-    <div class="container-xxl">
-      <a class="navbar-brand brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
+  <nav class="nika-header" aria-label="Навигация личного кабинета">
+    <div class="nika-wrap nika-header-inner">
+      <a class="brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
         <span class="brand-mark">{{ brand_letters }}</span>
         <span class="brand-copy">
           <span class="brand-title">{{ club_name }}</span>
           <span class="brand-subtitle">Личный кабинет</span>
         </span>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#portalNav" aria-controls="portalNav" aria-expanded="false" aria-label="Меню">
-        <i class="bi bi-list fs-3" aria-hidden="true"></i>
+      <button class="nika-nav-toggle" type="button" data-nika-toggle="collapse" data-nika-target="#portalNav" aria-controls="portalNav" aria-expanded="false" aria-label="Меню">
+        <i class="bi bi-list" aria-hidden="true"></i>
       </button>
-      <div class="collapse navbar-collapse" id="portalNav">
-        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+      <div class="nika-nav" id="portalNav">
+        <ul class="nika-nav-list">
           <li class="nav-item">
             {% if tenant_slug and tenant_slug != 'legacy' %}
             <a class="nav-link" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">Сайт клуба</a>
@@ -29,7 +29,7 @@
           {% if member %}
           <li class="nav-item"><a class="nav-link" href="#my-bookings">Мои записи</a></li>
           <li class="nav-item">
-            <form method="post" class="ms-lg-2 mb-0">
+            <form method="post" class="mb-0 lg:ms-2">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="action" value="logout">
               <button class="btn secondary btn-sm" type="submit">Выйти</button>
@@ -56,16 +56,16 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="login">
         <label class="form-label">Телефон, email или карта</label>
-        <input class="form-control" name="login" required autocomplete="username" autofocus placeholder="+7… или NF2026…" value="{{ demo_credentials.portal_login if demo_mode else '' }}">
+        <input name="login" required autocomplete="username" autofocus placeholder="+7… или NF2026…" value="{{ demo_credentials.portal_login if demo_mode else '' }}">
         <label class="form-label mt-2">Пароль</label>
-        <input class="form-control" name="password" type="password" required autocomplete="current-password" value="{{ demo_credentials.portal_password if demo_mode else '' }}">
-        <button class="btn w-100 mt-3" type="submit">Войти</button>
+        <input name="password" type="password" required autocomplete="current-password" value="{{ demo_credentials.portal_password if demo_mode else '' }}">
+        <button class="btn w-full mt-3" type="submit">Войти</button>
       </form>
       <p class="muted small mt-3 mb-0">{% if demo_mode %}Демо-данные уже заполнены.{% else %}Пароль выдаёт сотрудник клуба в карточке клиента.{% endif %}</p>
       {% if tenant_slug and tenant_slug != 'legacy' %}
-      <a class="btn secondary w-100 mt-3" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
+      <a class="btn secondary w-full mt-3" href="{{ url_for('club_public.landing', slug=tenant_slug) }}">На сайт клуба</a>
       {% else %}
-      <a class="btn secondary w-100 mt-3" href="{{ url_for('club_public.landing') }}">На сайт клуба</a>
+      <a class="btn secondary w-full mt-3" href="{{ url_for('club_public.landing') }}">На сайт клуба</a>
       {% endif %}
     </section>
   </main>
@@ -169,7 +169,7 @@
       <section class="club-section-new" id="my-bookings">
         <p class="club-kicker">Мои записи</p>
         <h2 class="club-heading mb-3">Подтверждённые занятия</h2>
-        <div class="club-card-grid">
+        <div class="club-cargrid">
           {% for b in dash.upcoming_bookings %}
           <article class="club-card">
             <time class="club-schedule-time">{{ b.starts_at.strftime('%d.%m · %H:%M') if b.starts_at else '' }}</time>
@@ -199,7 +199,7 @@
       <section class="club-section-new">
         <p class="club-kicker">Групповые программы</p>
         <h2 class="club-heading mb-3">Доступные занятия</h2>
-        <div class="club-card-grid">
+        <div class="club-cargrid">
           {% for item in dash.catalog %}
           <article class="club-card">
             <time class="club-schedule-time">{{ item.starts_at.strftime('%d.%m · %H:%M') }}</time>
@@ -232,7 +232,7 @@
       <section class="club-section-new" id="personal-training">
         <p class="club-kicker">Персональные тренировки</p>
         <h2 class="club-heading mb-3">Занятия с тренером</h2>
-        <div class="club-card-grid">
+        <div class="club-cargrid">
           {% for slot in dash.my_trainer_slots %}
           <article class="club-card">
             <time class="club-schedule-time">{{ slot.starts_at.strftime('%d.%m · %H:%M') }}–{{ slot.ends_at.strftime('%H:%M') }}</time>
@@ -384,8 +384,8 @@
   {% endif %}
 
   <footer class="app-footer">
-    <div class="container-xxl d-flex flex-wrap justify-content-between gap-2 align-items-center">
-      <div class="d-flex align-items-center gap-2">
+    <div class="nika-wrap flex flex-wrap justify-between gap-2 items-center">
+      <div class="flex items-center gap-2">
         <span class="brand-mark brand-mark-sm">{{ brand_letters }}</span>
         <strong>{{ club_name }}</strong>
       </div>

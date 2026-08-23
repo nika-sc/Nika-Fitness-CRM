@@ -63,7 +63,7 @@
         <p class="mb-1"><i class="bi bi-telephone me-1" aria-hidden="true"></i>{{ member.phone or '—' }}</p>
         <p class="mb-2"><i class="bi bi-envelope me-1" aria-hidden="true"></i>{{ member.email or '—' }}</p>
         {% if member.notes %}<p class="muted mb-2">{{ member.notes }}</p>{% endif %}
-        <div class="d-flex flex-wrap gap-2 mb-2">
+        <div class="flex flex-wrap gap-2 mb-2">
           {% if current %}
           <span class="pill {{ status_pill_class(current.computed_status) }}">
             {{ current.plan_name or 'Абонемент' }} · до {{ current.ends_on }} · {{ status_label(current.computed_status) }}
@@ -91,8 +91,8 @@
         <form method="post" action="{{ url_for('members.add_medical', member_id=member.id) }}" class="member-medical mt-3">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <label class="form-label mb-1">Медсправка до</label>
-          <div class="d-flex gap-2">
-            <input class="form-control" type="date" name="expires_on" value="{{ medical.expires_on if medical else '' }}" required>
+          <div class="flex gap-2">
+            <input type="date" name="expires_on" value="{{ medical.expires_on if medical else '' }}" required>
             <button type="submit" class="btn secondary">Сохранить</button>
           </div>
         </form>
@@ -192,13 +192,13 @@
       {% endif %}
       <form method="post" action="{{ url_for('memberships.unfreeze', membership_id=current.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button class="btn w-100" type="submit">Разморозить</button>
+        <button class="btn w-full" type="submit">Разморозить</button>
       </form>
     {% else %}
       <form method="post" action="{{ url_for('memberships.freeze', membership_id=current.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input class="form-control" name="reason" placeholder="Отпуск, травма…" required>
-        <button class="btn mt-2 w-100" type="submit">Заморозить</button>
+        <input name="reason" placeholder="Отпуск, травма…" required>
+        <button class="btn mt-2 w-full" type="submit">Заморозить</button>
       </form>
     {% endif %}
     {% else %}
@@ -211,19 +211,19 @@
     <form method="post" action="{{ url_for('memberships.sell', member_id=member.id) }}" class="mt-2">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label class="form-label">План</label>
-      <select class="form-select" name="plan_id" required>
+      <select name="plan_id" required>
         {% for p in plans %}
         <option value="{{ p.id }}">{{ p.name }} — {{ '%.0f'|format(p.price_cents/100) }} ₽</option>
         {% endfor %}
       </select>
       <label class="form-label mt-2">Оплата</label>
-      <select class="form-select" name="method">
+      <select name="method">
         <option value="cash">Наличные</option>
         <option value="card">Карта</option>
         <option value="qr">QR</option>
       </select>
-      <input class="form-control mt-2" name="note" placeholder="Комментарий">
-      <button class="btn mt-2 w-100" type="submit">Оформить и принять оплату</button>
+      <input class="mt-2" name="note" placeholder="Комментарий">
+      <button class="btn mt-2 w-full" type="submit">Оформить и принять оплату</button>
     </form>
   </div>
   {% endif %}
@@ -258,14 +258,14 @@
     <form method="post" action="{{ url_for('members.trainer_slot', member_id=member.id) }}" class="mt-2">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label class="form-label">Свободное окно</label>
-      <select class="form-select" name="slot_id" required>
+      <select name="slot_id" required>
         {% for slot in open_slots %}
         <option value="{{ slot.id }}">
           {{ slot.starts_at.strftime('%d.%m %H:%M') }} · {{ slot.trainer_name }}{% if slot.place %} · {{ slot.place }}{% endif %}
         </option>
         {% endfor %}
       </select>
-      <button class="btn mt-2 w-100" type="submit">Записать</button>
+      <button class="btn mt-2 w-full" type="submit">Записать</button>
     </form>
     <p class="muted small mt-2 mb-0">Запись со стойки подтверждать не нужно — она сразу видна тренеру как подтверждённая. Оплата принимается отдельно.</p>
     {% else %}
@@ -280,7 +280,7 @@
     <p class="muted mt-2 mb-2">
       {% if member.portal_password_hash %}Пароль ЛК выдан (показывается один раз при сбросе).{% else %}Пароль ЛК ещё не выдан.{% endif %}
     </p>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <div class="flex flex-wrap gap-2 mb-3">
       <a class="btn" href="{{ portal_url }}" target="_blank" rel="noopener">Открыть ЛК</a>
       {% if nps_url %}
       <a class="btn secondary" href="{{ nps_url }}" target="_blank" rel="noopener">Оценка NPS</a>
@@ -288,21 +288,21 @@
     </div>
     {% if nps_url %}
     <label class="form-label">Ссылка NPS для клиента</label>
-    <div class="d-flex gap-2 mb-3">
-      <input class="form-control" id="npsShareUrl" type="text" readonly value="{{ nps_url }}">
+    <div class="flex gap-2 mb-3">
+      <input id="npsShareUrl" type="text" readonly value="{{ nps_url }}">
       <button class="btn secondary" type="button" data-copy="#npsShareUrl">Копировать</button>
     </div>
     {% endif %}
     <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="generate">
-      <button class="btn secondary w-100" type="submit">Сгенерировать пароль ЛК</button>
+      <button class="btn secondary w-full" type="submit">Сгенерировать пароль ЛК</button>
     </form>
     <form method="post" action="{{ url_for('members.portal_password', member_id=member.id) }}" class="mt-2">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="set">
-      <input class="form-control" name="password" minlength="6" placeholder="Свой пароль, от 6 символов" required>
-      <button class="btn secondary mt-2 w-100" type="submit">Сохранить пароль</button>
+      <input name="password" minlength="6" placeholder="Свой пароль, от 6 символов" required>
+      <button class="btn secondary mt-2 w-full" type="submit">Сохранить пароль</button>
     </form>
   </div>
   {% endif %}

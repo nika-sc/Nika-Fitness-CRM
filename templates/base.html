@@ -21,30 +21,30 @@
 <div class="drawer lg:drawer-open">
   <input id="app-drawer" type="checkbox" class="drawer-toggle">
   <div class="drawer-content flex flex-col min-h-screen">
-    <header class="nika-header navbar" aria-label="Верхняя навигация">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-2">
+    <header class="nika-header" aria-label="Верхняя навигация">
+      <div class="flex w-full items-center justify-between px-4">
+        <div class="flex items-center gap-2">
           <label for="app-drawer" class="btn btn-ghost btn-sm lg:hidden" aria-label="Свернуть меню">
             <i class="bi bi-list" aria-hidden="true"></i>
           </label>
-          <a class="nav-link d-none d-md-block" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
+          <a class="nav-link hidden md:block" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
             <i class="bi bi-house-door me-1" aria-hidden="true"></i>Главная
           </a>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="flex items-center gap-2">
           {% if club_name %}
           <span class="mobile-club-name">{{ club_name }}{% if tenant_slug and tenant_slug != 'legacy' %} · {{ tenant_slug }}{% endif %}</span>
           {% endif %}
           {% if has_permission('view_alerts') %}
-          <a class="nav-link position-relative" href="{{ url_for('alerts.list_alerts') }}" aria-label="Алерты">
+          <a class="nav-link relative" href="{{ url_for('alerts.list_alerts') }}" aria-label="Алерты">
             <i class="bi bi-bell" aria-hidden="true"></i>
             {% if unread_alerts %}<span class="badge">{{ unread_alerts }}</span>{% endif %}
           </a>
           {% endif %}
           <div class="dropdown">
-            <a class="nav-link" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link" href="#" data-nika-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-              <span class="d-none d-sm-inline">{{ current_user.full_name }}</span>
+              <span class="hidden sm:inline">{{ current_user.full_name }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><span class="dropdown-item-text">{{ role_label(current_user.role) }}</span></li>
@@ -76,12 +76,12 @@
     </main>
     <footer class="app-footer">
       <strong>Nika Fit</strong>
-      <span class="float-end d-none d-sm-inline">Fitness CRM</span>
+      <span class="ms-auto hidden sm:inline">Fitness CRM</span>
     </footer>
   </div>
   <div class="drawer-side">
     <label for="app-drawer" class="drawer-overlay" aria-label="Закрыть меню"></label>
-    <aside class="nika-sidebar min-h-full w-72">
+    <aside class="nika-sidebar min-h-full">
       <div class="sidebar-brand" style="padding: .85rem 1rem;">
         <a class="brand-link" href="{{ url_for('main.dashboard') if current_user.role != 'reception' else url_for('reception.desk') }}">
           <span class="brand-mark">NF</span>
@@ -208,7 +208,7 @@
           <li class="nav-item mt-2">
             <form method="post" action="{{ url_for('auth.logout') }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
+              <button type="submit" class="nav-link w-full border-0 bg-transparent text-left">
                 <i class="nav-icon bi bi-box-arrow-right"></i><p>Выход</p>
               </button>
             </form>

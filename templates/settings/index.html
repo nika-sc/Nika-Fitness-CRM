@@ -60,14 +60,14 @@
   <p class="muted">По умолчанию выключены. Включите только то, чем пользуетесь — пункты появятся в меню.</p>
   <form method="post" action="{{ url_for('settings.save_modules') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="row g-2">
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
       {% for m in modules %}
-      <div class="col-md-6">
-        <label class="d-flex gap-2 align-items-start p-2">
+      <div>
+        <label class="flex gap-2 items-start p-2">
           <input type="checkbox" name="{{ m.key }}" value="1" {% if m.enabled %}checked{% endif %}>
           <span>
             <strong>{{ m.label }}</strong>
-            <span class="muted d-block small">{{ m.hint }}</span>
+            <span class="muted block small">{{ m.hint }}</span>
           </span>
         </label>
       </div>

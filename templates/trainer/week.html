@@ -81,8 +81,8 @@
 </div>
 {% endif %}
 
-<div class="row g-3">
-  <div class="col-xl-8">
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-12">
+  <div class="xl:col-span-8">
     <div class="panel p-0 overflow-hidden">
       <div class="week-grid">
         {% for day in week_days %}
@@ -142,7 +142,7 @@
     </div>
   </div>
 
-  <div class="col-xl-4">
+  <div class="xl:col-span-4">
     <div class="panel">
       <div class="panel-head">
         <h3 class="mb-0"><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Открыть окна</h3>
@@ -150,24 +150,24 @@
       <form method="post" action="{{ url_for('trainer_cabinet.create_slots') }}" class="mt-3">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="week" value="{{ week_start.isoformat() }}">
-        <div class="row g-2">
-          <div class="col-sm-6">
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div>
             <label class="form-label">Дата</label>
-            <input class="form-control" type="date" name="slot_date" value="{{ default_date }}" required>
+            <input type="date" name="slot_date" value="{{ default_date }}" required>
           </div>
-          <div class="col-sm-6">
+          <div>
             <label class="form-label">Время</label>
-            <input class="form-control" type="time" name="start_time" value="10:00" required>
+            <input type="time" name="start_time" value="10:00" required>
           </div>
         </div>
-        <div class="row g-2 mt-1">
-          <div class="col-sm-6">
+        <div class="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div>
             <label class="form-label">Длительность, мин</label>
-            <input class="form-control" type="number" name="duration_min" value="60" min="15" max="480" step="15">
+            <input type="number" name="duration_min" value="60" min="15" max="480" step="15">
           </div>
-          <div class="col-sm-6">
+          <div>
             <label class="form-label">Место</label>
-            <input class="form-control" name="place" placeholder="Тренажёрный зал">
+            <input name="place" placeholder="Тренажёрный зал">
           </div>
         </div>
 
@@ -181,7 +181,7 @@
           {% endfor %}
         </div>
         <label class="form-label mt-2">Повторять до</label>
-        <input class="form-control" type="date" name="repeat_until">
+        <input type="date" name="repeat_until">
         <p class="muted small mt-1 mb-0">Без галочек создастся одно окно на указанную дату.</p>
 
         <button class="btn tap-lg mt-3" type="submit"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Открыть</button>

@@ -10,19 +10,19 @@
 </div>
 
 <form method="get" class="panel mb-3">
-  <div class="d-flex flex-wrap gap-2 mb-2">
+  <div class="flex flex-wrap gap-2 mb-2">
     {% for key, label in periods %}
     <a class="btn btn-sm {% if period == key %}{% else %}secondary{% endif %}" href="{{ url_for('reception.stats', period=key, focus=focus) }}">{{ label }}</a>
     {% endfor %}
   </div>
-  <div class="d-flex flex-wrap gap-2 align-items-end">
+  <div class="flex flex-wrap gap-2 items-end">
     <div>
       <label class="form-label">С</label>
-      <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+      <input type="date" name="date_from" value="{{ date_from }}">
     </div>
     <div>
       <label class="form-label">По</label>
-      <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+      <input type="date" name="date_to" value="{{ date_to }}">
     </div>
     <input type="hidden" name="period" value="custom">
     <button class="btn" type="submit">Показать</button>

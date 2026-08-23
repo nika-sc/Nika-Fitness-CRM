@@ -12,20 +12,20 @@
 <form class="panel form-panel" method="post" enctype="multipart/form-data" style="max-width:760px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <label class="form-label">ФИО</label>
-  <input class="form-control" name="full_name" required value="{{ member.full_name if member else '' }}">
-  <div class="row g-3 mt-1">
-    <div class="col-md-6">
+  <input name="full_name" required value="{{ member.full_name if member else '' }}">
+  <div class="mt-1 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div>
       <label class="form-label">Телефон</label>
-      <input class="form-control" name="phone" value="{{ member.phone if member else '' }}">
+      <input name="phone" value="{{ member.phone if member else '' }}">
     </div>
-    <div class="col-md-6">
+    <div>
       <label class="form-label">Email</label>
-      <input class="form-control" type="email" name="email" value="{{ member.email if member else '' }}">
+      <input type="email" name="email" value="{{ member.email if member else '' }}">
     </div>
   </div>
   {% if member %}
   <label class="form-label mt-3">VIP-номер</label>
-  <select class="form-select" name="vip_number">
+  <select name="vip_number">
     <option value="">Оставить {{ member.card_number }}</option>
     {% for n in vip_numbers|default([]) %}
     <option value="{{ n }}" {% if member.card_number == n %}selected{% endif %}>{{ n }}</option>
@@ -33,7 +33,7 @@
   </select>
   {% else %}
   <label class="form-label mt-3">VIP-номер (необязательно)</label>
-  <select class="form-select" name="vip_number">
+  <select name="vip_number">
     <option value="">По порядку (с 1000)</option>
     {% for n in vip_numbers|default([]) %}
     <option value="{{ n }}">{{ n }}</option>
@@ -42,16 +42,16 @@
   {% endif %}
   {% if member %}
   <label class="form-label mt-3">Статус</label>
-  <select class="form-select" name="status">
+  <select name="status">
     <option value="active" {% if member.status=='active' %}selected{% endif %}>Активен</option>
     <option value="inactive" {% if member.status=='inactive' %}selected{% endif %}>Неактивен</option>
   </select>
   {% endif %}
   <label class="form-label mt-3">Заметки</label>
-  <textarea class="form-control" name="notes" rows="3">{{ member.notes if member else '' }}</textarea>
+  <textarea name="notes" rows="3">{{ member.notes if member else '' }}</textarea>
   <label class="form-label mt-3">Фото</label>
-  <input class="form-control" type="file" name="photo" accept="image/jpeg,image/png,image/webp">
-  <div class="mt-4 d-flex gap-2 flex-wrap">
+  <input type="file" name="photo" accept="image/jpeg,image/png,image/webp">
+  <div class="mt-4 flex gap-2 flex-wrap">
     <button class="btn" type="submit"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Сохранить</button>
     <a class="btn secondary" href="{{ url_for('members.list_members') }}">Отмена</a>
   </div>

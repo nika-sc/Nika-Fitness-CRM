@@ -1,9 +1,5 @@
-/* Brand hub nika-crm.ru */
-/*
- * Brand hub nika-crm.ru — AdminLTE 4 top-nav, shared Nika chrome.
- */
-:root,
-[data-bs-theme="dark"] {
+/* Brand hub nika-crm.ru — daisyUI tokens, shared Nika chrome. */
+:root {
   --nika-bg: #08101d;
   --nika-bg-soft: #0f1929;
   --nika-surface: #142033;
@@ -16,11 +12,6 @@
   --fitness-accent: #ff5a3c;
   --nika-radius: 14px;
   --nika-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
-  --bs-body-bg: var(--nika-bg);
-  --bs-body-color: var(--nika-text);
-  --bs-border-color: var(--nika-line);
-  --bs-primary: var(--nika-accent);
-  --bs-link-color: #ff8b75;
 }
 
 body.nika-hub {
@@ -38,18 +29,15 @@ body.nika-hub {
   background: transparent;
 }
 
-.nika-hub .app-header {
-  min-height: 68px;
-  padding-block: .35rem;
-  background: rgba(9, 17, 30, 0.88);
+.nika-hub .nika-header {
+  min-height: 57px;
+  padding-block: 0;
+  background: rgba(9, 17, 30, 0.96);
   border-bottom: 1px solid var(--nika-line);
-  backdrop-filter: blur(14px);
-  position: sticky;
-  top: 0;
-  z-index: 1030;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
 }
 
-.nika-hub .navbar-brand.brand-link {
+.nika-hub .brand-link {
   display: inline-flex;
   align-items: center;
   gap: .7rem;
@@ -96,21 +84,21 @@ body.nika-hub {
   font-size: .7rem;
 }
 
-.nika-hub .app-header .nav-link {
+.nika-hub .nika-header .nav-link {
   display: inline-flex;
   align-items: center;
   min-height: 40px;
   color: var(--nika-muted);
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: .45rem .8rem;
   line-height: 1.2;
 }
-.nika-hub .app-header .nav-link:hover {
+.nika-hub .nika-header .nav-link:hover {
   color: #fff;
   background: rgba(255, 255, 255, .06);
 }
-.nika-hub .navbar-toggler { color: var(--nika-text); }
+.nika-hub .nika-nav-toggle { color: var(--nika-text); }
 
 .nika-hub .btn {
   display: inline-flex;
@@ -126,7 +114,7 @@ body.nika-hub {
   text-decoration: none;
   background: linear-gradient(135deg, var(--nika-accent), #ff793d);
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 .nika-hub .btn:hover { color: #fff; filter: brightness(1.06); }
 .nika-hub .btn.secondary {
@@ -336,6 +324,13 @@ body.nika-hub {
   width: 100%;
   animation: hub-hero-in 1s ease .12s both;
 }
+.nika-hub .hub-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: .35rem;
+  align-items: stretch;
+}
 
 .nika-hub .hub-products--hero .hub-section-title {
   text-align: center;
@@ -441,7 +436,7 @@ body.nika-hub {
 .nika-hub .hub-footer-links a:hover { color: #fff; }
 
 @media (max-width: 991.98px) {
-  .nika-hub .app-header .navbar-nav { padding: .75rem 0 1rem; }
+  .nika-hub .nika-nav-list { padding: .75rem 0 1rem; }
 
   .nika-hub .hub-hero {
     min-height: auto;
@@ -469,12 +464,14 @@ body.nika-hub {
     display: none;
   }
 
+  .nika-hub .hub-product-grid { grid-template-columns: 1fr; }
+
   .nika-hub .hub-hero-veil {
     background:
       linear-gradient(180deg,
-        rgba(8, 16, 29, .82) 0%,
-        rgba(8, 16, 29, .58) 42%,
-        rgba(8, 16, 29, .92) 100%),
+        rgba(8, 16, 29, .9) 0%,
+        rgba(8, 16, 29, .84) 42%,
+        rgba(8, 16, 29, .94) 100%),
       linear-gradient(115deg,
         rgba(43, 184, 166, .12) 0%,
         transparent 45%,

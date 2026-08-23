@@ -6,30 +6,30 @@
     <h1>Касса</h1>
     <p class="muted">{{ date_from }} — {{ date_to }} · нал / карта / QR</p>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
-    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#incomeModal">
+  <div class="flex gap-2 flex-wrap">
+    <button type="button" class="btn" data-nika-toggle="modal" data-nika-target="#incomeModal">
       <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Приход
     </button>
-    <button type="button" class="btn secondary" data-bs-toggle="modal" data-bs-target="#expenseModal">
+    <button type="button" class="btn secondary" data-nika-toggle="modal" data-nika-target="#expenseModal">
       <i class="bi bi-dash-lg me-1" aria-hidden="true"></i>Расход
     </button>
   </div>
 </div>
 
 <form method="get" class="panel mb-3">
-  <div class="d-flex flex-wrap gap-2 mb-2">
+  <div class="flex flex-wrap gap-2 mb-2">
     {% for key, label in periods %}
     <a class="btn btn-sm {% if period == key %}{% else %}secondary{% endif %}" href="{{ url_for('cash.index', period=key) }}">{{ label }}</a>
     {% endfor %}
   </div>
-  <div class="d-flex flex-wrap gap-2 align-items-end">
+  <div class="flex flex-wrap gap-2 items-end">
     <div>
       <label class="form-label">С</label>
-      <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+      <input type="date" name="date_from" value="{{ date_from }}">
     </div>
     <div>
       <label class="form-label">По</label>
-      <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+      <input type="date" name="date_to" value="{{ date_to }}">
     </div>
     <input type="hidden" name="period" value="custom">
     <button class="btn" type="submit">Показать</button>
@@ -93,7 +93,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="incomeModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="incomeModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="{{ url_for('cash.index', period=period, date_from=date_from, date_to=date_to) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -102,39 +102,39 @@
       <input type="hidden" name="date_from" value="{{ date_from }}">
       <input type="hidden" name="date_to" value="{{ date_to }}">
       <div class="modal-header">
-        <h2 class="modal-title h5 mb-0">Приход</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h2 class="modal-title">Приход</h2>
+        <button type="button" class="btn-close" data-nika-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
         <label class="form-label">Статья</label>
-        <select class="form-select" name="category_id">
+        <select name="category_id">
           {% for c in income_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
         </select>
         <label class="form-label mt-2">Способ</label>
-        <select class="form-select" name="method">
+        <select name="method">
           <option value="cash">Наличные</option>
           <option value="card">Карта</option>
           <option value="qr">QR</option>
         </select>
         <label class="form-label mt-2">Сумма, ₽</label>
-        <input class="form-control" name="amount" type="number" min="0" step="1" required>
+        <input name="amount" type="number" min="0" step="1" required>
         <label class="form-label mt-2">Клиент (необязательно)</label>
-        <select class="form-select" name="member_id">
+        <select name="member_id">
           <option value="">—</option>
           {% for m in members %}<option value="{{ m.id }}">{{ m.full_name }}</option>{% endfor %}
         </select>
         <label class="form-label mt-2">Комментарий</label>
-        <input class="form-control" name="note">
+        <input name="note">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn secondary" data-nika-dismiss="modal">Отмена</button>
         <button class="btn" type="submit">Записать приход</button>
       </div>
     </form>
   </div>
 </div>
 
-<div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="expenseModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="{{ url_for('cash.index', period=period, date_from=date_from, date_to=date_to) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -143,27 +143,27 @@
       <input type="hidden" name="date_from" value="{{ date_from }}">
       <input type="hidden" name="date_to" value="{{ date_to }}">
       <div class="modal-header">
-        <h2 class="modal-title h5 mb-0">Расход</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h2 class="modal-title">Расход</h2>
+        <button type="button" class="btn-close" data-nika-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
         <label class="form-label">Статья</label>
-        <select class="form-select" name="category_id">
+        <select name="category_id">
           {% for c in expense_cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
         </select>
         <label class="form-label mt-2">Способ</label>
-        <select class="form-select" name="method">
+        <select name="method">
           <option value="cash">Наличные</option>
           <option value="card">Карта</option>
           <option value="qr">QR</option>
         </select>
         <label class="form-label mt-2">Сумма, ₽</label>
-        <input class="form-control" name="amount" type="number" min="0" step="1" required>
+        <input name="amount" type="number" min="0" step="1" required>
         <label class="form-label mt-2">Комментарий</label>
-        <input class="form-control" name="note">
+        <input name="note">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn secondary" data-nika-dismiss="modal">Отмена</button>
         <button class="btn" type="submit">Записать расход</button>
       </div>
     </form>

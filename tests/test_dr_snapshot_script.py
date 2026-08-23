@@ -11,3 +11,7 @@ def test_dr_snapshot_uses_7z_aes_header_encryption():
     assert "BACKUP_ARCHIVE_PASSWORD" in src
     assert ".7z" in src
     assert 'subtype="xz"' not in src
+    assert "nika-hub-vps_" in src
+    assert "RESTORE.txt" in src
+    assert "PGDMP" in src
+    assert "Send mail 1/2" not in src

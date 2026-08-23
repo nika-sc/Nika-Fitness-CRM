@@ -5,9 +5,9 @@
 {% set _parts = (club_name or 'NF').split() %}
 {% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
 <div class="app-wrapper">
-  <nav class="app-header navbar navbar-expand-lg" aria-label="Оценка клуба">
-    <div class="container-xxl">
-      <a class="navbar-brand brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
+  <nav class="nika-header" aria-label="Оценка клуба">
+    <div class="nika-wrap nika-header-inner">
+      <a class="brand-link" href="{% if tenant_slug and tenant_slug != 'legacy' %}{{ url_for('club_public.landing', slug=tenant_slug) }}{% else %}{{ url_for('club_public.landing') }}{% endif %}">
         <span class="brand-mark">{{ brand_letters }}</span>
         <span class="brand-copy">
           <span class="brand-title">{{ club_name }}</span>
@@ -50,8 +50,8 @@
           </div>
         </fieldset>
         <label class="form-label mt-3">Комментарий <span class="muted">(необязательно)</span></label>
-        <textarea class="form-control" name="comment" rows="3" placeholder="Что понравилось или что улучшить"></textarea>
-        <button class="btn w-100 mt-3" type="submit">Отправить оценку</button>
+        <textarea name="comment" rows="3" placeholder="Что понравилось или что улучшить"></textarea>
+        <button class="btn w-full mt-3" type="submit">Отправить оценку</button>
       </form>
     </section>
   </main>

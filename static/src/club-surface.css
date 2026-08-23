@@ -1,8 +1,4 @@
-/* Club site + portal surface (daisyUI variables, no AdminLTE) */
-/*
- * Club site + member portal on AdminLTE 4.
- * Keeps per-club theme tokens (--club-*) while matching Nika Fit AdminLTE chrome.
- */
+/* Club site + portal surface (daisyUI variables). */
 body.club-theme {
   font-family: "Manrope", sans-serif;
 }
@@ -12,18 +8,15 @@ body.club-theme .app-wrapper {
   background: transparent;
 }
 
-body.club-theme .app-header {
-  min-height: 68px;
-  padding-block: .35rem;
-  background: rgba(var(--club-surface), 0.82);
+body.club-theme .nika-header {
+  min-height: 57px;
+  padding-block: 0;
+  background: rgba(var(--club-surface), 0.96);
   border-bottom: 1px solid color-mix(in srgb, var(--club-accent) 28%, rgba(255, 255, 255, .08));
-  backdrop-filter: blur(16px);
-  position: sticky;
-  top: 0;
-  z-index: 1030;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
 }
 
-body.club-theme .navbar-brand.brand-link {
+body.club-theme .brand-link {
   display: inline-flex;
   align-items: center;
   gap: .7rem;
@@ -78,24 +71,24 @@ body.club-theme .brand-subtitle {
   font-size: .7rem;
 }
 
-body.club-theme .app-header .nav-link {
+body.club-theme .nika-header .nav-link {
   display: inline-flex;
   align-items: center;
   min-height: 40px;
   color: var(--club-muted);
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: .45rem .8rem;
   line-height: 1.2;
 }
 
-body.club-theme .app-header .nav-link:hover,
-body.club-theme .app-header .nav-link.active {
+body.club-theme .nika-header .nav-link:hover,
+body.club-theme .nika-header .nav-link.active {
   color: #fff;
   background: rgba(255, 255, 255, .06);
 }
 
-body.club-theme .navbar-toggler {
+body.club-theme .nika-nav-toggle {
   color: var(--club-text);
 }
 
@@ -170,7 +163,7 @@ body.club-theme .club-card h3 {
 }
 
 body.club-theme .btn,
-body.club-theme button:not(.navbar-toggler):not(.btn-close):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item),
+body.club-theme button:not(.nika-nav-toggle):not(.btn-close):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item),
 body.club-theme input[type="submit"] {
   width: auto;
   padding: .64rem .95rem;
@@ -180,13 +173,13 @@ body.club-theme input[type="submit"] {
   line-height: 1.2;
   background: linear-gradient(135deg, var(--club-accent), color-mix(in srgb, var(--club-accent) 70%, #ff793d));
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 6px;
   text-decoration: none;
   box-shadow: none;
 }
 
 body.club-theme .btn:hover,
-body.club-theme button:not(.navbar-toggler):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item):hover {
+body.club-theme button:not(.nika-nav-toggle):not(.nika-lightbox-close):not(.nika-lightbox-nav):not(.club-gallery-item):hover {
   color: #fff;
   filter: brightness(1.06);
 }
@@ -199,8 +192,7 @@ body.club-theme .btn.secondary {
 
 body.club-theme input:not([type="checkbox"]):not([type="radio"]),
 body.club-theme select,
-body.club-theme textarea,
-body.club-theme .form-control {
+body.club-theme textarea {
   width: 100%;
   min-height: 42px;
   color: var(--club-text);
@@ -220,9 +212,6 @@ body.club-theme textarea:focus {
 }
 
 body.club-theme .table {
-  --bs-table-bg: transparent;
-  --bs-table-color: var(--club-text);
-  --bs-table-border-color: color-mix(in srgb, var(--club-accent) 14%, rgba(255, 255, 255, .08));
   color: var(--club-text);
 }
 
@@ -564,7 +553,6 @@ body.club-theme .flash.warning { border-left-color: #f0b429; background: rgba(24
 body.club-theme .flash.error { border-left-color: #ff5a6a; background: rgba(255, 90, 106, .08); }
 
 @media (max-width: 991.98px) {
-  bodybody.club-theme,
   body.club-theme .app-wrapper {
     overflow-x: hidden;
   }
@@ -578,7 +566,7 @@ body.club-theme .flash.error { border-left-color: #ff5a6a; background: rgba(255,
   body.club-theme .club-schedule-card > span:last-child {
     grid-column: 2;
   }
-  body.club-theme .navbar-toggler {
+  body.club-theme .nika-nav-toggle {
     min-width: 44px;
     min-height: 44px;
     display: inline-flex;
@@ -591,7 +579,7 @@ body.club-theme .flash.error { border-left-color: #ff5a6a; background: rgba(255,
     line-height: 1.15;
     font-size: clamp(.82rem, 3.5vw, 1rem);
   }
-  body.club-theme .app-header .navbar-brand.brand-link {
+  body.club-theme .nika-header .brand-link {
     max-width: calc(100% - 3.5rem);
   }
 }

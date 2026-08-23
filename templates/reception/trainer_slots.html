@@ -14,10 +14,10 @@
         <td>{{ slot.trainer_name }}</td>
         <td>{{ slot.place or '—' }}</td>
         <td>
-          <form method="post" class="d-flex gap-2 flex-wrap">
+          <form method="post" class="flex gap-2 flex-wrap">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="slot_id" value="{{ slot.id }}">
-            <select class="form-select" name="member_id" required style="max-width:18rem;">
+            <select name="member_id" required style="max-width:18rem;">
               <option value="">— клиент —</option>
               {% for m in members %}
               <option value="{{ m.id }}">{{ m.full_name }} · {{ m.card_number }}</option>

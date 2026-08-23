@@ -6,16 +6,16 @@
     <h1>Ресепшен</h1>
     <p class="muted">Чекин по карте / QR</p>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
+  <div class="flex gap-2 flex-wrap">
     {% if feature_enabled('module_trainer_slots') and has_permission('manage_trainer_slots') %}
     <a class="btn secondary" href="{{ url_for('reception.trainer_slots') }}">
       <i class="bi bi-person-arms-up me-1" aria-hidden="true"></i>Окна тренеров
     </a>
     {% endif %}
-    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#guestVisitModal">
+    <button type="button" class="btn" data-nika-toggle="modal" data-nika-target="#guestVisitModal">
       <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Гостевой визит
     </button>
-    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#newClientModal">Новый клиент</button>
+    <button type="button" class="btn" data-nika-toggle="modal" data-nika-target="#newClientModal">Новый клиент</button>
   </div>
 </div>
 
@@ -41,8 +41,8 @@
   </a>
 </div>
 
-<div class="row g-3 reception-desk">
-  <div class="col-xl-8">
+<div class="reception-desk grid grid-cols-1 gap-4 xl:grid-cols-12">
+  <div class="xl:col-span-8">
     {% if last_checkin %}
     <div class="checkin-result {{ last_checkin.level }} mb-3">
       <div>
@@ -73,13 +73,13 @@
         <div class="desk-checkin-row">
           <div class="desk-checkin-search">
             <label class="form-label" for="deskLiveSearch">Поиск / карта / QR</label>
-            <input class="checkin-input card-number form-control" id="deskLiveSearch" name="card_number" placeholder="ФИО, телефон, карта или QR…" autofocus autocomplete="off">
+            <input class="checkin-input card-number" id="deskLiveSearch" name="card_number" placeholder="ФИО, телефон, карта или QR…" autofocus autocomplete="off">
             <div id="deskLiveResults" class="live-search-results" hidden></div>
           </div>
           {% if zones %}
           <div class="desk-checkin-zone">
             <label class="form-label" for="deskZone">Зона</label>
-            <select class="form-select" id="deskZone" name="zone">
+            <select id="deskZone" name="zone">
               {% for z in zones %}
               <option value="{{ z.code }}" {% if z.code == 'gym' %}selected{% endif %}>{{ z.name }}</option>
               {% endfor %}
@@ -98,7 +98,7 @@
         <label class="form-label">Поиск клиента</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
-          <input class="form-control" name="q" value="{{ q }}" placeholder="ФИО, телефон или карта…">
+          <input name="q" value="{{ q }}" placeholder="ФИО, телефон или карта…">
           <button type="submit" class="btn secondary tap-lg">Найти</button>
         </div>
       </form>
@@ -140,7 +140,7 @@
     </div>
   </div>
 
-  <div class="col-xl-4">
+  <div class="xl:col-span-4">
     <div class="panel mb-0">
       <div class="panel-head">
         <h3 class="mb-0"><i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>Скоро заканчивается</h3>
@@ -212,80 +212,80 @@
   </div>
 </div>
 
-<div class="modal fade" id="guestVisitModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="guestVisitModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="{{ url_for('reception.guest') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="modal-header">
-        <h2 class="modal-title h5 mb-0">Гостевой визит</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h2 class="modal-title">Гостевой визит</h2>
+        <button type="button" class="btn-close" data-nika-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
         <label class="form-label">ФИО</label>
-        <input class="form-control" name="guest_name" required>
+        <input name="guest_name" required>
         <label class="form-label mt-2">Телефон</label>
-        <input class="form-control" name="guest_phone">
+        <input name="guest_phone">
         <label class="form-label mt-2">Хост (клиент клуба)</label>
-        <select class="form-select" name="host_member_id">
+        <select name="host_member_id">
           <option value="">— без хоста —</option>
           {% for m in host_candidates %}
           <option value="{{ m.id }}">{{ m.full_name }}</option>
           {% endfor %}
         </select>
         <label class="form-label mt-2">Сумма, ₽</label>
-        <input class="form-control" name="amount" type="number" min="0" step="1" value="0">
+        <input name="amount" type="number" min="0" step="1" value="0">
         <label class="form-label mt-2">Способ</label>
-        <select class="form-select" name="method">
+        <select name="method">
           <option value="cash">Наличные</option>
           <option value="card">Карта</option>
           <option value="qr">QR</option>
         </select>
         <label class="form-label mt-2">Комментарий</label>
-        <input class="form-control" name="note">
+        <input name="note">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn secondary" data-nika-dismiss="modal">Отмена</button>
         <button type="submit" class="btn">Записать гостя</button>
       </div>
     </form>
   </div>
 </div>
-<div class="modal fade" id="newClientModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="newClientModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="{{ url_for('reception.register') }}" id="newClientForm">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="modal-header">
-        <h2 class="modal-title h5 mb-0">Новый клиент</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h2 class="modal-title">Новый клиент</h2>
+        <button type="button" class="btn-close" data-nika-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
         <div data-step="1">
           <p class="muted">Шаг 1 из 3 — контакты</p>
           <label class="form-label">ФИО</label>
-          <input class="form-control" name="full_name" required>
+          <input name="full_name" required>
           <label class="form-label mt-2">Телефон</label>
-          <input class="form-control" name="phone" required>
+          <input name="phone" required>
           <label class="form-label mt-2">VIP-номер (необязательно)</label>
-          <select class="form-select" name="vip_number">
+          <select name="vip_number">
             <option value="">По порядку</option>
             {% for n in vip_numbers %}
             <option value="{{ n }}">{{ n }}</option>
             {% endfor %}
           </select>
           <label class="form-label mt-2">Email (необязательно)</label>
-          <input class="form-control" name="email" type="email">
+          <input name="email" type="email">
         </div>
         <div data-step="2" hidden>
           <p class="muted">Шаг 2 из 3 — абонемент</p>
           <label class="form-label">План</label>
-          <select class="form-select" name="plan_id">
+          <select name="plan_id">
             <option value="">— без продажи —</option>
             {% for p in plans %}
             <option value="{{ p.id }}">{{ p.name }} · {{ '%.0f'|format(p.price_cents/100) }} ₽</option>
             {% endfor %}
           </select>
           <label class="form-label mt-2">Оплата</label>
-          <select class="form-select" name="method">
+          <select name="method">
             <option value="cash">Наличные</option>
             <option value="card">Карта</option>
             <option value="qr">QR</option>
@@ -298,7 +298,7 @@
             Выдать доступ в личный кабинет
           </label>
           <label class="form-label mt-2">Пароль (пусто — сгенерировать)</label>
-          <input class="form-control" name="portal_password" minlength="6" autocomplete="new-password">
+          <input name="portal_password" minlength="6" autocomplete="new-password">
         </div>
       </div>
       <div class="modal-footer">
