@@ -22,7 +22,7 @@ DEFAULT_BASE = "https://fitness.nika-crm.ru"
 SLUG = "nika"
 STAFF_USER = "admin"
 STAFF_PASS = "admin123"
-PORTAL_LOGIN = "smelkov2008@yandex.ru"
+PORTAL_LOGIN = "client@demo-nika.fit"
 PORTAL_PASS = "client123"
 
 VIEWPORT = {"width": 390, "height": 844}

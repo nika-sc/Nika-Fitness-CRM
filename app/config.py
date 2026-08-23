@@ -21,7 +21,7 @@ class Config:
     DEMO_MODE = os.environ.get('DEMO_MODE', 'False').lower() == 'true'
     DEMO_STAFF_USER = os.environ.get('DEMO_STAFF_USER', 'admin')
     DEMO_STAFF_PASSWORD = os.environ.get('DEMO_STAFF_PASSWORD', 'admin123')
-    DEMO_PORTAL_LOGIN = os.environ.get('DEMO_PORTAL_LOGIN', 'smelkov2008@yandex.ru')
+    DEMO_PORTAL_LOGIN = os.environ.get('DEMO_PORTAL_LOGIN', 'client@demo-nika.fit')
     DEMO_PORTAL_PASSWORD = os.environ.get('DEMO_PORTAL_PASSWORD', 'client123')
 
     SESSION_COOKIE_HTTPONLY = True

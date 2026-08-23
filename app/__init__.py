@@ -6,12 +6,12 @@ import os
 import time
 from datetime import datetime
 
-from flask import Flask, g, request, session
+from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager, current_user
 from flask_mail import Mail
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.config import Config, ProductionConfig
@@ -132,7 +132,25 @@ def create_app(config_class=Config):
     def _security_headers(response):
         for key, value in security_headers(request.path or '').items():
             response.headers.setdefault(key, value)
+        path = request.path or ''
+        if path in ('/', '/login', '/register') or path.endswith('/login'):
+            response.headers['Cache-Control'] = 'no-store'
+            response.headers['Pragma'] = 'no-cache'
         return response
+
+    @app.errorhandler(CSRFError)
+    def _handle_csrf_error(_error):
+        flash('Сессия формы устарела. Обновите страницу и повторите действие.', 'error')
+        path = request.path or ''
+        slug = (request.form.get('slug') or '').strip().lower()
+        if path == '/login' and app.extensions.get('saas_landing'):
+            from app.saas.routes.platform import _render_entry
+            return _render_entry(slug, 400)
+        if path == '/login' or (request.endpoint or '').startswith('auth.login'):
+            return render_template('auth/login.html'), 400
+        if (request.endpoint or '').startswith('portal.'):
+            return redirect(url_for('portal.home'))
+        return redirect(url_for('public.index'))
 
     @app.context_processor
     def inject_globals():

@@ -95,7 +95,11 @@ def test_sanitize_html_strips_unsafe_markup():
     assert 'Hi' in out
 
 
-def test_talisman_sets_csp():
+def test_talisman_sets_csp(monkeypatch):
+    monkeypatch.setenv('APP_EDITION', 'selfhosted')
+    monkeypatch.setenv('DATABASE_URL', 'postgresql://localhost/nikafit')
+    monkeypatch.setattr('app.bootstrap.get_legacy_database_url', lambda: 'postgresql://localhost/nikafit')
+    monkeypatch.setattr('app.bootstrap.set_tenant_context', lambda *args, **kwargs: None)
     from app import create_app
     from app.config import DevelopmentConfig
 
@@ -115,3 +119,27 @@ def test_redis_limiter_falls_back_when_unreachable(monkeypatch):
 
     app = create_app(DevelopmentConfig)
     assert app.config['RATELIMIT_STORAGE_URI'] == 'memory://'
+
+
+def test_login_form_not_cached_and_stale_csrf_rerenders(monkeypatch):
+    monkeypatch.setenv('APP_EDITION', 'selfhosted')
+    monkeypatch.setenv('DATABASE_URL', 'postgresql://localhost/nikafit')
+    monkeypatch.setattr('app.bootstrap.get_legacy_database_url', lambda: 'postgresql://localhost/nikafit')
+    monkeypatch.setattr('app.bootstrap.set_tenant_context', lambda *args, **kwargs: None)
+    from app import create_app
+    from app.config import DevelopmentConfig
+
+    app = create_app(DevelopmentConfig)
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        page = client.get('/login')
+        assert page.status_code == 200
+        assert 'no-store' in (page.headers.get('Cache-Control') or '')
+        stale = client.post(
+            '/login',
+            data={'username': 'admin', 'password': 'x', 'csrf_token': 'stale-token'},
+        )
+        body = stale.get_data(as_text=True)
+        assert stale.status_code == 400
+        assert 'Сессия формы устарела' in body
+        assert 'The CSRF tokens do not match' not in body
