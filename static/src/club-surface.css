@@ -867,6 +867,21 @@ body.club-landing .club-week-row time {
 }
 
 @media (max-width: 767.98px) {
+  body.club-landing .club-week-grid {
+    grid-template-columns: 1fr;
+  }
+  body.club-landing .club-week-row {
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+  }
+  body.club-landing .club-week-actions {
+    grid-column: 2;
+    align-items: stretch;
+    width: 100%;
+  }
+  body.club-theme .club-booking-modal .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
   body.club-landing .club-gallery-bento {
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: 140px;

@@ -4,12 +4,12 @@
 
   const openModal = (el) => {
     if (!el) return;
-    el.classList.add("is-open");
+    el.classList.add("is-open", "modal-open");
     el.setAttribute("aria-hidden", "false");
   };
   const closeModal = (el) => {
     if (!el) return;
-    el.classList.remove("is-open");
+    el.classList.remove("is-open", "modal-open");
     el.setAttribute("aria-hidden", "true");
   };
 

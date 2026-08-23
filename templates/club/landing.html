@@ -1,4 +1,7 @@
 {% extends "club/base_club.html" %}
+{% set booking_on = site.booking_enabled %}
+{% set portal_url = url_for('portal.home', slug=slug) if saas else url_for('portal.home') %}
+{% set booking_action = url_for('club_public.request_booking', slug=slug) if saas else url_for('club_public.request_booking') %}
 {% block title %}{{ site.headline or club_name }} — {{ club_name }}{% endblock %}
 {% block meta %}
 <meta name="description" content="{{ (site.hero_lead or site.about_text or club_name)[:155] }}">
@@ -13,9 +16,6 @@
 {% set brand_letters = ((_parts|map('first')|join if _parts|length > 1 else (club_name or 'NF'))[:2])|upper %}
 {% set cta_text = site.cta_label or 'Начать тренировку' %}
 {% set weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] %}
-{% set booking_on = site.booking_enabled %}
-{% set portal_url = url_for('portal.home', slug=slug) if saas else url_for('portal.home') %}
-{% set booking_action = url_for('club_public.request_booking', slug=slug) if saas else url_for('club_public.request_booking') %}
 <div class="app-wrapper">
   <nav class="nika-header" aria-label="Навигация сайта клуба">
     <div class="nika-wrap nika-header-inner">
@@ -41,7 +41,7 @@
           <li class="nav-item"><a class="nav-link" href="{{ portal_url }}">Личный кабинет</a></li>
           {% if booking_on %}
           <li class="nav-item">
-            <button type="button" class="btn btn-sm lg:ms-2" data-booking-open data-kind="trial" data-title="Запись в клуб">Записаться</button>
+            <button type="button" class="btn btn-sm lg:ms-2" data-booking-open data-nika-toggle="modal" data-nika-target="#club-booking-modal" data-kind="trial" data-title="Запись в клуб">Записаться</button>
           </li>
           {% endif %}
         </ul>
@@ -59,7 +59,7 @@
             <p class="club-site-hero-lead">{{ site.hero_lead or 'Тренируйтесь в современном клубе с сильной командой и удобным расписанием.' }}</p>
             <div class="flex flex-wrap gap-2 mt-3">
               {% if booking_on %}
-              <button type="button" class="btn" data-booking-open data-kind="trial" data-title="Запись в клуб">{{ cta_text }}</button>
+              <button type="button" class="btn" data-booking-open data-nika-toggle="modal" data-nika-target="#club-booking-modal" data-kind="trial" data-title="Запись в клуб">{{ cta_text }}</button>
               <a class="btn secondary" href="{{ portal_url }}">Личный кабинет</a>
               {% else %}
               <a class="btn" href="{{ portal_url }}">{{ cta_text }}</a>
@@ -165,7 +165,7 @@
               <p class="mb-0">{{ trainer.upcoming[0].starts_at.strftime('%d.%m · %H:%M') }} · {{ trainer.upcoming[0].class_name }}</p>
               {% endif %}
               {% if booking_on %}
-              <button type="button" class="btn btn-sm mt-3" data-booking-open data-kind="trainer" data-trainer="{{ trainer.id }}"
+              <button type="button" class="btn btn-sm mt-3" data-booking-open data-nika-toggle="modal" data-nika-target="#club-booking-modal" data-kind="trainer" data-trainer="{{ trainer.id }}"
                       data-title="Персональная тренировка" data-target="{{ trainer.full_name }}">
                 {% if trainer.open_slots %}Выбрать время{% else %}Записаться{% endif %}
               </button>
@@ -237,7 +237,7 @@
               <div class="club-week-actions">
                 <span class="pill {% if is_full %}warn{% else %}ok{% endif %}">{{ class_row.booked_count }}/{{ class_row.capacity }}</span>
                 {% if booking_on and not is_past %}
-                <button type="button" class="btn btn-sm club-week-book" data-booking-open data-kind="class"
+                <button type="button" class="btn btn-sm club-week-book" data-booking-open data-nika-toggle="modal" data-nika-target="#club-booking-modal" data-kind="class"
                         data-session="{{ class_row.id }}" data-title="Групповая тренировка"
                         data-target="{{ class_row.class_name }} · {{ weekdays[class_row.starts_at.weekday()] }} {{ class_row.starts_at.strftime('%d.%m в %H:%M') }}{% if class_row.trainer_name %} · {{ class_row.trainer_name }}{% endif %}">
                   {% if is_full %}В лист ожидания{% else %}Записаться{% endif %}
@@ -298,7 +298,7 @@
             <div class="feature-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></div>
             <h3>Первый раз в клубе?</h3>
             <p class="muted">{{ site.booking_note or 'Оставьте заявку на пробную тренировку — подберём формат и время под вас.' }}</p>
-            <button type="button" class="btn w-full" data-booking-open data-kind="trial" data-title="Пробное занятие">Оставить заявку</button>
+            <button type="button" class="btn w-full" data-booking-open data-nika-toggle="modal" data-nika-target="#club-booking-modal" data-kind="trial" data-title="Пробное занятие">Оставить заявку</button>
             {% if site.phone %}
             <p class="muted mb-0 mt-3">Или позвоните: <a href="tel:{{ site.phone }}">{{ site.phone }}</a></p>
             {% endif %}
@@ -440,7 +440,7 @@
   }
 })();
 </script>
-{% if booking_on %}
+{% if site.booking_enabled %}
 <script>
 (function () {
   var modalEl = document.getElementById('club-booking-modal');
@@ -461,6 +461,7 @@
   };
 
   function fillSlots(trainerId) {
+    if (!slotSelect || !slotsBox) return;
     var list = openSlots[trainerId] || [];
     slotSelect.innerHTML = '';
     var any = document.createElement('option');
@@ -483,22 +484,26 @@
     btn.addEventListener('click', function () {
       var kind = btn.getAttribute('data-kind') || 'trial';
       var trainerId = btn.getAttribute('data-trainer') || '';
-      kindField.value = kind;
-      sessionField.value = btn.getAttribute('data-session') || '';
-      trainerField.value = trainerId;
-      kicker.textContent = kickers[kind] || 'Заявка';
-      title.textContent = btn.getAttribute('data-title') || 'Запись в клуб';
+      if (kindField) kindField.value = kind;
+      if (sessionField) sessionField.value = btn.getAttribute('data-session') || '';
+      if (trainerField) trainerField.value = trainerId;
+      if (kicker) kicker.textContent = kickers[kind] || 'Заявка';
+      if (title) title.textContent = btn.getAttribute('data-title') || 'Запись в клуб';
       var label = btn.getAttribute('data-target') || '';
-      target.textContent = label;
-      target.hidden = !label;
-      if (kind === 'trainer' && trainerId) {
-        fillSlots(trainerId);
-      } else {
-        slotSelect.innerHTML = '';
-        slotsBox.hidden = true;
+      if (target) {
+        target.textContent = label;
+        target.hidden = !label;
       }
+      try {
+        if (kind === 'trainer' && trainerId) {
+          fillSlots(trainerId);
+        } else if (slotSelect && slotsBox) {
+          slotSelect.innerHTML = '';
+          slotsBox.hidden = true;
+        }
+      } catch (err) {}
       if (window.NikaModal) NikaModal.show(modalEl);
-      else modalEl.classList.add('is-open', 'show');
+      else modalEl.classList.add('is-open');
     });
   });
 })();

@@ -368,6 +368,7 @@ input:focus, select:focus, textarea:focus {
 
 /* CRM shell — AdminLTE rhythm on daisyUI (staff only) */
 .nika-app {
+  overflow-x: hidden;
   min-height: 100vh;
   --radius-selector: 0.45rem;
   --radius-field: 0.35rem;
@@ -378,7 +379,9 @@ input:focus, select:focus, textarea:focus {
     radial-gradient(900px 540px at 98% -5%, color-mix(in oklab, var(--color-primary) 13%, transparent), transparent 58%),
     var(--color-base-100);
 }
-.nika-app .drawer-side,
+.nika-app .drawer-side {
+  background: transparent;
+}
 .nika-app .drawer-side > aside {
   background: linear-gradient(180deg, #0b1423, #0b1220 75%, #080e18);
 }
@@ -481,10 +484,20 @@ input:focus, select:focus, textarea:focus {
 .public-footer-links, .hub-footer-links { display: flex; flex-wrap: wrap; gap: .85rem; }
 .public-footer-links a, .hub-footer-links a { color: color-mix(in oklab, var(--color-base-content) 70%, transparent); }
 .mobile-club-name { font-size: .82rem; opacity: .75; padding-inline: .5rem; }
+@media (max-width: 575.98px) {
+  .mobile-club-name {
+    max-width: 8.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .drawer-content { overflow-x: hidden; }
+}
 .content-context { font-size: .82rem; color: color-mix(in oklab, var(--color-base-content) 62%, transparent); }
 
 /* Reception / members */
 .desk-checkin-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem; }
+.desk-checkin-search { flex: 1 1 14rem; min-width: 0; }
 .desk-checkin-search { flex: 1 1 14rem; min-width: 0; position: relative; }
 .desk-checkin-zone { flex: 0 1 10rem; }
 .checkin-input { min-height: 44px; font-size: 1.05rem; letter-spacing: .04em; }
@@ -563,6 +576,16 @@ a.desk-kpi:hover { border-color: var(--color-primary); }
 }
 @media (max-width: 860px) {
   .entry-grid, .grid-2, .grid-3, .grid-4, .member-facts, .member-ops { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 991.98px) {
+  .app-wrapper { overflow-x: hidden; }
+  .nika-app .content, .content { padding: .9rem .85rem 2rem; }
+  .modal { padding: .65rem; align-items: end; }
+  .modal-dialog { width: 100%; }
+  .modal-content { max-height: min(92dvh, 40rem); overflow: auto; }
+  .modal-footer { flex-wrap: wrap; }
+  .modal-footer .btn { flex: 1 1 9rem; }
 }
 
 .lp-hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .9fr); gap: 1.5rem; width: min(100% - 2rem, 1200px); margin: 2.5rem auto; align-items: center; }
@@ -712,8 +735,13 @@ a.lp-bento-tile:hover { transform: translateY(-3px); color: inherit; }
   padding: 1rem;
   background: rgba(4, 8, 16, .58);
 }
-.modal.is-open, dialog.modal[open] { display: grid; }
-.modal-dialog { width: min(32rem, 100%); position: relative; z-index: 50; }
+.modal.is-open, dialog.modal[open] {
+  display: grid;
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+}
+.modal-dialog { width: min(32rem, 100%); position: relative; z-index: 50; max-width: 100%; }
 .modal-content {
   background: var(--color-base-200);
   border: 1px solid color-mix(in oklab, var(--color-base-content) 12%, transparent);
@@ -730,9 +758,11 @@ a.lp-bento-tile:hover { transform: translateY(-3px); color: inherit; }
 .modal-title { font-size: 1.15rem; font-weight: 800; margin: 0; }
 .modal-body { padding: 0 1.1rem 1rem; }
 .btn-close {
-  width: 2rem; height: 2rem; border: 0; background: transparent; color: inherit; font-size: 1.4rem; line-height: 1;
+  width: 2.5rem; height: 2.5rem; border: 0; background: transparent; color: inherit; font-size: 1.6rem; line-height: 1;
+  flex: 0 0 auto; cursor: pointer;
 }
 .btn-close::before { content: "×"; }
+.modal-header { position: sticky; top: 0; z-index: 2; background: var(--color-base-200); }
 .form-check { display: flex; align-items: center; gap: .5rem; margin: .5rem 0; }
 .form-check-input { width: 1.05rem; height: 1.05rem; padding: 0; flex: 0 0 auto; }
 .club-booking-trap { position: absolute; left: -9999px; }
