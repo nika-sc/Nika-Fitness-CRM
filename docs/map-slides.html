@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nika Fit — куда идти</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Syne:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root { --coral: #ff5a3c; --ink: #0b1423; --muted: #5b6b82; --card: #f4f6fa; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #e8edf5; color: var(--ink); font-family: Manrope, sans-serif; }
+    h1, h2, .brand { font-family: Syne, sans-serif; }
+    .deck { max-width: 1100px; margin: 1.5rem auto 3rem; padding: 0 1rem; }
+    .hint { text-align: center; color: var(--muted); font-size: .9rem; margin-bottom: 1rem; }
+    .slide {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.2rem 2.4rem;
+      margin-bottom: 1.1rem;
+      min-height: 620px;
+      box-shadow: 0 8px 28px rgba(11, 20, 35, .08);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      break-after: page;
+      page-break-after: always;
+    }
+    .kicker { color: var(--coral); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; margin: 0 0 .6rem; }
+    h1 { font-size: 2.6rem; margin: 0 0 .6rem; line-height: 1.1; }
+    h2 { font-size: 1.9rem; margin: 0 0 1rem; }
+    p.lead { font-size: 1.25rem; color: var(--muted); max-width: 40rem; }
+    .doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.2rem; }
+    .door { background: var(--card); border-radius: 14px; padding: 1.2rem 1.15rem; border-top: 4px solid var(--coral); }
+    .door h3 { font-family: Syne, sans-serif; margin: 0 0 .4rem; font-size: 1.15rem; }
+    .door p { margin: 0; color: var(--muted); }
+    .num { display: inline-flex; width: 1.8rem; height: 1.8rem; align-items: center; justify-content: center; background: var(--coral); color: #fff; border-radius: 8px; font-weight: 800; margin-bottom: .6rem; }
+    ol { padding-left: 1.2rem; font-size: 1.12rem; line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; font-size: 1.02rem; }
+    th, td { text-align: left; padding: .7rem .6rem; border-bottom: 1px solid #dce3ee; vertical-align: top; }
+    th { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; }
+    code { background: #efe7e4; padding: .1rem .35rem; border-radius: 4px; }
+    .cover-mark { width: 48px; height: 48px; border-radius: 12px; background: var(--coral); color: #fff; display: flex; align-items: center; justify-content: center; font-family: Syne, sans-serif; font-weight: 800; margin-bottom: 1.2rem; }
+    @media print {
+      body { background: #fff; }
+      .hint { display: none; }
+      .deck { max-width: none; margin: 0; padding: 0; }
+      .slide { box-shadow: none; border-radius: 0; min-height: 100vh; margin: 0; }
+    }
+    @page { size: landscape; margin: 12mm; }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <p class="hint">Печать → «Сохранить как PDF», альбомная ориентация. Или откройте готовый файл <code>docs/assets/Nika-Fit-karta-vhodov.pdf</code>.</p>
+
+    <section class="slide">
+      <div class="cover-mark">NF</div>
+      <p class="kicker">Nika Fitness CRM</p>
+      <h1>Куда идти</h1>
+      <p class="lead">Это не одна программа на одном экране. Три двери: сотрудник, клиент, гость. Главная сайта — витрина, работать там нельзя.</p>
+    </section>
+
+    <section class="slide">
+      <p class="kicker">Карта</p>
+      <h2>Сначала выберите, кто вы</h2>
+      <div class="doors">
+        <article class="door">
+          <span class="num">1</span>
+          <h3>Сотрудник</h3>
+          <p>Кнопка «Войти». Ресепшен, клиенты, расписание, касса. Это рабочее место клуба.</p>
+        </article>
+        <article class="door">
+          <span class="num">2</span>
+          <h3>Клиент</h3>
+          <p>Личный кабинет. QR, свои записи. Другой адрес и другой пароль, не сотрудник.</p>
+        </article>
+        <article class="door">
+          <span class="num">3</span>
+          <h3>Гость</h3>
+          <p>Сайт клуба. Тарифы, расписание, заявка без пароля. Не путать с CRM.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="kicker">Дверь 1</p>
+      <h2>Сотрудник — рабочее место</h2>
+      <ol>
+        <li>На витрине нажмите <strong>Войти</strong> (не «Демо-стенд» и не «О CRM»).</li>
+        <li>Логин и пароль сотрудника.</li>
+        <li>Админ попадает в <strong>Обзор</strong>, ресепшен — сразу на <strong>стойку</strong>, тренер — в свои окна.</li>
+        <li>На телефоне меню — бургер слева вверху.</li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <p class="kicker">Дверь 2 и 3</p>
+      <h2>Клиент и гость</h2>
+      <div class="doors" style="grid-template-columns: 1fr 1fr;">
+        <article class="door">
+          <h3>Личный кабинет</h3>
+          <p>Телефон, email или номер карты + пароль, который выдал ресепшен. Внутри QR и запись на занятие. Пароль сотрудника сюда не подходит.</p>
+        </article>
+        <article class="door">
+          <h3>Сайт клуба</h3>
+          <p>Публичная страница зала. Можно оставить заявку: имя и телефон, без регистрации. Заявка приходит сотруднику в CRM.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="kicker">Демо</p>
+      <h2>fitness.nika-crm.ru</h2>
+      <table>
+        <thead>
+          <tr><th>Кто</th><th>Куда</th><th>Доступ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Сотрудник</td><td>Войти</td><td><code>admin</code> / <code>admin123</code></td></tr>
+          <tr><td>Клиент</td><td>Личный кабинет</td><td>Мария Демова · <code>client@demo-nika.fit</code> · карта <code>1001</code> · <code>client123</code></td></tr>
+          <tr><td>Гость</td><td>Сайт клуба</td><td>fitness.nika-crm.ru/club/nika/</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="margin-top:1.2rem;font-size:1.05rem;">Все пароли ещё раз собраны на странице «Демо-стенд».</p>
+    </section>
+
+    <section class="slide">
+      <p class="kicker">Свой сервер</p>
+      <h2>Три адреса</h2>
+      <table>
+        <thead>
+          <tr><th>Дверь</th><th>Адрес</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Сотрудник</td><td><code>/login</code></td></tr>
+          <tr><td>Личный кабинет</td><td><code>/portal</code></td></tr>
+          <tr><td>Сайт клуба</td><td><code>/club/</code></td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="margin-top:1.4rem;">Подробности дня — в сценарии на сайте: /docs/walkthrough. Эта карта — /docs/map.</p>
+    </section>
+  </div>
+</body>
+</html>

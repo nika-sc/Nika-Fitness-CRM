@@ -12,6 +12,7 @@ DOCS_DIR = Path(__file__).resolve().parents[2] / "docs"
 BLOG_DIR = DOCS_DIR / "blog"
 
 _DOCS_FILES = {
+    "map": ("MAP.md", "Куда идти — три двери"),
     "about": ("ABOUT.md", "О проекте и установка"),
     "guide": ("USER_GUIDE.md", "Полное руководство"),
     "walkthrough": ("USER_WALKTHROUGH.md", "Сценарий рабочего дня"),

@@ -48,6 +48,14 @@ def docs_about():
     )
 
 
+@bp.route('/docs/map')
+def docs_map():
+    return _render_docs_page(
+        'map',
+        note='Короткая карта: сотрудник, клиент и гость ходят в разные двери. Главная — не рабочее место.',
+    )
+
+
 @bp.route('/docs/guide')
 def docs_guide():
     return _render_docs_page(
