@@ -4,7 +4,7 @@
 {% block meta_keywords %}бесплатная CRM для фитнес клуба, Nika Fitness CRM, документация, {{ page_heading }}, open source, self-hosted{% endblock %}
 {% block content %}
 <div class="public-page docs-article">
-  <nav class="docs-breadcrumbs muted" aria-label="Хлебные крошки">
+  <nav class="docs-breadcrumbs" aria-label="Хлебные крошки">
     <a href="{{ url_for('public.index') }}">Главная</a>
     <span aria-hidden="true">/</span>
     <a href="{{ url_for('public.docs') }}">Документация</a>
@@ -16,7 +16,7 @@
     <h1 class="public-title">{{ page_heading }}</h1>
     <p class="public-lead">{{ page_note }}</p>
   </header>
-  <article class="panel docs-content">
+  <article class="docs-content">
     {{ content_html|safe }}
   </article>
   <div class="flex flex-wrap gap-2 mt-3">
